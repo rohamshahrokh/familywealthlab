@@ -1,0 +1,42 @@
+# Netlify configuration for Family Wealth Lab — commercial landing page
+# Next.js 14 App Router deployed via the official Netlify Next.js Runtime.
+#
+# IMPORTANT — Netlify dashboard settings must match this file:
+#   Build command:        npm run build
+#   Publish directory:    .next        (set by the runtime; do NOT override to "out" or "dist")
+#   Functions directory:  (leave blank — runtime manages it)
+#
+# The @netlify/plugin-nextjs plugin transforms Next.js routes into Netlify
+# serverless/edge functions automatically. Without it, Netlify serves `.next/`
+# as static files, which is why the previous deploy returned 404 on `/`
+# (Next stores compiled HTML/JS inside `.next/server/` and `.next/static/`,
+# not as a flat static bundle).
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--no-audit --no-fund"
+  # Reduce noisy Next telemetry on CI
+  NEXT_TELEMETRY_DISABLED = "1"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Security headers — applied to every response.
+# UI/design is untouched; these headers only affect transport-layer behaviour.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# Long-cache immutable Next.js static assets (hashed filenames)
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
