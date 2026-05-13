@@ -1,49 +1,37 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
-import type { HTMLAttributes } from "react";
 
-interface SectionProps extends HTMLAttributes<HTMLElement> {
-  as?: "section" | "div" | "article";
-  bleed?: boolean;
+interface SectionProps extends React.HTMLAttributes<HTMLElement> {
+  /** vertical padding rhythm — generous by default */
+  spacing?: "sm" | "md" | "lg" | "xl";
 }
 
-/** Shared section wrapper that enforces consistent vertical rhythm. */
 export function Section({
   className,
-  as: Tag = "section",
-  bleed = false,
+  spacing = "lg",
   children,
   ...props
 }: SectionProps) {
+  const pad =
+    spacing === "sm" ? "py-16 sm:py-20"
+    : spacing === "md" ? "py-20 sm:py-28"
+    : spacing === "lg" ? "py-28 sm:py-36"
+    : "py-32 sm:py-44";
   return (
-    <Tag
-      className={cn(
-        "relative w-full",
-        bleed ? "" : "py-24 sm:py-32 lg:py-40",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </Tag>
+    <section className={cn("relative", pad, className)} {...props}>
+      <div className="container mx-auto">{children}</div>
+    </section>
   );
 }
 
-export function Eyebrow({
-  children,
-  className,
-}: {
+interface EyebrowProps extends React.HTMLAttributes<HTMLSpanElement> {
   children: React.ReactNode;
-  className?: string;
-}) {
+}
+
+export function Eyebrow({ className, children, ...props }: EyebrowProps) {
   return (
-    <div
-      className={cn(
-        "inline-flex items-center gap-2 text-eyebrow uppercase text-ink-300",
-        className
-      )}
-    >
-      <span className="block h-px w-6 bg-gradient-to-r from-transparent via-accent to-transparent" />
-      <span>{children}</span>
-    </div>
+    <span className={cn("section-eyebrow", className)} {...props}>
+      {children}
+    </span>
   );
 }

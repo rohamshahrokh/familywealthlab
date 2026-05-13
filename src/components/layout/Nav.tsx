@@ -1,129 +1,96 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import * as React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { label: "Engine", href: "#command-center" },
-  { label: "What-If", href: "#what-if" },
-  { label: "AI Insights", href: "#ai-insights" },
+const LINKS = [
+  { label: "Platform", href: "#command" },
+  { label: "Scenarios", href: "#whatif" },
+  { label: "Intelligence", href: "#ai" },
   { label: "Mobile", href: "#mobile" },
-  { label: "Trust", href: "#trust" },
+  { label: "Security", href: "#trust" },
 ];
 
 export function Nav() {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const [open, setOpen] = React.useState(false);
   const { scrollY } = useScroll();
-  const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.85]);
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 12);
-    handler();
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
-  }, []);
+  // Frosted glass that intensifies as user scrolls — macOS Big Sur feel.
+  const bgAlpha = useTransform(scrollY, [0, 80], [0.4, 0.82]);
+  const borderAlpha = useTransform(scrollY, [0, 80], [0, 0.10]);
+  const blurPx = useTransform(scrollY, [0, 80], [12, 24]);
 
   return (
-    <>
-      <motion.header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 transition-colors duration-500 ease-cinematic",
-          scrolled ? "border-b border-white/[0.06]" : ""
-        )}
-        style={{
-          backgroundColor: scrolled
-            ? `rgba(7, 11, 20, ${bgOpacity.get()})`
-            : "transparent",
-          backdropFilter: scrolled ? "blur(16px) saturate(140%)" : "none",
-          WebkitBackdropFilter: scrolled ? "blur(16px) saturate(140%)" : "none",
-        }}
-      >
-        <div className="container-narrow flex h-16 items-center justify-between sm:h-[72px]">
-          <a href="#top" className="z-50 -ml-1 rounded-md px-1 py-1 outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
-            <Logo />
-          </a>
+    <motion.header
+      className="fixed top-0 left-0 right-0 z-50"
+      style={{
+        backgroundColor: useTransform(bgAlpha, (a) => `rgba(245, 245, 247, ${a})`),
+        backdropFilter: useTransform(blurPx, (b) => `saturate(180%) blur(${b}px)`),
+        WebkitBackdropFilter: useTransform(blurPx, (b) => `saturate(180%) blur(${b}px)`),
+        borderBottom: "1px solid",
+        borderColor: useTransform(borderAlpha, (a) => `rgba(60, 60, 67, ${a})`),
+      }}
+    >
+      <div className="container mx-auto flex h-16 items-center justify-between">
+        <a href="#top" className="focus-ring rounded-md" aria-label="Family Wealth Lab home">
+          <Logo withWordmark />
+        </a>
 
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-1 md:flex" aria-label="Primary">
-            {NAV_LINKS.map((l) => (
-              <a
-                key={l.href}
-                href={l.href}
-                className="rounded-full px-4 py-2 text-[13px] font-medium text-ink-300 transition-colors duration-300 hover:text-ink-50"
-              >
-                {l.label}
-              </a>
-            ))}
-          </nav>
+        <nav className="hidden md:flex items-center gap-1">
+          {LINKS.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="px-3 py-2 text-body-sm text-ink-tertiary hover:text-ink-primary transition-colors duration-200 focus-ring rounded-md"
+            >
+              {l.label}
+            </a>
+          ))}
+        </nav>
 
-          <div className="hidden items-center gap-2 md:flex">
-            <Button variant="ghost" size="sm" asChild>
-              <a href="#cta">Sign in</a>
-            </Button>
-            <Button variant="primary" size="sm" asChild>
-              <a href="#cta">Start free</a>
-            </Button>
-          </div>
-
-          {/* Mobile toggle */}
-          <button
-            type="button"
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            onClick={() => setOpen((v) => !v)}
-            className="z-50 inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-100 ring-1 ring-inset ring-white/10 hover:bg-white/[0.05] md:hidden"
-          >
-            {open ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
-          </button>
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="ghost" size="sm">Sign in</Button>
+          <Button variant="primary" size="sm">Request access</Button>
         </div>
-      </motion.header>
+
+        <button
+          aria-label={open ? "Close menu" : "Open menu"}
+          onClick={() => setOpen((v) => !v)}
+          className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-secondary hover:text-ink-primary hover:bg-bg-inset focus-ring"
+        >
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
 
       {/* Mobile sheet */}
       <motion.div
         initial={false}
-        animate={open ? "open" : "closed"}
-        variants={{
-          open: { opacity: 1, pointerEvents: "auto" },
-          closed: { opacity: 0, pointerEvents: "none" },
-        }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed inset-0 z-40 md:hidden"
+        animate={open ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+        className={cn(
+          "md:hidden overflow-hidden border-t border-line",
+          "bg-[rgba(245,245,247,0.92)] backdrop-blur-2xl"
+        )}
       >
-        <div className="absolute inset-0 bg-bg-base/95 backdrop-blur-xl" />
-        <nav className="relative flex h-full flex-col items-start justify-center gap-2 px-8" aria-label="Mobile">
-          {NAV_LINKS.map((l, i) => (
-            <motion.a
+        <div className="container mx-auto py-5 flex flex-col gap-1">
+          {LINKS.map((l) => (
+            <a
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              initial={{ opacity: 0, y: 20 }}
-              animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.05 * i + 0.05, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="py-2 font-display text-3xl font-semibold tracking-tight text-ink-50"
+              className="py-3 text-body text-ink-secondary hover:text-ink-primary"
             >
               {l.label}
-            </motion.a>
+            </a>
           ))}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ delay: 0.35, duration: 0.5 }}
-            className="mt-6 flex w-full flex-col gap-3"
-          >
-            <Button variant="primary" size="lg" asChild>
-              <a href="#cta" onClick={() => setOpen(false)}>Start free</a>
-            </Button>
-            <Button variant="secondary" size="lg" asChild>
-              <a href="#cta" onClick={() => setOpen(false)}>Watch demo</a>
-            </Button>
-          </motion.div>
-        </nav>
+          <div className="mt-3 flex flex-col gap-2">
+            <Button variant="secondary" size="md">Sign in</Button>
+            <Button variant="primary" size="md">Request access</Button>
+          </div>
+        </div>
       </motion.div>
-    </>
+    </motion.header>
   );
 }

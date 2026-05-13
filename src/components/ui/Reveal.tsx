@@ -1,77 +1,65 @@
 "use client";
+import * as React from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { fadeUp, stagger as makeStagger, t } from "@/lib/motion";
 
-import { motion, type Variants } from "framer-motion";
-import { fadeUp, fadeUpSlow, fadeIn, scaleIn, staggerChildren } from "@/lib/motion";
-import type { ReactNode } from "react";
-
-type Preset = "fadeUp" | "fadeUpSlow" | "fadeIn" | "scaleIn";
-
-const presets: Record<Preset, Variants> = {
-  fadeUp,
-  fadeUpSlow,
-  fadeIn,
-  scaleIn,
-};
-
-interface RevealProps {
-  children: ReactNode;
-  preset?: Preset;
+interface RevealProps extends React.HTMLAttributes<HTMLDivElement> {
   delay?: number;
-  className?: string;
+  as?: "div" | "section" | "header" | "article" | "aside";
   amount?: number;
-  once?: boolean;
-  as?: "div" | "section" | "header" | "footer" | "li";
+  variants?: Variants;
 }
 
 export function Reveal({
   children,
-  preset = "fadeUp",
   delay = 0,
   className,
-  amount = 0.3,
-  once = true,
-  as = "div",
+  amount = 0.25,
+  variants,
+  ...props
 }: RevealProps) {
-  const variants = presets[preset];
-  const MotionTag = motion[as] as typeof motion.div;
+  const reduce = useReducedMotion();
+  if (reduce) {
+    return (
+      <div className={className} {...(props as React.HTMLAttributes<HTMLDivElement>)}>
+        {children}
+      </div>
+    );
+  }
   return (
-    <MotionTag
-      className={className}
+    <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount }}
-      variants={variants}
-      transition={{ delay }}
+      viewport={{ once: true, amount }}
+      variants={variants ?? fadeUp}
+      transition={{ ...t.base, delay }}
+      className={className}
     >
       {children}
-    </MotionTag>
+    </motion.div>
   );
 }
 
 interface StaggerProps {
-  children: ReactNode;
-  stagger?: number;
-  delay?: number;
+  children: React.ReactNode;
   className?: string;
-  once?: boolean;
+  delay?: number;
   amount?: number;
 }
 
 export function Stagger({
   children,
-  stagger = 0.1,
-  delay = 0,
   className,
-  once = true,
+  delay = 0.06,
   amount = 0.25,
 }: StaggerProps) {
   return (
     <motion.div
-      className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount }}
-      variants={staggerChildren(stagger, delay)}
+      viewport={{ once: true, amount }}
+      variants={makeStagger(delay)}
+      className={className}
     >
       {children}
     </motion.div>
@@ -80,15 +68,13 @@ export function Stagger({
 
 export function StaggerItem({
   children,
-  preset = "fadeUp",
   className,
 }: {
-  children: ReactNode;
-  preset?: Preset;
+  children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <motion.div variants={presets[preset]} className={className}>
+    <motion.div variants={fadeUp} className={className}>
       {children}
     </motion.div>
   );

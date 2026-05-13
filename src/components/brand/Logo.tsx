@@ -1,38 +1,37 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
   className?: string;
-  showWordmark?: boolean;
+  withWordmark?: boolean;
+  size?: number;
 }
 
 /**
- * Family Wealth Lab mark.
- * Geometry: a stacked aperture / lens — three concentric arcs converging
- * into a single point. Reads as "focus, intelligence, alignment."
+ * Family Wealth Lab mark — refined for a light, premium OS aesthetic.
+ * Stacked horizontal lines (an open ledger). Top line is the accent steel-blue.
+ * Mark is monochromatic ink on light; reads at 16px.
  */
-export function Logo({ className, showWordmark = true }: LogoProps) {
+export function Logo({ className, withWordmark = false, size = 22 }: LogoProps) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)} aria-label="Family Wealth Lab">
+    <span className={cn("inline-flex items-center gap-2.5", className)}>
       <svg
-        viewBox="0 0 32 32"
-        width="28"
-        height="28"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
         fill="none"
-        aria-hidden="true"
-        className="text-accent"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="Family Wealth Lab"
+        className="shrink-0"
       >
-        <defs>
-          <linearGradient id="fwl-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FF6B00" />
-            <stop offset="100%" stopColor="#FFC857" />
-          </linearGradient>
-        </defs>
-        <circle cx="16" cy="16" r="14" stroke="url(#fwl-grad)" strokeWidth="1.5" opacity="0.35" />
-        <circle cx="16" cy="16" r="9" stroke="url(#fwl-grad)" strokeWidth="1.5" opacity="0.7" />
-        <circle cx="16" cy="16" r="3.5" fill="url(#fwl-grad)" />
+        <rect x="0.5" y="0.5" width="23" height="23" rx="6" fill="#FFFFFF" stroke="rgba(60,60,67,0.18)" />
+        <rect x="6" y="6" width="12" height="1.5" rx="0.75" fill="#3E6A95" />
+        <rect x="6" y="10" width="12" height="1.5" rx="0.75" fill="#111111" opacity="0.78" />
+        <rect x="6" y="14" width="9" height="1.5" rx="0.75" fill="#111111" opacity="0.55" />
+        <rect x="6" y="18" width="6" height="1.5" rx="0.75" fill="#111111" opacity="0.32" />
       </svg>
-      {showWordmark && (
-        <span className="font-display text-[15px] font-semibold tracking-tight text-ink-50">
+      {withWordmark && (
+        <span className="text-body-sm font-medium tracking-tight text-ink-primary">
           Family Wealth Lab
         </span>
       )}

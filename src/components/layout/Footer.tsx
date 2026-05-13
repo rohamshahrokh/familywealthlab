@@ -1,82 +1,86 @@
+import * as React from "react";
 import { Logo } from "@/components/brand/Logo";
 
-const COLUMNS = [
+const SECTIONS = [
   {
-    title: "Product",
+    label: "Platform",
     links: [
-      { label: "Engine", href: "#command-center" },
-      { label: "What-If", href: "#what-if" },
-      { label: "AI Insights", href: "#ai-insights" },
+      { label: "Net Worth Engine", href: "#command" },
+      { label: "What-If Scenarios", href: "#whatif" },
+      { label: "AI Insights", href: "#ai" },
       { label: "Mobile", href: "#mobile" },
     ],
   },
   {
-    title: "Company",
+    label: "Company",
     links: [
       { label: "About", href: "#" },
-      { label: "Methodology", href: "#" },
-      { label: "Security", href: "#trust" },
-      { label: "Contact", href: "#" },
+      { label: "Method", href: "#" },
+      { label: "Careers", href: "#" },
+      { label: "Press", href: "#" },
     ],
   },
   {
-    title: "Legal",
+    label: "Resources",
+    links: [
+      { label: "Research", href: "#" },
+      { label: "Help center", href: "#" },
+      { label: "Status", href: "#" },
+      { label: "Changelog", href: "#" },
+    ],
+  },
+  {
+    label: "Legal",
     links: [
       { label: "Privacy", href: "#" },
       { label: "Terms", href: "#" },
-      { label: "Disclosure", href: "#" },
-      { label: "Cookies", href: "#" },
+      { label: "Disclosures", href: "#" },
+      { label: "Security", href: "#trust" },
     ],
   },
 ];
 
 export function Footer() {
   return (
-    <footer className="relative hairline-top bg-bg-base pb-16 pt-20">
-      <div className="container-narrow">
-        <div className="grid gap-14 lg:grid-cols-[1.4fr_3fr]">
-          <div>
-            <Logo />
-            <p className="mt-5 max-w-sm text-[15px] leading-relaxed text-ink-300">
-              The operating system for family wealth. AI-powered forecasting,
-              property strategy, FIRE planning, and decision intelligence —
-              engineered for Australian families.
+    <footer className="border-t border-line bg-bg-inset">
+      <div className="container mx-auto py-20">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-10">
+          <div className="col-span-2 max-w-sm">
+            <Logo withWordmark size={24} />
+            <p className="mt-5 text-body-sm text-ink-tertiary leading-relaxed">
+              The wealth operating system for Australian households —
+              forecasting, scenarios, and decision intelligence in one calm interface.
             </p>
-            <p className="mt-6 text-xs text-ink-400">
-              Modelling only — not personal tax or financial advice.
+            <p className="mt-6 text-caption text-ink-quaternary">
+              Brisbane, Australia · Modelling only — not personal financial advice.
             </p>
           </div>
-
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
-            {COLUMNS.map((col) => (
-              <div key={col.title}>
-                <div className="text-eyebrow text-ink-300">{col.title}</div>
-                <ul className="mt-5 space-y-3">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      <a
-                        href={l.href}
-                        className="text-[14px] text-ink-200 transition-colors duration-200 hover:text-ink-50"
-                      >
-                        {l.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          {SECTIONS.map((s) => (
+            <div key={s.label}>
+              <h4 className="text-eyebrow uppercase text-ink-quaternary mb-4">{s.label}</h4>
+              <ul className="flex flex-col gap-2.5">
+                {s.links.map((l) => (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      className="text-body-sm text-ink-tertiary hover:text-ink-primary transition-colors duration-200"
+                    >
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-16 flex flex-col items-start justify-between gap-4 border-t border-white/[0.06] pt-8 text-xs text-ink-400 sm:flex-row sm:items-center">
-          <div>© {new Date().getFullYear()} Family Wealth Lab. Brisbane, Australia.</div>
-          <div className="flex items-center gap-4">
-            <span>Private</span>
-            <span className="h-1 w-1 rounded-full bg-ink-500" />
-            <span>Encrypted</span>
-            <span className="h-1 w-1 rounded-full bg-ink-500" />
-            <span>Australian-focused</span>
-          </div>
+        <div className="mt-16 pt-8 hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="text-caption text-ink-quaternary">
+            © {new Date().getFullYear()} Family Wealth Lab. All rights reserved.
+          </p>
+          <p className="text-caption text-ink-quaternary">
+            Built in Australia · v1.0 preview
+          </p>
         </div>
       </div>
     </footer>

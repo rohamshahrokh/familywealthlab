@@ -1,180 +1,141 @@
 "use client";
-
-import { useRef } from "react";
+import * as React from "react";
 import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { Activity, Brain, Layers, LineChart, TrendingUp, Wallet, Compass, Sparkles } from "lucide-react";
-import { Section, Eyebrow } from "@/components/ui/Section";
-import { cn } from "@/lib/utils";
+import { Eyebrow, Section } from "@/components/ui/Section";
+import { Reveal } from "@/components/ui/Reveal";
+import { Wallet, LineChart, GitBranch, Sparkles } from "lucide-react";
 
-interface Step {
-  id: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-  bullets: { icon: React.ReactNode; label: string }[];
-  metric: { label: string; value: string; sub: string };
-}
-
-const STEPS: Step[] = [
+const MODULES = [
   {
-    id: "net-worth",
     eyebrow: "Module 01",
     title: "Net Worth Engine",
-    body:
-      "Every dollar in your household — cash, property, super, ETFs, crypto, debt — collapsed into one live picture. No reconciliation, no spreadsheets, no drift.",
-    bullets: [
-      { icon: <Wallet className="h-3 w-3" />, label: "Live asset & liability roll-up" },
-      { icon: <LineChart className="h-3 w-3" />, label: "Trended over 5 / 10 / 20 years" },
-      { icon: <Compass className="h-3 w-3" />, label: "Allocation drift detection" },
-    ],
-    metric: { label: "Household NW", value: "$2.41M", sub: "+$184K YoY" },
+    body: "Every asset and liability — cash, property, super, equities — collapsed into one continuously reconciled household model.",
+    bullets: ["Live asset & liability roll-up", "Daily reconciliation", "Per-member views"],
+    icon: Wallet,
   },
   {
-    id: "forecast",
     eyebrow: "Module 02",
     title: "Forecast Engine",
-    body:
-      "5,000-path Monte Carlo with sequence-of-returns risk, APRA serviceability buffers, and Australian tax rules built in. Not optimism — probability.",
-    bullets: [
-      { icon: <Activity className="h-3 w-3" />, label: "5,000 simulations · Monte Carlo" },
-      { icon: <TrendingUp className="h-3 w-3" />, label: "P10 / P50 / P90 fan charts" },
-      { icon: <Layers className="h-3 w-3" />, label: "Stress: rates +2% / -30% equity" },
-    ],
-    metric: { label: "Survival to 2055", value: "94%", sub: "P50 NW $4.82M" },
+    body: "Monte Carlo projections across 5,000 paths model your true range of outcomes — not a single fragile straight line.",
+    bullets: ["P10 / P50 / P90 bands", "20-year horizon", "Stress-tested to rate shocks"],
+    icon: LineChart,
   },
   {
-    id: "decision",
     eyebrow: "Module 03",
     title: "Decision Engine",
-    body:
-      "Compare scenarios head-to-head: pay debt vs invest, IO vs P&I, salary sacrifice vs DCA. Conditional recommendations with invalidation triggers.",
-    bullets: [
-      { icon: <Layers className="h-3 w-3" />, label: "Up to 6 scenarios in parallel" },
-      { icon: <Sparkles className="h-3 w-3" />, label: "Conditional recommendations" },
-      { icon: <Compass className="h-3 w-3" />, label: "Invalidation triggers wired in" },
-    ],
-    metric: { label: "FIRE delta", value: "−4y", sub: "vs. baseline" },
+    body: "Run any household decision — buy, refinance, retire, restructure — against your own real numbers in seconds.",
+    bullets: ["Scenario comparison", "Tax-aware modelling", "Decision audit trail"],
+    icon: GitBranch,
   },
   {
-    id: "ai",
     eyebrow: "Module 04",
     title: "AI Insights",
-    body:
-      "An on-device intelligence layer that watches every line item and surfaces the one decision that actually moves the needle this month.",
-    bullets: [
-      { icon: <Brain className="h-3 w-3" />, label: "Continuous opportunity scan" },
-      { icon: <Sparkles className="h-3 w-3" />, label: "Plain-English explanations" },
-      { icon: <Activity className="h-3 w-3" />, label: "Cashflow & tax flags in real time" },
-    ],
-    metric: { label: "Insight value", value: "$1,840/mo", sub: "Refinance to IO" },
+    body: "A quiet intelligence layer reads your model continuously and surfaces only the decisions worth your attention this month.",
+    bullets: ["Continuous opportunity scan", "Plain-English explanations", "Tax & cashflow flags"],
+    icon: Sparkles,
   },
 ];
 
 export function CommandCenter() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
-
-  // 4 steps mapped over 100% progress: step index = floor(progress * 4)
-  const stepIndex = useTransform(scrollYProgress, (p) => {
-    if (p < 0.001) return 0;
-    if (p >= 0.999) return STEPS.length - 1;
-    return Math.min(STEPS.length - 1, Math.floor(p * STEPS.length));
-  });
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const segment = 1 / MODULES.length;
+  const activeIndex = useTransform(scrollYProgress, (v) => Math.min(MODULES.length - 1, Math.floor(v / segment)));
 
   return (
-    <Section id="command-center" className="relative" bleed>
-      {/* Anchor headline */}
-      <div className="container-narrow pt-24 sm:pt-32 lg:pt-40">
-        <div className="mx-auto max-w-3xl text-center">
-          <Eyebrow>The command center</Eyebrow>
-          <h2 className="mt-4 text-balance font-display text-display-md text-ink-50">
-            Four engines.{" "}
-            <span className="gradient-text-accent">One terminal.</span>
+    <section id="command" ref={ref} className="relative">
+      <div className="container mx-auto pt-28 sm:pt-36 pb-10">
+        <Reveal className="max-w-2xl">
+          <Eyebrow>The platform</Eyebrow>
+          <h2 className="mt-5 text-display text-ink-primary text-balance">
+            Four engines. One coherent surface.
           </h2>
-          <p className="mt-5 text-balance text-[16px] leading-relaxed text-ink-300 sm:text-[17px]">
-            Scroll through the modules that power every decision inside Family Wealth Lab.
+          <p className="mt-5 text-lead text-ink-tertiary text-pretty max-w-xl">
+            Family Wealth Lab is built from four tightly-integrated modules — each
+            doing one thing exceptionally well, then composing into a single
+            decision surface.
           </p>
-        </div>
+        </Reveal>
       </div>
 
-      {/* Pin container — tall scroll region, sticky inner */}
-      <div
-        ref={ref}
-        className="relative mt-16 sm:mt-20"
-        style={{ height: `${STEPS.length * 80}vh` }}
-      >
-        <div className="sticky top-0 flex h-screen items-center">
-          <div className="container-narrow w-full">
-            <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-              {/* Left — narrative */}
-              <StepNarrative stepIndex={stepIndex} />
+      {/* Sticky-scroll stage */}
+      <div className="relative" style={{ height: `${MODULES.length * 110}vh` }}>
+        <div className="sticky top-0 h-screen flex items-center">
+          <div className="container mx-auto w-full">
+            <div className="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+              {/* Left rail — progress + copy */}
+              <div className="lg:col-span-5">
+                <ProgressRail activeIndex={activeIndex} />
+                <div className="relative mt-8 min-h-[280px]">
+                  {MODULES.map((m, i) => (
+                    <ModuleCopy key={i} m={m} i={i} activeIndex={activeIndex} />
+                  ))}
+                </div>
+              </div>
 
-              {/* Right — visual */}
-              <StepVisual stepIndex={stepIndex} />
-            </div>
-
-            {/* Progress rail */}
-            <div className="mt-10 flex items-center gap-2">
-              {STEPS.map((_, i) => (
-                <ProgressDot key={i} index={i} stepIndex={stepIndex} />
-              ))}
+              {/* Right — visualization */}
+              <div className="lg:col-span-7">
+                <div className="relative aspect-[4/3] sm:aspect-[5/3.5]">
+                  {MODULES.map((m, i) => (
+                    <ModuleVisual key={i} index={i} activeIndex={activeIndex} />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </Section>
+    </section>
   );
 }
 
-/* ─────────────── Sub-components ─────────────── */
-
-function StepNarrative({ stepIndex }: { stepIndex: MotionValue<number> }) {
+function ProgressRail({ activeIndex }: { activeIndex: MotionValue<number> }) {
+  const [idx, setIdx] = React.useState(0);
+  React.useEffect(() => activeIndex.on("change", (v) => setIdx(Math.round(v))), [activeIndex]);
   return (
-    <div className="relative min-h-[320px]">
-      {STEPS.map((step, i) => (
-        <StepText key={step.id} step={step} index={i} stepIndex={stepIndex} />
+    <div className="flex items-center gap-2">
+      {MODULES.map((_, i) => (
+        <span
+          key={i}
+          className={`h-[2px] rounded-full transition-all duration-500 ease-calm ${
+            i <= idx ? "bg-accent-500 w-10" : "bg-line w-5"
+          }`}
+        />
       ))}
     </div>
   );
 }
 
-function StepText({
-  step,
-  index,
-  stepIndex,
+function ModuleCopy({
+  m,
+  i,
+  activeIndex,
 }: {
-  step: Step;
-  index: number;
-  stepIndex: MotionValue<number>;
+  m: (typeof MODULES)[number];
+  i: number;
+  activeIndex: MotionValue<number>;
 }) {
-  const opacity = useTransform(stepIndex, (v) => (Math.round(v) === index ? 1 : 0));
-  const y = useTransform(stepIndex, (v) =>
-    Math.round(v) === index ? 0 : v < index ? 24 : -24
-  );
-
+  const opacity = useTransform(activeIndex, (v) => {
+    const dist = Math.abs(v - i);
+    return dist < 0.5 ? 1 : Math.max(0, 1 - (dist - 0.5) * 2);
+  });
+  const y = useTransform(activeIndex, (v) => (v - i) * -10);
+  const Icon = m.icon;
   return (
-    <motion.div
-      style={{ opacity, y }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute inset-0"
-    >
-      <div className="text-eyebrow text-accent">{step.eyebrow}</div>
-      <h3 className="mt-3 font-display text-4xl font-semibold tracking-tight text-ink-50 sm:text-5xl">
-        {step.title}
-      </h3>
-      <p className="mt-5 max-w-lg text-[16px] leading-relaxed text-ink-300 sm:text-[17px]">
-        {step.body}
-      </p>
-      <ul className="mt-7 space-y-3">
-        {step.bullets.map((b, j) => (
-          <li key={j} className="flex items-center gap-3 text-[14px] text-ink-200">
-            <span className="flex h-5 w-5 items-center justify-center rounded-md bg-accent/15 text-accent">
-              {b.icon}
-            </span>
-            {b.label}
+    <motion.div style={{ opacity, y }} className="absolute inset-0">
+      <div className="inline-flex items-center gap-2.5">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-bg-inset text-accent-500">
+          <Icon className="h-4 w-4" />
+        </span>
+        <span className="text-eyebrow uppercase text-ink-quaternary">{m.eyebrow}</span>
+      </div>
+      <h3 className="mt-5 text-h2 text-ink-primary">{m.title}</h3>
+      <p className="mt-4 text-body-lg text-ink-tertiary max-w-md text-pretty">{m.body}</p>
+      <ul className="mt-6 flex flex-col gap-2.5">
+        {m.bullets.map((b) => (
+          <li key={b} className="flex items-start gap-2.5 text-body-sm text-ink-secondary">
+            <span className="mt-[7px] h-[5px] w-[5px] rounded-full bg-accent-500 shrink-0" />
+            {b}
           </li>
         ))}
       </ul>
@@ -182,265 +143,160 @@ function StepText({
   );
 }
 
-function StepVisual({ stepIndex }: { stepIndex: MotionValue<number> }) {
+function ModuleVisual({ index, activeIndex }: { index: number; activeIndex: MotionValue<number> }) {
+  const opacity = useTransform(activeIndex, (v) => {
+    const dist = Math.abs(v - index);
+    return dist < 0.5 ? 1 : Math.max(0, 1 - (dist - 0.5) * 2.5);
+  });
+  const scale = useTransform(activeIndex, (v) => 1 - Math.abs(v - index) * 0.02);
   return (
-    <div className="relative aspect-[5/4] w-full sm:aspect-[6/5]">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-12 -z-10 opacity-70"
-        style={{
-          background:
-            "radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,107,0,0.18) 0%, transparent 65%)",
-        }}
-      />
-      <div className="glass-panel relative h-full w-full overflow-hidden rounded-2xl shadow-elevated">
-        {/* Chrome */}
-        <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3">
-          <ChromeLabel stepIndex={stepIndex} />
-          <div className="flex items-center gap-1 rounded-full bg-positive/10 px-2 py-0.5 text-[10px] font-medium text-positive">
-            <span className="h-1 w-1 rounded-full bg-positive animate-pulse-soft" />
-            Live
-          </div>
-        </div>
-
-        {/* Slides */}
-        {STEPS.map((step, i) => (
-          <Slide key={step.id} step={step} index={i} stepIndex={stepIndex} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function ChromeLabel({ stepIndex }: { stepIndex: MotionValue<number> }) {
-  return (
-    <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-400">
-      <motion.span>
-        {STEPS.map((s, i) => (
-          <Crumb key={s.id} label={s.title} index={i} stepIndex={stepIndex} />
-        ))}
-      </motion.span>
-    </div>
-  );
-}
-
-function Crumb({
-  label,
-  index,
-  stepIndex,
-}: {
-  label: string;
-  index: number;
-  stepIndex: MotionValue<number>;
-}) {
-  const opacity = useTransform(stepIndex, (v) => (Math.round(v) === index ? 1 : 0));
-  return (
-    <motion.span style={{ opacity }} className={index === 0 ? "" : "absolute left-5"}>
-      {label.toUpperCase()}
-    </motion.span>
-  );
-}
-
-function Slide({
-  step,
-  index,
-  stepIndex,
-}: {
-  step: Step;
-  index: number;
-  stepIndex: MotionValue<number>;
-}) {
-  const opacity = useTransform(stepIndex, (v) => (Math.round(v) === index ? 1 : 0));
-  const y = useTransform(stepIndex, (v) =>
-    Math.round(v) === index ? 0 : v < index ? 16 : -16
-  );
-
-  return (
-    <motion.div
-      style={{ opacity, y }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="absolute inset-x-0 bottom-0 top-[44px] p-5"
-    >
-      <SlideArt step={step} index={index} />
+    <motion.div style={{ opacity, scale }} className="absolute inset-0">
+      {index === 0 && <VisualNetWorth />}
+      {index === 1 && <VisualForecast />}
+      {index === 2 && <VisualDecision />}
+      {index === 3 && <VisualAI />}
     </motion.div>
   );
 }
 
-function SlideArt({ step, index }: { step: Step; index: number }) {
-  return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-end justify-between">
-        <div>
-          <div className="text-eyebrow text-ink-400">{step.metric.label}</div>
-          <div className="num mt-1.5 font-display text-3xl font-semibold text-ink-50 sm:text-4xl">
-            {step.metric.value}
-          </div>
-          <div className="num mt-0.5 text-[12px] text-positive">{step.metric.sub}</div>
-        </div>
-        <div className="text-eyebrow text-ink-500">FY26 · AUD</div>
-      </div>
+/* ── Visualizations ──────────────────────────────────────────── */
 
-      <div className="mt-4 flex-1">
-        {index === 0 && <NetWorthArt />}
-        {index === 1 && <ForecastArt />}
-        {index === 2 && <DecisionArt />}
-        {index === 3 && <AIArt />}
+function VisualNetWorth() {
+  return (
+    <div className="card-surface p-6 h-full shadow-elevated flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-eyebrow uppercase text-ink-quaternary">Household</span>
+        <span className="text-caption text-positive flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 rounded-full bg-positive" /> Live
+        </span>
+      </div>
+      <div className="mt-4 flex items-baseline gap-3">
+        <span className="text-display text-ink-primary num">$2.41M</span>
+        <span className="text-body-sm text-positive num">+$184K YoY</span>
+      </div>
+      <div className="mt-6 grid grid-cols-4 gap-2.5 text-caption">
+        {[
+          ["Cash", "$58K"],
+          ["Property", "$1.42M"],
+          ["Super", "$420K"],
+          ["Invested", "$512K"],
+        ].map(([k, v]) => (
+          <div key={k} className="rounded-md border border-line bg-bg-inset p-3">
+            <p className="text-eyebrow uppercase text-ink-quaternary">{k}</p>
+            <p className="mt-1 text-body-sm text-ink-primary num">{v}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-auto pt-6 hairline">
+        <p className="text-caption text-ink-quaternary">Sources reconciled: 14 · Last sync 12:42</p>
       </div>
     </div>
   );
 }
 
-function NetWorthArt() {
-  const segments = [
-    { label: "Property", value: 58, color: "#FF6B00" },
-    { label: "Invested", value: 28, color: "#FFC857" },
-    { label: "Cash", value: 9, color: "#5AC8FA" },
-    { label: "Super", value: 5, color: "#3ED598" },
-  ];
-  let cum = 0;
+function VisualForecast() {
   return (
-    <div className="flex h-full flex-col justify-end">
-      <div className="flex h-3 w-full overflow-hidden rounded-full bg-white/[0.05]">
-        {segments.map((s, i) => {
-          const left = cum;
-          cum += s.value;
-          return (
-            <motion.div
-              key={s.label}
-              initial={{ width: 0 }}
-              animate={{ width: `${s.value}%` }}
-              transition={{ duration: 1, delay: 0.1 * i, ease: [0.22, 1, 0.36, 1] }}
-              style={{ background: s.color }}
-            />
-          );
-        })}
+    <div className="card-surface p-6 h-full shadow-elevated flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-eyebrow uppercase text-ink-quaternary">Forecast · 20y</span>
+        <span className="text-caption text-ink-tertiary num">5,000 paths</span>
       </div>
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {segments.map((s) => (
-          <div key={s.label} className="rounded-md bg-bg-base/40 p-2.5 ring-hairline">
-            <div className="flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
-              <span className="text-[10px] uppercase tracking-[0.12em] text-ink-400">{s.label}</span>
+      <div className="mt-3 flex items-baseline gap-3">
+        <span className="text-h2 text-ink-primary num">$4.82M</span>
+        <span className="text-caption text-ink-quaternary num">P50 by 2045</span>
+      </div>
+      <div className="mt-5 flex-1 rounded-md border border-line bg-bg-inset p-4">
+        <svg viewBox="0 0 600 220" className="w-full h-full">
+          <g stroke="rgba(60,60,67,0.10)" strokeWidth="1">
+            {[40, 90, 140, 190].map((y) => (
+              <line key={y} x1="0" y1={y} x2="600" y2={y} />
+            ))}
+          </g>
+          <path
+            d="M0,170 C100,150 200,128 300,100 C400,72 500,52 600,36 L600,90 C500,90 400,104 300,118 C200,132 100,158 0,178 Z"
+            fill="rgba(62,106,149,0.10)"
+          />
+          <path
+            d="M0,174 C100,156 200,134 300,108 C400,82 500,62 600,46"
+            fill="none"
+            stroke="#3E6A95"
+            strokeWidth="1.75"
+          />
+        </svg>
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-2.5 text-caption">
+        {[["P10", "$3.1M"], ["P50", "$4.82M"], ["P90", "$7.4M"]].map(([k, v]) => (
+          <div key={k} className="rounded-md border border-line bg-bg-inset p-3">
+            <p className="text-eyebrow uppercase text-ink-quaternary">{k}</p>
+            <p className="mt-1 text-body-sm text-ink-primary num">{v}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VisualDecision() {
+  return (
+    <div className="card-surface p-6 h-full shadow-elevated flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-eyebrow uppercase text-ink-quaternary">Scenario · Refinance to IO</span>
+        <span className="text-caption text-positive num">+$418K NW</span>
+      </div>
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <div className="rounded-md border border-line bg-bg-inset p-4">
+          <p className="text-eyebrow uppercase text-ink-quaternary">Baseline</p>
+          <p className="mt-2 text-h3 text-ink-primary num">$4.82M</p>
+          <p className="text-caption text-ink-quaternary num">FIRE 2043</p>
+        </div>
+        <div className="rounded-md border border-accent-500/40 bg-accent-50 p-4">
+          <p className="text-eyebrow uppercase text-accent-500">Scenario</p>
+          <p className="mt-2 text-h3 text-ink-primary num">$5.24M</p>
+          <p className="text-caption text-positive num">FIRE 2039 · −4y</p>
+        </div>
+      </div>
+      <div className="mt-5 flex flex-col gap-2 text-body-sm text-ink-secondary">
+        <Row k="Cashflow Δ" v="+$1,840 / mo" tone="positive" />
+        <Row k="Tax Δ FY26" v="−$2,140" tone="positive" />
+        <Row k="Liquidity P10" v="$58K" tone="warning" />
+      </div>
+    </div>
+  );
+}
+
+function Row({ k, v, tone }: { k: string; v: string; tone: "positive" | "warning" | "negative" }) {
+  const c = tone === "positive" ? "text-positive" : tone === "warning" ? "text-warning" : "text-negative";
+  return (
+    <div className="flex items-center justify-between border-b border-line/60 py-1.5 last:border-b-0">
+      <span className="text-ink-tertiary">{k}</span>
+      <span className={`${c} num`}>{v}</span>
+    </div>
+  );
+}
+
+function VisualAI() {
+  const insights = [
+    { tag: "Refinance window", text: "Lock 5.84% IO · saves $1,840/mo cashflow." },
+    { tag: "Div 293 risk", text: "Projected sacrifice triggers Div 293 at FY27." },
+    { tag: "Offset rebalance", text: "Move $40K idle cash to offset · save $208/mo." },
+  ];
+  return (
+    <div className="card-surface p-6 h-full shadow-elevated flex flex-col">
+      <div className="flex items-center justify-between">
+        <span className="text-eyebrow uppercase text-ink-quaternary">AI insights · today</span>
+        <span className="text-caption text-ink-tertiary">3 surfaced</span>
+      </div>
+      <div className="mt-4 flex flex-col gap-3">
+        {insights.map((x) => (
+          <div key={x.tag} className="rounded-md border border-line bg-bg-inset p-4">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-3.5 w-3.5 text-accent-500" />
+              <span className="text-eyebrow uppercase text-accent-500">{x.tag}</span>
             </div>
-            <div className="num mt-1 text-[14px] font-semibold text-ink-100">{s.value}%</div>
+            <p className="mt-2 text-body-sm text-ink-secondary">{x.text}</p>
           </div>
         ))}
       </div>
     </div>
-  );
-}
-
-function ForecastArt() {
-  return (
-    <div className="h-full w-full">
-      <svg viewBox="0 0 600 260" className="h-full w-full" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="fc-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#FF6B00" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="#FF6B00" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="fc-line" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#FFC857" />
-            <stop offset="100%" stopColor="#FF6B00" />
-          </linearGradient>
-        </defs>
-        {[60, 130, 200].map((y) => (
-          <line key={y} x1="0" x2="600" y1={y} y2={y} stroke="rgba(255,255,255,0.05)" />
-        ))}
-        {/* Band */}
-        <path
-          d="M 0 210 C 80 195, 150 175, 220 158 S 360 110, 440 78 540 36, 600 18 L 600 80 C 540 88, 440 104, 360 124 S 220 162, 150 188 80 206, 0 218 Z"
-          fill="url(#fc-fill)"
-        />
-        {/* P50 */}
-        <path
-          d="M 0 214 C 80 200, 150 184, 220 168 S 360 130, 440 102 540 70, 600 50"
-          fill="none"
-          stroke="url(#fc-line)"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        {/* Markers */}
-        <circle cx="600" cy="50" r="4" fill="#FFC857" />
-      </svg>
-    </div>
-  );
-}
-
-function DecisionArt() {
-  const rows = [
-    { label: "Invest 100%", score: 82, color: "#FF6B00" },
-    { label: "Pay debt 100%", score: 64, color: "#FFC857" },
-    { label: "Split 70/30", score: 88, color: "#3ED598" },
-    { label: "Salary sacrifice", score: 71, color: "#5AC8FA" },
-  ];
-  return (
-    <div className="flex h-full flex-col gap-2 justify-center">
-      {rows.map((r, i) => (
-        <div key={r.label} className="rounded-md bg-bg-base/40 p-2.5 ring-hairline">
-          <div className="flex items-center justify-between text-[11.5px]">
-            <span className="text-ink-200">{r.label}</span>
-            <span className="num font-semibold text-ink-50">{r.score}</span>
-          </div>
-          <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.05]">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${r.score}%` }}
-              transition={{ duration: 1, delay: 0.08 * i, ease: [0.22, 1, 0.36, 1] }}
-              className="h-full rounded-full"
-              style={{ background: r.color }}
-            />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AIArt() {
-  const cards = [
-    { title: "Refinance window", body: "Lock 5.84% IO · saves $1,840/mo cashflow." },
-    { title: "Div 293 risk", body: "Projected sacrifice triggers Div 293 at FY27." },
-    { title: "Offset rebalance", body: "Move $40K idle cash to offset · save $208/mo." },
-  ];
-  return (
-    <div className="grid h-full grid-cols-1 gap-2">
-      {cards.map((c, i) => (
-        <motion.div
-          key={c.title}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 + 0.12 * i, ease: [0.22, 1, 0.36, 1] }}
-          className="relative overflow-hidden rounded-md bg-bg-base/40 p-3 ring-hairline"
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,200,87,0.12),transparent_60%)]" />
-          <div className="relative flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3 text-gold" />
-            <span className="text-[10px] uppercase tracking-[0.14em] text-gold">{c.title}</span>
-          </div>
-          <div className="relative mt-1 text-[12px] leading-snug text-ink-100">{c.body}</div>
-        </motion.div>
-      ))}
-    </div>
-  );
-}
-
-function ProgressDot({
-  index,
-  stepIndex,
-}: {
-  index: number;
-  stepIndex: MotionValue<number>;
-}) {
-  const width = useTransform(stepIndex, (v) => (Math.round(v) === index ? 36 : 12));
-  const opacity = useTransform(stepIndex, (v) => (Math.round(v) === index ? 1 : 0.35));
-  return (
-    <motion.div
-      className={cn(
-        "h-1 rounded-full bg-gradient-to-r from-accent to-gold"
-      )}
-      style={{ width, opacity }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-    />
   );
 }

@@ -1,222 +1,93 @@
 "use client";
-
-import { useRef } from "react";
+import * as React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { FileSpreadsheet, Calculator, Landmark, LineChart, PiggyBank, Wallet } from "lucide-react";
-import { Section, Eyebrow } from "@/components/ui/Section";
-import { cn } from "@/lib/utils";
+import { Eyebrow, Section } from "@/components/ui/Section";
+import { Reveal } from "@/components/ui/Reveal";
 
-/**
- * Scroll-driven convergence: fragmented "windows" scattered around the canvas
- * collapse toward a single unified card as you scroll through the section.
- */
+const FRAGMENTS = [
+  { label: "Bank statements", x: -260, y: -80 },
+  { label: "Super dashboard", x: 240, y: -100 },
+  { label: "Mortgage calculator", x: -300, y: 30 },
+  { label: "Property tracker", x: 280, y: 60 },
+  { label: "Tax spreadsheet", x: -200, y: 130 },
+  { label: "Share register", x: 220, y: 160 },
+];
+
 export function Chaos() {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-
-  // 0 → 1 progress mapped to "fragments → converge"
-  const convergence = useTransform(scrollYProgress, [0.1, 0.55], [0, 1]);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  // Subtle convergence — much smaller travel than v1.
+  const k = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.3, 0]);
 
   return (
-    <Section id="chaos" className="relative overflow-hidden">
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute left-1/2 top-1/2 h-[700px] w-[1100px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/[0.05] blur-[120px]" />
-      </div>
+    <Section spacing="xl">
+      <Reveal className="max-w-2xl mx-auto text-center">
+        <Eyebrow>The problem</Eyebrow>
+        <h2 className="mt-5 text-display text-ink-primary text-balance">
+          Wealth lives in six different tabs.
+        </h2>
+        <p className="mt-5 text-lead text-ink-tertiary text-pretty">
+          Every household manages spreadsheets, bank apps, super portals, and
+          mortgage tools that never speak to each other. Family Wealth Lab is the
+          single coherent model underneath all of it.
+        </p>
+      </Reveal>
 
-      <div ref={ref} className="container-narrow">
-        <div className="mx-auto max-w-2xl text-center">
-          <Eyebrow>The chaos before</Eyebrow>
-          <h2 className="mt-4 text-balance font-display text-display-md text-ink-50">
-            One system.{" "}
-            <span className="gradient-text-accent">Complete clarity.</span>
-          </h2>
-          <p className="mt-5 text-balance text-[16px] leading-relaxed text-ink-300 sm:text-[17px]">
-            Six spreadsheets, four bank apps, a mortgage calculator, a super dashboard.
-            Family Wealth Lab collapses every signal into a single coherent model.
-          </p>
-        </div>
+      <div ref={ref} className="relative mt-24 mx-auto max-w-3xl h-[420px] sm:h-[460px]">
+        {/* Fragments converging toward center */}
+        {FRAGMENTS.map((f, i) => (
+          <motion.div
+            key={f.label}
+            style={{
+              x: useTransform(k, (v) => f.x * v),
+              y: useTransform(k, (v) => f.y * v),
+              opacity: useTransform(k, [0, 0.4, 1], [0.1, 0.6, 1]),
+            }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-3.5 py-2 rounded-md border border-line bg-bg-surface backdrop-blur-sm text-body-sm text-ink-tertiary whitespace-nowrap"
+          >
+            {f.label}
+          </motion.div>
+        ))}
 
-        {/* Convergence canvas */}
-        <div className="relative mx-auto mt-20 h-[460px] w-full max-w-4xl sm:h-[520px]">
-          {/* Center unified card emerges */}
-          <UnifiedCore progress={convergence} />
+        {/* Central unified card — reveals as fragments collapse */}
+        <motion.div
+          style={{
+            opacity: useTransform(k, [0, 0.6, 1], [1, 0.85, 0.6]),
+            scale: useTransform(k, [0, 1], [1.02, 1]),
+          }}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(440px,90%)]"
+        >
+          <div className="card-surface p-6 shadow-elevated">
+            <div className="flex items-center justify-between">
+              <span className="text-eyebrow uppercase text-ink-quaternary">Household model</span>
+              <span className="text-caption text-positive flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-positive" />
+                Unified
+              </span>
+            </div>
+            <div className="mt-4 flex items-baseline gap-3">
+              <span className="text-display text-ink-primary num">$2.41M</span>
+              <span className="text-body-sm text-positive num">+$184K YoY</span>
+            </div>
+            <p className="mt-1.5 text-caption text-ink-quaternary">Household net worth · live</p>
 
-          {/* Fragments */}
-          <Fragment
-            progress={convergence}
-            from={{ x: "-46%", y: "-32%", rotate: -8 }}
-            icon={<FileSpreadsheet className="h-3.5 w-3.5" />}
-            label="2024 budget.xlsx"
-            sub="Sheet 3 · 1,284 rows"
-          />
-          <Fragment
-            progress={convergence}
-            from={{ x: "42%", y: "-38%", rotate: 7 }}
-            icon={<Landmark className="h-3.5 w-3.5" />}
-            label="CommBank · Savings"
-            sub="$42,180"
-          />
-          <Fragment
-            progress={convergence}
-            from={{ x: "-50%", y: "8%", rotate: 6 }}
-            icon={<Calculator className="h-3.5 w-3.5" />}
-            label="Mortgage calculator"
-            sub="6.24% · 28y left"
-          />
-          <Fragment
-            progress={convergence}
-            from={{ x: "48%", y: "12%", rotate: -10 }}
-            icon={<LineChart className="h-3.5 w-3.5" />}
-            label="Stake portfolio"
-            sub="VAS · VGS · NDQ"
-          />
-          <Fragment
-            progress={convergence}
-            from={{ x: "-32%", y: "38%", rotate: 12 }}
-            icon={<PiggyBank className="h-3.5 w-3.5" />}
-            label="AusSuper"
-            sub="$284,600"
-          />
-          <Fragment
-            progress={convergence}
-            from={{ x: "32%", y: "36%", rotate: -6 }}
-            icon={<Wallet className="h-3.5 w-3.5" />}
-            label="Offset · IP"
-            sub="$118,420"
-          />
-        </div>
-
-        {/* Legend */}
-        <div className="mt-8 grid gap-6 sm:grid-cols-3">
-          <Stat label="Six tools" value="One model" />
-          <Stat label="Disconnected numbers" value="Coherent forecast" />
-          <Stat label="Spreadsheet stress" value="Calm clarity" />
-        </div>
+            <div className="mt-5 grid grid-cols-3 gap-3 text-caption">
+              <Tile label="Cash" value="$58K" />
+              <Tile label="Property" value="$1.42M" />
+              <Tile label="Invested" value="$932K" />
+            </div>
+          </div>
+        </motion.div>
       </div>
     </Section>
   );
 }
 
-/* ─────────────── Sub-components ─────────────── */
-
-function Fragment({
-  progress,
-  from,
-  icon,
-  label,
-  sub,
-}: {
-  progress: ReturnType<typeof useTransform<number, number>>;
-  from: { x: string; y: string; rotate: number };
-  icon: React.ReactNode;
-  label: string;
-  sub: string;
-}) {
-  // At progress 0: scattered & rotated. At progress 1: collapsed to centre, faded.
-  const x = useTransform(progress, [0, 1], [from.x, "0%"]);
-  const y = useTransform(progress, [0, 1], [from.y, "0%"]);
-  const rotate = useTransform(progress, [0, 1], [from.rotate, 0]);
-  const scale = useTransform(progress, [0, 1], [1, 0.4]);
-  const opacity = useTransform(progress, [0, 0.55, 0.9], [1, 0.6, 0]);
-  const blur = useTransform(progress, [0, 1], [0, 6]);
-  const filter = useTransform(blur, (v) => `blur(${v}px)`);
-
+function Tile({ label, value }: { label: string; value: string }) {
   return (
-    <motion.div
-      className="glass-panel absolute left-1/2 top-1/2 flex w-[200px] -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 rounded-xl px-3 py-2.5 shadow-soft"
-      style={{ x, y, rotate, scale, opacity, filter }}
-    >
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/[0.05] text-ink-200">
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <div className="truncate text-[12px] font-medium text-ink-100">{label}</div>
-        <div className="num truncate text-[10.5px] text-ink-400">{sub}</div>
-      </div>
-    </motion.div>
-  );
-}
-
-function UnifiedCore({
-  progress,
-}: {
-  progress: ReturnType<typeof useTransform<number, number>>;
-}) {
-  const scale = useTransform(progress, [0, 0.4, 1], [0.6, 0.85, 1]);
-  const opacity = useTransform(progress, [0.25, 0.7], [0, 1]);
-  const glow = useTransform(progress, [0, 1], [0.15, 0.6]);
-
-  return (
-    <motion.div
-      className="absolute left-1/2 top-1/2 w-[280px] -translate-x-1/2 -translate-y-1/2 sm:w-[340px]"
-      style={{ scale, opacity }}
-    >
-      <motion.div
-        className="absolute -inset-20 rounded-[60px]"
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(255,107,0,0.35) 0%, transparent 60%)",
-          opacity: glow,
-        }}
-      />
-      <div className="glass-panel relative overflow-hidden rounded-2xl p-5 shadow-elevated">
-        <div className="flex items-center justify-between">
-          <div className="text-eyebrow text-ink-400">Unified model</div>
-          <div className="flex items-center gap-1 text-[10px] text-positive">
-            <span className="h-1.5 w-1.5 rounded-full bg-positive animate-pulse-soft" />
-            Synced
-          </div>
-        </div>
-        <div className="num mt-3 font-display text-3xl font-semibold text-ink-50">$2.41M</div>
-        <div className="text-[12px] text-ink-400">Household net worth · live</div>
-
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          <CoreStat label="Cash" value="$58K" />
-          <CoreStat label="Property" value="$1.42M" />
-          <CoreStat label="Invested" value="$932K" />
-        </div>
-
-        <div className="mt-4 h-10 w-full overflow-hidden rounded-md bg-bg-base/40 ring-hairline">
-          <svg viewBox="0 0 280 40" className="h-full w-full" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="core-line" x1="0" x2="1" y1="0" y2="0">
-                <stop offset="0%" stopColor="#FFC857" />
-                <stop offset="100%" stopColor="#FF6B00" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M 0 32 C 30 26, 60 28, 90 22 S 150 12, 180 14 220 8, 280 4"
-              fill="none"
-              stroke="url(#core-line)"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-            />
-          </svg>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function CoreStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md bg-bg-base/30 px-2 py-1.5 ring-hairline">
-      <div className="text-[9.5px] uppercase tracking-[0.12em] text-ink-400">{label}</div>
-      <div className="num mt-0.5 text-[12px] font-semibold text-ink-100">{value}</div>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className={cn("rounded-xl p-5 ring-hairline bg-bg-surface/40")}>
-      <div className="text-[11.5px] uppercase tracking-[0.14em] text-ink-400">From</div>
-      <div className="mt-1 font-display text-[15px] text-ink-200">{label}</div>
-      <div className="mt-3 text-[11.5px] uppercase tracking-[0.14em] text-accent">To</div>
-      <div className="mt-1 font-display text-[15px] font-semibold gradient-text">{value}</div>
+    <div className="rounded-md border border-line bg-bg-inset p-3">
+      <p className="text-eyebrow uppercase text-ink-quaternary">{label}</p>
+      <p className="mt-1.5 text-body-sm text-ink-primary num">{value}</p>
     </div>
   );
 }
