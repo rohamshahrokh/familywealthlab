@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X, Command } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
@@ -80,8 +81,12 @@ export function Nav() {
             <Command className="h-3 w-3" />
             <span className="mono">⌘K</span>
           </button>
-          <Button variant="ghost" size="sm">Sign in</Button>
-          <Button variant="primary" size="sm">Request access</Button>
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/login">Sign in</Link>
+          </Button>
+          <Button asChild variant="primary" size="sm">
+            <Link href="/signup">Request access</Link>
+          </Button>
         </div>
 
         <button
@@ -124,8 +129,12 @@ export function Nav() {
             </a>
           ))}
           <div className="mt-3 flex flex-col gap-2">
-            <Button variant="secondary" size="md">Sign in</Button>
-            <Button variant="primary" size="md">Request access</Button>
+            <Button asChild variant="secondary" size="md">
+              <Link href="/login" onClick={() => setOpen(false)}>Sign in</Link>
+            </Button>
+            <Button asChild variant="primary" size="md">
+              <Link href="/signup" onClick={() => setOpen(false)}>Request access</Link>
+            </Button>
           </div>
         </div>
       </motion.div>
