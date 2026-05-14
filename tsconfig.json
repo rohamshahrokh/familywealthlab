@@ -16,9 +16,11 @@
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@fwl/engine": ["./packages/engine/src/index.ts"],
+      "@fwl/engine/*": ["./packages/engine/src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "packages/engine/src/**/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  transpilePackages: ["@fwl/engine"],
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },

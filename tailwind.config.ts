@@ -124,6 +124,8 @@ const config: Config = {
         "body":       ["0.9375rem", { lineHeight: "1.6" }],
         "body-lg":    ["1.0625rem", { lineHeight: "1.55" }],
         "lead":       ["1.1875rem", { lineHeight: "1.5", letterSpacing: "-0.005em" }],
+        "h6":         ["1.0625rem", { lineHeight: "1.4",  letterSpacing: "-0.01em",  fontWeight: "600" }],
+        "h5":         ["1.125rem",  { lineHeight: "1.35", letterSpacing: "-0.012em", fontWeight: "600" }],
         "h4":         ["1.25rem",   { lineHeight: "1.35", letterSpacing: "-0.015em", fontWeight: "600" }],
         "h3":         ["1.625rem",  { lineHeight: "1.25", letterSpacing: "-0.02em", fontWeight: "600" }],
         "h2":         ["clamp(1.875rem, 2.6vw + 0.5rem, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.025em", fontWeight: "600" }],
