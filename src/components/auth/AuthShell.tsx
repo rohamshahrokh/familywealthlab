@@ -17,7 +17,7 @@ interface AuthShellProps {
 /**
  * Auth page shell — matches the commercial landing aesthetic:
  *   - paper bg (#F4F5F7) with subtle ember accent
- *   - JetBrains Mono [FWL] / [01] markers
+ *   - brand wordmark (rendered inside <Logo withWordmark>)
  *   - hairline ring container
  *   - pill buttons via the existing <Button> component
  */
@@ -37,15 +37,9 @@ export function AuthShell({
         <Link
           href="/"
           aria-label="Family Wealth Lab home"
-          className="focus-ring rounded-md flex items-center gap-2.5"
+          className="focus-ring rounded-md"
         >
-          <Logo />
-          <span className="inline-flex items-baseline gap-1.5">
-            <span className="text-body-sm font-semibold tracking-tight text-ink-primary">
-              Family Wealth Lab
-            </span>
-            <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
-          </span>
+          <Logo withWordmark size={22} />
         </Link>
         <Link
           href="/"

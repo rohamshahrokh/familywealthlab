@@ -50,12 +50,10 @@ export function Nav() {
     >
       {/* Top row — wordmark + nav + CTAs */}
       <div className="container mx-auto flex h-14 items-center justify-between">
-        <a href="#top" className="focus-ring rounded-md flex items-center gap-2.5" aria-label="Family Wealth Lab home">
-          <Logo />
-          <span className="hidden sm:inline-flex items-baseline gap-1.5">
-            <span className="text-body-sm font-semibold tracking-tight text-ink-primary">Family Wealth Lab</span>
-            <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
-          </span>
+        <a href="#top" className="focus-ring rounded-md inline-flex items-center" aria-label="Family Wealth Lab home">
+          {/* On mobile we show the mark only; from sm: up we show the full lockup. */}
+          <span className="sm:hidden"><Logo size={22} /></span>
+          <span className="hidden sm:inline-flex"><Logo withWordmark size={22} /></span>
         </a>
 
         <nav className="hidden md:flex items-center">

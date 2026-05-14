@@ -7,6 +7,16 @@
     --font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
     --font-display: var(--font-sans);
     --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    /* Brand serif — used ONLY by the Family Wealth Lab wordmark.
+       The UI stays sans-serif (Inter); the serif appears only inside the
+       <Logo withWordmark> lockup to harmonise with the logo artwork. */
+    --font-serif:   ui-serif, "Iowan Old Style", "Apple Garamond", "Palatino Linotype", Palatino, "Times New Roman", Georgia, serif;
+
+    /* Brand amber — distinct from the ember UI accent (which keeps its hue).
+       Use these only on brand surfaces: the logo, login/splash hero, marketing
+       lockups. Deeper on light to preserve WCAG AA contrast. */
+    --brand-amber:    #F5A623;
+    --brand-amber-dk: #C5841A;
   }
 
   html {

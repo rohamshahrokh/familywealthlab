@@ -143,12 +143,8 @@ export function WorkspaceShell({
       {/* ── Mobile topbar ─────────────────────────────────────────────────── */}
       <header className="md:hidden sticky top-0 z-40 bg-bg-base/95 border-b border-line">
         <div className="container mx-auto h-14 flex items-center justify-between">
-          <Link href={`/workspace/${householdId}/overview`} className="flex items-center gap-2.5 focus-ring rounded-md">
-            <Logo />
-            <span className="inline-flex items-baseline gap-1.5">
-              <span className="text-body-sm font-semibold tracking-tight text-ink-primary">Family Wealth Lab</span>
-              <span className="mono text-[0.625rem] text-ink-quaternary tracking-wider">[FWL]</span>
-            </span>
+          <Link href={`/workspace/${householdId}/overview`} className="focus-ring rounded-md">
+            <Logo withWordmark size={22} />
           </Link>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
@@ -179,12 +175,8 @@ export function WorkspaceShell({
       {/* ── Desktop rail ─────────────────────────────────────────────────── */}
       <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:border-r md:border-line md:bg-bg-base">
         <div className="px-6 pt-7 pb-5">
-          <Link href={`/workspace/${householdId}/overview`} className="flex items-center gap-2.5 focus-ring rounded-md">
-            <Logo />
-            <span className="inline-flex items-baseline gap-1.5">
-              <span className="text-body-sm font-semibold tracking-tight text-ink-primary">Family Wealth Lab</span>
-              <span className="mono text-[0.625rem] text-ink-quaternary tracking-wider">[FWL]</span>
-            </span>
+          <Link href={`/workspace/${householdId}/overview`} className="focus-ring rounded-md">
+            <Logo withWordmark size={22} />
           </Link>
         </div>
 

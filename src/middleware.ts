@@ -9,6 +9,13 @@ const PUBLIC_PATHS = new Set<string>([
   "/reset-password",
   "/reset-password/confirm",
   "/login/mfa",
+  // Brand / PWA assets that Next serves via metadata-route conventions.
+  // These have no file extension so the regex matcher below sends them
+  // through this middleware; whitelist them so browsers (and the OS PWA
+  // installer) can fetch them without an auth bounce.
+  "/icon",
+  "/apple-icon",
+  "/manifest.webmanifest",
 ]);
 
 function isPublic(pathname: string) {

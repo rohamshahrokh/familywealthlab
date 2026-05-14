@@ -32,14 +32,8 @@ export function AppShell({ children, displayName, email }: Props) {
       {/* Mobile top bar */}
       <header className="md:hidden sticky top-0 z-40 bg-bg-base/95 border-b border-line">
         <div className="container mx-auto h-14 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2.5 focus-ring rounded-md">
-            <Logo />
-            <span className="inline-flex items-baseline gap-1.5">
-              <span className="text-body-sm font-semibold tracking-tight text-ink-primary">
-                Family Wealth Lab
-              </span>
-              <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
-            </span>
+          <Link href="/dashboard" className="focus-ring rounded-md">
+            <Logo withWordmark size={22} />
           </Link>
           <button
             aria-label={open ? "Close menu" : "Open menu"}
@@ -83,14 +77,8 @@ export function AppShell({ children, displayName, email }: Props) {
         {/* Desktop sidebar */}
         <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 md:border-r md:border-line md:bg-white">
           <div className="px-5 py-6 border-b border-line">
-            <Link href="/dashboard" className="flex items-center gap-2.5 focus-ring rounded-md">
-              <Logo />
-              <span className="inline-flex items-baseline gap-1.5">
-                <span className="text-body-sm font-semibold tracking-tight text-ink-primary">
-                  Family Wealth Lab
-                </span>
-                <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
-              </span>
+            <Link href="/dashboard" className="focus-ring rounded-md">
+              <Logo withWordmark size={22} />
             </Link>
           </div>
           <nav className="flex-1 px-3 py-5 space-y-1">

@@ -50,6 +50,14 @@ export const metadata: Metadata = {
     description: "The operating system for family wealth.",
   },
   robots: { index: true, follow: true },
+  // Brand icons. Next 14 auto-emits /icon.svg from src/app/icon.svg (favicon),
+  // and serves /manifest.webmanifest from src/app/manifest.ts. The apple-touch
+  // icon must be linked explicitly because Next's apple-icon route convention
+  // only auto-picks up .png/.jpg/.webp (not .svg) in this version.
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-touch-icon.svg", type: "image/svg+xml", sizes: "192x192" }],
+  },
 };
 
 export const viewport: Viewport = {

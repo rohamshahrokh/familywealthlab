@@ -1,12 +1,19 @@
+<!--
+  Family Wealth Lab — favicon (32×32 simplified mark).
+
+  Transparent background. Uses currentColor for the structural lines so the
+  browser tab's surrounding theme can tint it; tab UI defaults render this
+  as the dark ink color, which is correct on light tab backgrounds.
+
+  Designed at 32×32 viewBox for maximum sharpness at 16px, 32px, 48px.
+-->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FF6B00" />
-      <stop offset="100%" stop-color="#FFC857" />
-    </linearGradient>
-  </defs>
-  <rect width="32" height="32" rx="8" fill="#070B14" />
-  <circle cx="16" cy="16" r="11" stroke="url(#g)" stroke-width="1.4" opacity="0.35" />
-  <circle cx="16" cy="16" r="7" stroke="url(#g)" stroke-width="1.4" opacity="0.7" />
-  <circle cx="16" cy="16" r="3" fill="url(#g)" />
+  <!-- Circle frame -->
+  <circle cx="16" cy="16" r="13" stroke="#0B0F1A" stroke-width="1.75" fill="none"/>
+  <!-- Trunk -->
+  <rect x="15" y="17" width="2" height="9" rx="0.4" fill="#0B0F1A"/>
+  <!-- Canopy silhouette -->
+  <ellipse cx="16" cy="12" rx="7" ry="7" fill="#0B0F1A"/>
+  <!-- Amber crown -->
+  <ellipse cx="16" cy="10" rx="3" ry="2.6" fill="#C5841A"/>
 </svg>

@@ -57,6 +57,15 @@ const config: Config = {
           800: "#161F31",
           900: "#0E1422",
         },
+        // BRAND AMBER — the gold accent in the Family Wealth Lab logo mark.
+        // Distinct from ember (UI accent) so the brand wordmark/logo keeps its
+        // true gold tone in every context.
+        brand: {
+          amber:      "#F5A623",  // canonical brand gold (on dark)
+          "amber-dk": "#C5841A",  // deepened gold for light backgrounds (WCAG AA)
+          ink:        "#0B0F1A",  // logo structural lines on light bg
+          paper:      "#FFFFFF",  // logo structural lines on dark bg
+        },
         // EMBER — the single point of warmth. Slightly desaturated for a calmer,
         // more premium-banking feel (less crypto-orange, more autumn-bronze).
         ember: {
@@ -118,6 +127,19 @@ const config: Config = {
           "Menlo",
           "Consolas",
           "monospace",
+        ],
+        // Brand serif — ONLY for the Family Wealth Lab wordmark in <Logo>.
+        // Do NOT use elsewhere in the UI; the product stays sans-serif.
+        serif: [
+          "var(--font-serif)",
+          "ui-serif",
+          "Iowan Old Style",
+          "Apple Garamond",
+          "Palatino Linotype",
+          "Palatino",
+          "Times New Roman",
+          "Georgia",
+          "serif",
         ],
       },
       fontSize: {
