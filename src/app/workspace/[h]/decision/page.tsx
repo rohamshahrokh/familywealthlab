@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight, Sparkles, Activity } from "lucide-react";
 
-import { getEntitlements } from "@/lib/billing";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { PageHeader } from "@/components/workspace/PageHeader";
 import { runDecision } from "@/lib/engine/runDecision";
 import {
@@ -32,26 +30,6 @@ interface Props {
 }
 
 export default async function DecisionPage({ params }: Props) {
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("decision.engine")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[05·01]" eyebrow="Decision" title="Decision Engine"
-          body="Rank actions across leverage, liquidity, and tail-risk — deterministic, reproducible, sourced from your ledger."
-        />
-        <FeatureGate
-          feature="decision.engine"
-          currentTier={ents.tier}
-          bullets={[
-            "Top 3–5 prioritised actions, ranked by expected impact.",
-            "Survival probability + median terminal NW on every run.",
-            "Risk strip across default, liquidity, equity, refinance.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const command = await getCommandCentre(params.h);
   const { availability } = command;

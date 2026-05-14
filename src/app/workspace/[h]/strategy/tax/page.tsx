@@ -1,12 +1,10 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { computeWageTax } from "@fwl/engine";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtPercent } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -22,23 +20,6 @@ interface Props { params: { h: string } }
  */
 export default async function StrategyTaxPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("strategy.tax")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[03·04]" eyebrow="Strategy" title="Tax strategy"
-          body="AU income tax, marginal rate, effective rate, and tax-advantaged levers."
-        />
-        <FeatureGate feature="strategy.tax" currentTier={ents.tier}
-          bullets={[
-            "Income tax computed by the same engine the Decision Engine uses.",
-            "Marginal rate + effective rate breakdown.",
-            "Tax-advantaged opportunities surfaced from your ledger.",
-          ]} />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const annualIncome = snap.cashflow.monthlyIncome * 12;

@@ -1,8 +1,6 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { CgtSimulator } from "./CgtSimulator";
 
 export const dynamic = "force-dynamic";
@@ -20,18 +18,6 @@ interface Props { params: { h: string } }
  */
 export default async function StrategyCgtPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("strategy.cgt")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[03·05]" eyebrow="Strategy" title="CGT simulator"
-          body="Estimate capital gains tax for any asset disposal, with the 12-month discount and your marginal rate baked in."
-        />
-        <FeatureGate feature="strategy.cgt" currentTier={ents.tier} />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const defaultIncome = Math.round(snap.cashflow.monthlyIncome * 12) || 100_000;

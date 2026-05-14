@@ -1,12 +1,10 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { runDecision } from "@/lib/engine/runDecision";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtMoneyCompact, fmtPercent, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -23,26 +21,6 @@ interface Props { params: { h: string } }
  */
 export default async function FireForecastPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("forecast.fire")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[04·02]" eyebrow="Forecast" title="FIRE projection"
-          body="When does your engine-projected wealth cross your FIRE target?"
-        />
-        <FeatureGate
-          feature="forecast.fire"
-          currentTier={ents.tier}
-          bullets={[
-            "Linear + engine-derived years to FIRE side-by-side.",
-            "Crossover month detected on the median NW path.",
-            "Updates instantly when your ledger or assumptions change.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const { fire, wealth } = snap;

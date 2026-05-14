@@ -1,8 +1,6 @@
 import { getSessionUser } from "@/lib/auth";
-import { getEntitlements } from "@/lib/billing";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { AssumptionsForm, type AssumptionsDefaults } from "./AssumptionsForm";
 
 export const dynamic = "force-dynamic";
@@ -18,17 +16,6 @@ interface Props { params: { h: string } }
  */
 export default async function AssumptionsPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("settings.assumptions")) {
-    // settings.assumptions is free; falling through is theoretical, but kept
-    // for tier consistency.
-    return (
-      <div className="space-y-8">
-        <PageHeader index="[06·01]" eyebrow="Settings" title="Assumptions centre" body="Define the inputs that drive every forecast and decision surface." />
-        <FeatureGate feature="settings.assumptions" currentTier={ents.tier} />
-      </div>
-    );
-  }
 
   const supabase = createSupabaseServerClient();
   const { data } = await supabase

@@ -1,12 +1,10 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { runDecision } from "@/lib/engine/runDecision";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtMoneyCompact, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -23,26 +21,6 @@ interface Props { params: { h: string } }
  */
 export default async function BaselineForecastPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("forecast.baseline")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[04·01]" eyebrow="Forecast" title="Baseline forecast"
-          body="The engine's median 10-year projection from your ledger — net worth and cash, no extra inputs needed."
-        />
-        <FeatureGate
-          feature="forecast.baseline"
-          currentTier={ents.tier}
-          bullets={[
-            "Median net-worth path across 200 simulated futures.",
-            "Median cash path — see when liquidity peaks and dips.",
-            "Deterministic seed per household — reproducible every time.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   if (!snap.engineReadiness.canRunBaseline) {

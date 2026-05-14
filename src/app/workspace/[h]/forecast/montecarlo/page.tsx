@@ -1,12 +1,10 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { runDecision } from "@/lib/engine/runDecision";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtMoneyCompact, fmtPercent } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -22,27 +20,6 @@ interface Props { params: { h: string } }
  */
 export default async function MonteCarloPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("forecast.monteCarlo")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[04·03]" eyebrow="Forecast" title="Monte Carlo"
-          body="Full dispersion of your future net worth — percentiles, stress probabilities, tail-risk metrics."
-        />
-        <FeatureGate
-          feature="forecast.monteCarlo"
-          currentTier={ents.tier}
-          bullets={[
-            "Terminal-NW percentiles (P10 / P50 / P90).",
-            "Default, liquidity, refinance & negative-equity probabilities.",
-            "Conditional VaR (CVaR) at 5% and max-drawdown samples.",
-            "Sequence-of-returns risk dispersion metric.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   if (!snap.engineReadiness.canRunMonteCarlo) {

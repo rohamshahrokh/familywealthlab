@@ -1,6 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
+  FOUNDER_MODE,
   type SubscriptionTier,
   type TierEntitlements,
   entitlementsFor,
@@ -9,22 +10,29 @@ import {
 /**
  * Resolve the entitlements for a household.
  *
- * Phase 2F+ scaffolding. We read from `billing.subscriptions` if the row
- * exists, otherwise default to `free`. The actual Stripe webhook + checkout
- * lands in a follow-up PR — this function is structured so that adding the
- * webhook later only changes the data source, not the consumer surface.
+ * ── Founder/Internal Mode ───────────────────────────────────────────────
+ * When `FOUNDER_MODE` is true (the default during the current build phase)
+ * this function returns the `founder` tier unconditionally — every feature
+ * is unlocked, no DB read is required, no row is needed in
+ * `billing.subscriptions`. This lets the founder test the full commercial
+ * product end-to-end without fake paywalls.
  *
- * Why: every gated page calls `getEntitlements(householdId)` once and renders
- * either the live feature or a `<FeatureGate>` upsell. By centralising the
- * lookup here, we have a single place to add caching, Stripe sync, and
- * trial-period logic.
+ * When `FOUNDER_MODE` flips to false we fall back to the real lookup:
+ *   1. Read the household's subscription row from `billing.subscriptions`.
+ *   2. Map the stored `tier` enum to our `SubscriptionTier`.
+ *   3. Fall back to `free` on any error / missing row.
+ *
+ * The consumer surface (`getEntitlements(householdId)`) does not change
+ * between modes — only the data source does.
  */
 export async function getEntitlements(
   householdId: string,
 ): Promise<TierEntitlements> {
-  // The billing schema is provisioned lazily — Phase 2F+ migration adds it.
-  // Until that lands we always return the `free` tier so the UI is correct
-  // and we don't blow up on a missing relation.
+  if (FOUNDER_MODE) {
+    return entitlementsFor("founder");
+  }
+
+  // Commercial mode — read the real subscription tier.
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
@@ -46,12 +54,11 @@ export async function getEntitlements(
       inTrial: data.status === "trialing",
     };
   } catch {
-    // Schema not yet provisioned — default to free.
     return entitlementsFor("free");
   }
 }
 
 function normaliseTier(raw: unknown): SubscriptionTier {
-  if (raw === "plus" || raw === "pro") return raw;
+  if (raw === "founder" || raw === "plus" || raw === "pro") return raw;
   return "free";
 }

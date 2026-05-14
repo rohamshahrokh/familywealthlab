@@ -1,11 +1,9 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtPercent, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -28,26 +26,6 @@ interface Props { params: { h: string } }
  */
 export default async function StrategyPlanPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("strategy.plan")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[03·01]" eyebrow="Strategy" title="Financial plan"
-          body="A single-page synthesis of where your household stands and the highest-leverage areas to act on next."
-        />
-        <FeatureGate
-          feature="strategy.plan"
-          currentTier={ents.tier}
-          bullets={[
-            "Wealth & cashflow summary derived from your ledger.",
-            "Saving-rate + buffer health + FIRE trajectory in one glance.",
-            "Highest-leverage next action ranked from your data.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const { wealth, cashflow, fire, emergencyBuffer, engineReadiness } = snap;

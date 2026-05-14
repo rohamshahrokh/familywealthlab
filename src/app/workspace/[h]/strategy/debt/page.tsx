@@ -1,11 +1,9 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtPercent } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -21,18 +19,6 @@ interface Props { params: { h: string } }
  */
 export default async function StrategyDebtPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("strategy.debt")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[03·03]" eyebrow="Strategy" title="Debt strategy"
-          body="Debt-to-income, debt service ratio, and the property-vs-other split that drives every payoff decision."
-        />
-        <FeatureGate feature="strategy.debt" currentTier={ents.tier} />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const { wealth, cashflow } = snap;

@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtPercent } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -22,26 +20,6 @@ interface Props { params: { h: string } }
  */
 export default async function StrategyPropertyPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("strategy.property")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[03·02]" eyebrow="Strategy" title="Property strategy"
-          body="Lender-grade LVR, equity, yield, and settled-vs-planned analysis."
-        />
-        <FeatureGate
-          feature="strategy.property"
-          currentTier={ents.tier}
-          bullets={[
-            "Aggregate LVR + per-property breakdown.",
-            "Equity available for re-borrow (lender-conservative).",
-            "Rental yield (gross + net) per property.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   const { wealth, cashflow } = snap;

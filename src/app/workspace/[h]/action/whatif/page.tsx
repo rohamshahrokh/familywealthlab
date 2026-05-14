@@ -1,9 +1,7 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { EmptyState } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { WhatIfPanel } from "./WhatIfPanel";
 
 export const dynamic = "force-dynamic";
@@ -22,26 +20,6 @@ interface Props { params: { h: string } }
  */
 export default async function WhatIfPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("decision.whatIf")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[05·02]" eyebrow="Action" title="What-If"
-          body="Try changes against your real ledger and see the engine's answer instantly."
-        />
-        <FeatureGate
-          feature="decision.whatIf"
-          currentTier={ents.tier}
-          bullets={[
-            "Interactive sandbox over the same engine as Decision.",
-            "Side-by-side baseline vs scenario for survival, NW, stress.",
-            "Reproducible: same inputs → same answer.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   if (!snap.engineReadiness.canRunBaseline) {

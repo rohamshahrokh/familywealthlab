@@ -1,13 +1,11 @@
 import { getSessionUser } from "@/lib/auth";
 import { getSnapshot } from "@/lib/snapshot";
-import { getEntitlements } from "@/lib/billing";
 import { runDecision } from "@/lib/engine/runDecision";
 import type { ScenarioDelta } from "@fwl/engine";
 import {
   SurfaceCard, CardHeader, MetricRow, EmptyState, KpiCard,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
-import { FeatureGate } from "@/components/workspace/billing/FeatureGate";
 import { fmtMoney, fmtMoneyCompact, fmtPercent } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -29,26 +27,6 @@ interface Props { params: { h: string } }
  */
 export default async function CompareScenarioPage({ params }: Props) {
   await getSessionUser();
-  const ents = await getEntitlements(params.h);
-  if (!ents.features.has("decision.compare")) {
-    return (
-      <div className="space-y-8">
-        <PageHeader
-          index="[05·03]" eyebrow="Action" title="Scenario compare"
-          body="Rank multiple candidate plans against the same ledger."
-        />
-        <FeatureGate
-          feature="decision.compare"
-          currentTier={ents.tier}
-          bullets={[
-            "Engine runs every candidate against your real ledger.",
-            "Ranked by survival × terminal NW, lowest stress first.",
-            "Three preset candidates today, custom sets coming.",
-          ]}
-        />
-      </div>
-    );
-  }
 
   const snap = await getSnapshot(params.h);
   if (!snap.engineReadiness.canRunBaseline) {
