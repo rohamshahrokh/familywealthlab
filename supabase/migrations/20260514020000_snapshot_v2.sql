@@ -10,6 +10,10 @@
 --
 -- All tables use the same RLS pattern as Phase 1 (membership check via
 -- app.is_household_member(uuid)). Additive only — no destructive changes.
+--
+-- Idempotent: every `create policy` is preceded by `drop policy if exists`
+-- so this script can be re-run after a partial failure without throwing
+-- "policy ... already exists" (Postgres error 42710).
 -- ---------------------------------------------------------------------------
 
 set search_path = public;
@@ -33,13 +37,17 @@ create index if not exists cash_accounts_household_idx
 
 alter table ledger.cash_accounts enable row level security;
 
+drop policy if exists cash_accounts_select on ledger.cash_accounts;
 create policy cash_accounts_select on ledger.cash_accounts
   for select using (app.is_household_member(household_id));
+drop policy if exists cash_accounts_insert on ledger.cash_accounts;
 create policy cash_accounts_insert on ledger.cash_accounts
   for insert with check (app.is_household_member(household_id));
+drop policy if exists cash_accounts_update on ledger.cash_accounts;
 create policy cash_accounts_update on ledger.cash_accounts
   for update using (app.is_household_member(household_id))
               with check (app.is_household_member(household_id));
+drop policy if exists cash_accounts_delete on ledger.cash_accounts;
 create policy cash_accounts_delete on ledger.cash_accounts
   for delete using (app.is_household_member(household_id));
 
@@ -63,13 +71,17 @@ create index if not exists liabilities_household_idx
 
 alter table ledger.liabilities enable row level security;
 
+drop policy if exists liabilities_select on ledger.liabilities;
 create policy liabilities_select on ledger.liabilities
   for select using (app.is_household_member(household_id));
+drop policy if exists liabilities_insert on ledger.liabilities;
 create policy liabilities_insert on ledger.liabilities
   for insert with check (app.is_household_member(household_id));
+drop policy if exists liabilities_update on ledger.liabilities;
 create policy liabilities_update on ledger.liabilities
   for update using (app.is_household_member(household_id))
               with check (app.is_household_member(household_id));
+drop policy if exists liabilities_delete on ledger.liabilities;
 create policy liabilities_delete on ledger.liabilities
   for delete using (app.is_household_member(household_id));
 
@@ -92,13 +104,17 @@ create index if not exists super_accounts_household_idx
 
 alter table ledger.super_accounts enable row level security;
 
+drop policy if exists super_accounts_select on ledger.super_accounts;
 create policy super_accounts_select on ledger.super_accounts
   for select using (app.is_household_member(household_id));
+drop policy if exists super_accounts_insert on ledger.super_accounts;
 create policy super_accounts_insert on ledger.super_accounts
   for insert with check (app.is_household_member(household_id));
+drop policy if exists super_accounts_update on ledger.super_accounts;
 create policy super_accounts_update on ledger.super_accounts
   for update using (app.is_household_member(household_id))
               with check (app.is_household_member(household_id));
+drop policy if exists super_accounts_delete on ledger.super_accounts;
 create policy super_accounts_delete on ledger.super_accounts
   for delete using (app.is_household_member(household_id));
 
@@ -114,11 +130,14 @@ create table if not exists ledger.snapshot_cache (
 
 alter table ledger.snapshot_cache enable row level security;
 
+drop policy if exists snapshot_cache_select on ledger.snapshot_cache;
 create policy snapshot_cache_select on ledger.snapshot_cache
   for select using (app.is_household_member(household_id));
 -- Writes go through the SECURITY DEFINER function below; no direct INSERT/UPDATE.
+drop policy if exists snapshot_cache_insert on ledger.snapshot_cache;
 create policy snapshot_cache_insert on ledger.snapshot_cache
   for insert with check (app.is_household_member(household_id));
+drop policy if exists snapshot_cache_update on ledger.snapshot_cache;
 create policy snapshot_cache_update on ledger.snapshot_cache
   for update using (app.is_household_member(household_id))
               with check (app.is_household_member(household_id));
