@@ -1,0 +1,16 @@
+engine_version: 0.1.0-vendored
+source_repo: live-app (read-only)
+source_path: client/src/lib
+sync_date: 2026-05-14
+sync_commit: vendored-snapshot-phase1
+notes: |
+  This is a CONTROLLED vendored copy of the live-app financial engine. The
+  commercial app must NEVER reach back into live-app at runtime, and live-app
+  must NEVER be modified. To pull a new snapshot, run `npm run engine:sync`
+  from the commercial app root and review the diff before committing.
+
+  Excluded from vendoring:
+    - scenarioV2/persistence.ts        (depends on live-app supabase client)
+    - scenarioV2/pdfReport.ts          (browser-only jspdf, html2canvas)
+    - scenarioV2/quickDecisionPdf.ts   (browser-only)
+    - scenarioV2/decisionEngine/polishNarrativeWithAi.ts (LLM hook, deferred)

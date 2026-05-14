@@ -10,7 +10,7 @@ import { logAuthEvent } from "@/lib/audit";
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") || "/dashboard";
+  const next = url.searchParams.get("next") || "/workspace";
 
   if (code) {
     const supabase = createSupabaseServerClient();
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       });
 
       const dest = profile?.onboarded_at
-        ? next.startsWith("/") ? next : "/dashboard"
+        ? next.startsWith("/") ? next : "/workspace"
         : "/onboarding";
       return NextResponse.redirect(new URL(dest, request.url));
     }

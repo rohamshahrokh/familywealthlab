@@ -12,7 +12,7 @@ export const metadata = {
 export default async function OnboardingPage() {
   const session = await getSessionUser();
   if (!session) redirect("/login?next=/onboarding");
-  if (session.profile?.onboarded_at) redirect("/dashboard");
+  if (session.profile?.onboarded_at) redirect("/workspace");
 
   return (
     <AuthShell

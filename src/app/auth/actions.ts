@@ -65,7 +65,7 @@ export async function signUp(
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email."),
   password: z.string().min(1, "Enter your password."),
-  next: z.string().optional().default("/dashboard"),
+  next: z.string().optional().default("/workspace"),
 });
 
 export async function signIn(
@@ -107,7 +107,7 @@ export async function signIn(
     metadata: { provider: "email" },
   });
 
-  const next = parsed.data.next?.startsWith("/") ? parsed.data.next : "/dashboard";
+  const next = parsed.data.next?.startsWith("/") ? parsed.data.next : "/workspace";
 
   if (needsMfa) {
     redirect(`/login/mfa?next=${encodeURIComponent(next)}`);
@@ -305,8 +305,8 @@ export async function mfaChallengeVerify(
     email: userData.user?.email,
     event: "mfa_challenge_success",
   });
-  const next = (formData.get("next") as string | null) || "/dashboard";
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  const next = (formData.get("next") as string | null) || "/workspace";
+  redirect(next.startsWith("/") ? next : "/workspace");
 }
 
 export async function mfaUnenroll(
@@ -386,7 +386,10 @@ export async function completeOnboarding(
     event: "onboarding_completed",
   });
 
-  redirect("/dashboard");
+  if (profile?.household_id) {
+    redirect(`/workspace/${profile.household_id}/overview`);
+  }
+  redirect("/workspace");
 }
 
 // ---------------------------------------------------------------------------

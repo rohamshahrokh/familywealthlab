@@ -28,7 +28,7 @@ export function SignupForm() {
 
   return (
     <div className="space-y-4">
-      <GoogleButton redirectTo="/dashboard" label="Continue with Google" />
+      <GoogleButton redirectTo="/workspace" label="Continue with Google" />
       <Divider />
       <form action={formAction} className="space-y-4" noValidate>
         <Field>

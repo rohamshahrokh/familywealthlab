@@ -34,10 +34,10 @@ export function LoginForm({ next, flash }: Props) {
 
   return (
     <div className="space-y-4">
-      <GoogleButton redirectTo={next || "/dashboard"} label="Continue with Google" />
+      <GoogleButton redirectTo={next || "/workspace"} label="Continue with Google" />
       <Divider />
       <form action={formAction} className="space-y-4" noValidate>
-        <input type="hidden" name="next" value={next || "/dashboard"} />
+        <input type="hidden" name="next" value={next || "/workspace"} />
         <Field>
           <Label htmlFor="email">Email</Label>
           <Input

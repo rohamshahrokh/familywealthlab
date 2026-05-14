@@ -33,7 +33,7 @@ export default async function MfaPage({ searchParams }: Props) {
       title="Verify it's you."
       subtitle="Enter the 6-digit code from your authenticator app to continue."
     >
-      <MfaChallengeForm factorId={totp.id} next={searchParams?.next ?? "/dashboard"} />
+      <MfaChallengeForm factorId={totp.id} next={searchParams?.next ?? "/workspace"} />
     </AuthShell>
   );
 }

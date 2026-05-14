@@ -52,7 +52,7 @@ export async function middleware(request: NextRequest) {
 
   // Already signed in → bounce signup/login away.
   if (user && (pathname === "/login" || pathname === "/signup")) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/workspace", request.url));
   }
 
   // Protected route without a session → /login?next=...
