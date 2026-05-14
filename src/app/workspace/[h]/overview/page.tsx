@@ -264,8 +264,9 @@ export default async function OverviewPage({ params }: Props) {
                 label: c.category,
                 value: c.amount,
                 meta: `${(c.pct * 100).toFixed(0)}%`,
+                valueText: fmtMoneyCompact(c.amount),
               }))}
-              valueLabel={(n) => fmtMoneyCompact(n)}
+              valueFormat="moneyCompact"
             />
           )}
         </SurfaceCard>
