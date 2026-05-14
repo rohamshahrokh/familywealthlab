@@ -1,5 +1,6 @@
 import "server-only";
 import { headers } from "next/headers";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createSupabaseServiceClient } from "@/lib/supabase/service";
 
 export type AuthEvent =
@@ -59,4 +60,39 @@ export async function logAuthEvent({ userId, email, event, metadata }: LogArgs) 
       console.warn("[audit] failed to log", event, err);
     }
   }
+}
+
+/**
+ * Insert into audit.data_change_log for any ledger mutation. Failure is
+ * swallowed because RLS may deny non-service-role writes — Phase 2 will move
+ * this to a Postgres trigger. For now the user action must still complete
+ * even if the audit log fails.
+ */
+export async function logLedgerChange(
+  supabase: SupabaseClient,
+  row: {
+    household_id: string;
+    user_id: string;
+    table_name: string;
+    row_id: string;
+    action: "insert" | "update" | "delete";
+    diff: Record<string, unknown>;
+  },
+): Promise<void> {
+  await supabase
+    .schema("audit")
+    .from("data_change_log")
+    .insert({
+      household_id: row.household_id,
+      user_id: row.user_id,
+      schema_name: "ledger",
+      table_name: row.table_name,
+      row_id: row.row_id,
+      action: row.action,
+      diff: row.diff,
+    })
+    .then(
+      () => undefined,
+      () => undefined,
+    );
 }
