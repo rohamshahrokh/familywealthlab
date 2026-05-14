@@ -20,3 +20,5 @@ export { MetricCard } from "./MetricCard";
 export type { MetricFormat, MetricTone } from "./MetricCard";
 export { InsightCard } from "./InsightCard";
 export type { InsightSeverity } from "./InsightCard";
+export { CashflowComboChart } from "./CashflowComboChart";
+export type { ComboPoint, ComboChartType } from "./CashflowComboChart";
