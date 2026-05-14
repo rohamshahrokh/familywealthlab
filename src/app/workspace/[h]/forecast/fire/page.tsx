@@ -5,6 +5,8 @@ import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
+import { AreaLine } from "@/components/workspace/charts";
+import { getChartBundle } from "@/lib/dashboard/charts";
 import { fmtMoney, fmtMoneyCompact, fmtPercent, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -55,7 +57,10 @@ export default async function FireForecastPage({ params }: Props) {
     );
   }
 
-  const { result } = await runDecision(params.h);
+  const [{ result }, charts] = await Promise.all([
+    runDecision(params.h),
+    getChartBundle(params.h),
+  ]);
   const target = fire.targetAmount;
   const crossoverMonth = result.medianNwPath.findIndex((nw) => nw >= target);
   const crossoverYears = crossoverMonth >= 0 ? crossoverMonth / 12 : null;
@@ -130,6 +135,26 @@ export default async function FireForecastPage({ params }: Props) {
             <div className="h-full bg-ember-500" style={{ width: `${Math.min(100, Math.round((fire.progressPct ?? 0) * 100))}%` }} />
           </div>
         </div>
+      </SurfaceCard>
+
+      <SurfaceCard>
+        <CardHeader index="[C·1]" eyebrow="Path" title="Liquid wealth projection vs FIRE target" />
+        <p className="text-caption text-ink-tertiary -mt-2 mb-4">
+          Annual liquid wealth path and the {fmtMoneyCompact(target)} FIRE target line.
+        </p>
+        {charts.firePath.length === 0 ? (
+          <EmptyState index="·" eyebrow="Empty" title="Awaiting data" body="FIRE path activates once your ledger has investments." />
+        ) : (
+          <AreaLine
+            xLabels={charts.firePath.map((p) => `${p.year} · ${p.age}`)}
+            series={[
+              { label: "Liquid wealth",  values: charts.firePath.map((p) => p.liquidWealth), color: "#C97030", fill: true },
+              { label: "Total wealth",   values: charts.firePath.map((p) => p.totalWealth),  color: "#7B6CF6" },
+              { label: "FIRE target",    values: charts.firePath.map(() => target),           color: "#C24A6B" },
+            ]}
+            height={260}
+          />
+        )}
       </SurfaceCard>
     </div>
   );

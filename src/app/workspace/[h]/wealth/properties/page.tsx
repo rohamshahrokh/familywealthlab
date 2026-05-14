@@ -1,143 +1,115 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+/**
+ * Properties page — server component orchestrator.
+ *
+ * Three tabs (URL-driven via ?tab=):
+ *   portfolio   (default) — KPIs + IP Capacity Calculator + per-property cards
+ *   buy-vs-wait           — buy now vs wait N months scenario
+ *   impact                — hypothetical IP portfolio impact
+ *
+ * Add/edit driven by ?add=1 / ?edit=<id>.
+ * All state lives in URL — no client-side hydration required.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 import { requireOnboarded } from "@/lib/auth";
-import { SurfaceCard, CardHeader, EmptyState, MetricRow } from "@/components/workspace/cards";
-import { fmtMoney, fmtPercent } from "@/components/workspace/format";
-import { PropertyForm } from "./PropertyForm";
-import { DeletePropertyButton } from "./DeletePropertyButton";
-import { Building2, Calendar } from "lucide-react";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { TabBar } from "./_components/TabBar";
+import { PortfolioView } from "./_views/PortfolioView";
+import { BuyVsWaitView } from "./_views/BuyVsWaitView";
+import { ImpactView } from "./_views/ImpactView";
+import { Button } from "@/components/ui/Button";
+import type { PropertyRow } from "./PropertyForm";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Properties — Family Wealth Lab",
+  title: "Property Portfolio — Family Wealth Lab",
 };
 
-type PropertyRow = {
-  id: string;
-  name: string;
-  type: "ppor" | "owner_occupied" | "investment";
-  purchase_price: number | null;
-  current_value: number | null;
-  loan_amount: number | null;
-  interest_rate: number | null;
-  loan_term_years: number | null;
-  settlement_date: string | null;
-  rental_income: number | null;
-  expenses: number | null;
-  notes: string | null;
+// ─── Full DB row shape (post depth migration) ─────────────────────────────────
+type DbPropertyRow = PropertyRow & {
+  household_id: string;
+  created_at?: string;
 };
 
-interface Props {
+interface PageProps {
   params: { h: string };
+  searchParams: Record<string, string | string[]>;
 }
 
-export default async function PropertiesPage({ params }: Props) {
+export default async function PropertiesPage({ params, searchParams: rawSp }: PageProps) {
   await requireOnboarded(`/workspace/${params.h}/wealth/properties`);
+
+  const householdId = params.h;
+
+  // Flatten searchParams (Next.js may give string | string[])
+  const sp: Record<string, string> = {};
+  for (const [k, v] of Object.entries(rawSp)) {
+    sp[k] = Array.isArray(v) ? v[0] : v;
+  }
+
+  const tab      = sp.tab ?? "portfolio";
+  const basePath = `/workspace/${householdId}/wealth/properties`;
+
+  // ── Fetch all properties for the household ──────────────────────────────
   const supabase = createSupabaseServerClient();
-  const { data: rows } = await supabase
+  const { data: rows, error } = await supabase
     .schema("ledger")
     .from("properties")
     .select("*")
-    .eq("household_id", params.h)
+    .eq("household_id", householdId)
     .order("created_at", { ascending: true });
 
-  const properties = (rows ?? []) as PropertyRow[];
-  const today = new Date().toISOString().slice(0, 10);
+  if (error) {
+    console.error("[PropertiesPage] fetch error", error);
+  }
+
+  const properties = (rows ?? []) as DbPropertyRow[];
 
   return (
-    <div className="space-y-8 sm:space-y-10">
-      <header>
-        <div className="syslabel mb-3">
-          <span className="syslabel-bracket">[02]</span>
-          <span>Wealth · Properties</span>
-        </div>
-        <h1 className="text-h3 sm:text-h2 text-ink-primary tracking-tight">Property ledger</h1>
-        <p className="mt-3 text-body text-ink-tertiary max-w-2xl text-pretty">
-          Every property your engine considers — PPOR, investment, and planned
-          purchases. The Decision Engine reads this ledger for equity,
-          serviceability, and rental income.
-        </p>
-      </header>
-
-      <section>
-        <div className="syslabel mb-4">
-          <span className="syslabel-bracket">[A]</span>
-          <span>Add property</span>
-        </div>
-        <SurfaceCard>
-          <PropertyForm householdId={params.h} />
-        </SurfaceCard>
-      </section>
-
-      <section className="space-y-4">
-        <div className="syslabel">
-          <span className="syslabel-bracket">[B]</span>
-          <span>Portfolio · {properties.length} {properties.length === 1 ? "row" : "rows"}</span>
-        </div>
-
-        {properties.length === 0 ? (
-          <EmptyState
-            index="·"
-            eyebrow="No properties yet"
-            title="Add your home or first investment property."
-            body="Start with your PPOR (primary residence). You can add investment properties and planned purchases afterwards — the engine treats them differently based on settlement date."
-          />
-        ) : (
-          <div className="grid gap-4">
-            {properties.map((p) => {
-              const settled = !p.settlement_date || p.settlement_date <= today;
-              const equity =
-                (p.current_value ?? 0) - (p.loan_amount ?? 0);
-              return (
-                <SurfaceCard key={p.id}>
-                  <CardHeader
-                    index={settled ? "[●]" : "[○]"}
-                    eyebrow={`${p.type === "ppor" || p.type === "owner_occupied" ? "PPOR" : "Investment"} · ${settled ? "Settled" : "Planned"}`}
-                    title={
-                      <span className="inline-flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-ink-quaternary" />
-                        {p.name}
-                      </span>
-                    }
-                    trailing={<DeletePropertyButton householdId={params.h} propertyId={p.id} />}
-                  />
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 -mx-1">
-                    <MetricRow label="Current value" value={fmtMoney(p.current_value)} />
-                    <MetricRow label="Loan balance" value={fmtMoney(p.loan_amount)} tone="negative" />
-                    <MetricRow
-                      label="Equity"
-                      value={fmtMoney(equity)}
-                      tone={equity >= 0 ? "positive" : "negative"}
-                    />
-                    <MetricRow label="Purchase price" value={fmtMoney(p.purchase_price)} />
-                    <MetricRow label="Interest rate" value={p.interest_rate != null ? fmtPercent(Number(p.interest_rate)) : "—"} />
-                    <MetricRow
-                      label={
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5 text-ink-quaternary" />
-                          Settlement
-                        </span>
-                      }
-                      value={p.settlement_date ?? "—"}
-                    />
-                    {p.type !== "ppor" && p.type !== "owner_occupied" && (
-                      <>
-                        <MetricRow label="Rental (mo)" value={fmtMoney(p.rental_income)} tone="positive" />
-                        <MetricRow label="Expenses (mo)" value={fmtMoney(p.expenses)} />
-                      </>
-                    )}
-                  </div>
-                  {p.notes && (
-                    <p className="mt-4 text-caption text-ink-quaternary border-l-2 border-line pl-3 italic">
-                      {p.notes}
-                    </p>
-                  )}
-                </SurfaceCard>
-              );
-            })}
+    <div className="space-y-6">
+      {/* ── Page header ─────────────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-h5 sm:text-h4 font-semibold text-ink-primary tracking-tight">
+              Property Portfolio
+            </h1>
+            <p className="mt-1 text-body-sm text-ink-tertiary">
+              Track properties, model purchase capacity, project equity &amp; cashflow
+            </p>
           </div>
-        )}
-      </section>
+          <Link href={`${basePath}?add=1`}>
+            <Button variant="primary" size="sm">+ Add Property</Button>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Tab bar ─────────────────────────────────────────────────────── */}
+      <TabBar activeTab={tab} basePath={basePath} />
+
+      {/* ── Active tab view ──────────────────────────────────────────────── */}
+      {tab === "buy-vs-wait" ? (
+        <BuyVsWaitView
+          basePath={basePath}
+          searchParams={sp}
+        />
+      ) : tab === "impact" ? (
+        <ImpactView
+          basePath={basePath}
+          properties={properties}
+          searchParams={sp}
+        />
+      ) : (
+        /* Default: portfolio */
+        <PortfolioView
+          householdId={householdId}
+          basePath={basePath}
+          properties={properties}
+          searchParams={sp}
+        />
+      )}
     </div>
   );
 }

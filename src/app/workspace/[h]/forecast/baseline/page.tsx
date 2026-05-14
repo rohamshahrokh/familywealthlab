@@ -5,6 +5,8 @@ import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
 import { PageHeader } from "@/components/workspace/PageHeader";
+import { AreaLine } from "@/components/workspace/charts";
+import { getChartBundle } from "@/lib/dashboard/charts";
 import { fmtMoney, fmtMoneyCompact, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -40,7 +42,10 @@ export default async function BaselineForecastPage({ params }: Props) {
     );
   }
 
-  const { result } = await runDecision(params.h);
+  const [{ result }, charts] = await Promise.all([
+    runDecision(params.h),
+    getChartBundle(params.h),
+  ]);
   const horizonYears = Math.round(result.horizonMonths / 12);
   const finalNwIdx = result.medianNwPath.length - 1;
   const finalCashIdx = result.medianCashPath.length - 1;
@@ -99,7 +104,28 @@ export default async function BaselineForecastPage({ params }: Props) {
         </div>
       </SurfaceCard>
 
-      {/* ── [D] Engine notes ──────────────────────────────────── */}
+      {/* ── [C] Composition trajectory ─────────────────────── */}
+      <SurfaceCard>
+        <CardHeader index="[C·1]" eyebrow="Composition" title="Asset trajectory by class" />
+        <p className="text-caption text-ink-tertiary -mt-2 mb-4">
+          Deterministic projection of property, investments, super and cash over the next 20 years.
+        </p>
+        {charts.netWorthTrajectory.length === 0 ? (
+          <EmptyState index="·" eyebrow="Empty" title="Awaiting data" body="Composition trajectory activates once your ledger has assets." />
+        ) : (
+          <AreaLine
+            xLabels={charts.netWorthTrajectory.map((p) => String(p.year))}
+            series={[
+              { label: "Property",    values: charts.netWorthTrajectory.map((p) => p.property),       color: "#3FA88F", fill: true },
+              { label: "Investments", values: charts.netWorthTrajectory.map((p) => p.investments),    color: "#7B6CF6" },
+              { label: "Super",       values: charts.netWorthTrajectory.map((p) => p.superannuation), color: "#E0A040" },
+              { label: "Cash",        values: charts.netWorthTrajectory.map((p) => p.cash),           color: "#5085D9" },
+            ]}
+            height={260}
+          />
+        )}
+      </SurfaceCard>
+
       {result.warnings.length > 0 && (
         <SurfaceCard tone="inset">
           <CardHeader index="[D·1]" eyebrow="Diagnostic" title="Engine notes" />

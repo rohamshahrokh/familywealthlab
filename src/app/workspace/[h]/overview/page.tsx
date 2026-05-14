@@ -5,6 +5,8 @@ import { getSnapshot } from "@/lib/snapshot";
 import {
   SurfaceCard, CardHeader, KpiCard, MetricRow, EmptyState,
 } from "@/components/workspace/cards";
+import { Donut, BarRow, AreaLine } from "@/components/workspace/charts";
+import { getChartBundle } from "@/lib/dashboard/charts";
 import { fmtMoney, fmtMoneyCompact, fmtPercent, fmtNumber } from "@/components/workspace/format";
 
 export const dynamic = "force-dynamic";
@@ -19,8 +21,11 @@ interface Props { params: { h: string } }
  * an empty state with a CTA to the relevant input page. Nothing is invented.
  */
 export default async function OverviewPage({ params }: Props) {
-  const session = await getSessionUser();
-  const snap = await getSnapshot(params.h);
+  const [session, snap, charts] = await Promise.all([
+    getSessionUser(),
+    getSnapshot(params.h),
+    getChartBundle(params.h),
+  ]);
   const first = session?.profile?.display_name?.split(" ")[0] ?? "there";
 
   const wealth = snap.wealth;
@@ -103,6 +108,45 @@ export default async function OverviewPage({ params }: Props) {
         </div>
       </section>
 
+      {/* ── [03·B] Allocation donut ───────────────────────────────── */}
+      <section className="grid lg:grid-cols-5 gap-4">
+        <SurfaceCard className="lg:col-span-2">
+          <CardHeader index="[03·B]" eyebrow="Mix" title="Allocation" />
+          <p className="text-caption text-ink-tertiary -mt-2 mb-4">Where your wealth sits today.</p>
+          {charts.allocation.length === 0 ? (
+            <EmptyState index="·" eyebrow="Empty" title="No assets yet"
+              body="Add cash, property, super, stocks or crypto to see your portfolio mix."
+              ctaLabel="Add assets" ctaHref={`/workspace/${params.h}/wealth/cash`} />
+          ) : (
+            <Donut
+              slices={charts.allocation.map((s) => ({
+                label: s.bucket, value: s.amount, color: s.color,
+              }))}
+              centerLabel={fmtMoneyCompact(charts.allocation.reduce((a, s) => a + s.amount, 0))}
+              centerSub="Total assets"
+            />
+          )}
+        </SurfaceCard>
+
+        <SurfaceCard className="lg:col-span-3">
+          <CardHeader index="[03·C]" eyebrow="Path" title="Net-worth trajectory" />
+          <p className="text-caption text-ink-tertiary -mt-2 mb-4">Deterministic projection of your ledger — 20 years.</p>
+          {charts.netWorthTrajectory.length === 0 ? (
+            <EmptyState index="·" eyebrow="Empty" title="Awaiting data" body="Net-worth path activates once your ledger has assets and income." />
+          ) : (
+            <AreaLine
+              xLabels={charts.netWorthTrajectory.map((p) => String(p.year))}
+              series={[
+                { label: "Net worth", values: charts.netWorthTrajectory.map((p) => p.netWorth), color: "#C97030", fill: true },
+                { label: "Investments", values: charts.netWorthTrajectory.map((p) => p.investments), color: "#7B6CF6" },
+                { label: "Property equity", values: charts.netWorthTrajectory.map((p) => p.property - (p.liabilities)), color: "#3FA88F" },
+              ]}
+              height={260}
+            />
+          )}
+        </SurfaceCard>
+      </section>
+
       {/* ── [04] FIRE & emergency buffer ──────────────────────────── */}
       <section className="grid lg:grid-cols-2 gap-4">
         <SurfaceCard>
@@ -160,6 +204,69 @@ export default async function OverviewPage({ params }: Props) {
                 <MetricRow label="Coverage" value={fmtPercent(buffer.monthsCovered / buffer.targetMonths)} />
               </div>
             </div>
+          )}
+        </SurfaceCard>
+      </section>
+
+      {/* ── [04·C] Cashflow trend & top categories ───────────────── */}
+      <section className="grid lg:grid-cols-5 gap-4">
+        <SurfaceCard className="lg:col-span-3">
+          <CardHeader index="[04·C]" eyebrow="Cashflow" title="Income vs expenses" />
+          <p className="text-caption text-ink-tertiary -mt-2 mb-4">12-month rhythm of your ledger.</p>
+          {charts.monthlyTrend.length === 0 ? (
+            <EmptyState index="·" eyebrow="Empty" title="No cashflow yet"
+              body="Add income and expense rows to populate the cashflow trend."
+              ctaLabel="Add income" ctaHref={`/workspace/${params.h}/input/expenses?tab=income`} />
+          ) : (
+            <AreaLine
+              xLabels={charts.monthlyTrend.map((p) => p.label)}
+              series={[
+                { label: "Income",   values: charts.monthlyTrend.map((p) => p.income),   color: "#3FA88F", fill: true },
+                { label: "Expenses", values: charts.monthlyTrend.map((p) => p.expenses), color: "#C24A6B" },
+                { label: "Surplus",  values: charts.monthlyTrend.map((p) => p.surplus),  color: "#C97030" },
+              ]}
+              height={240}
+            />
+          )}
+        </SurfaceCard>
+
+        <SurfaceCard className="lg:col-span-2">
+          <CardHeader index="[04·D]" eyebrow="Spend" title="Top categories" />
+          <p className="text-caption text-ink-tertiary -mt-2 mb-4">Monthly equivalent · top 6.</p>
+          {charts.expensesByCategory.length === 0 ? (
+            <EmptyState index="·" eyebrow="Empty" title="No expenses recorded"
+              body="Add an expense to see how your spending splits."
+              ctaLabel="Add expense" ctaHref={`/workspace/${params.h}/input/expenses?add=1`} />
+          ) : (
+            <BarRow
+              rows={charts.expensesByCategory.slice(0, 6).map((c) => ({
+                label: c.category,
+                value: c.amount,
+                meta: `${(c.pct * 100).toFixed(0)}%`,
+              }))}
+              valueLabel={(n) => fmtMoneyCompact(n)}
+            />
+          )}
+        </SurfaceCard>
+      </section>
+
+      {/* ── [04·E] FIRE path projection ──────────────────────────── */}
+      <section>
+        <SurfaceCard>
+          <CardHeader index="[04·E]" eyebrow="FIRE" title="Liquid wealth vs target income" />
+          <p className="text-caption text-ink-tertiary -mt-2 mb-4">Projected liquid wealth (ex-super) and the passive income it can sustain at 4% SWR.</p>
+          {charts.firePath.length === 0 ? (
+            <EmptyState index="·" eyebrow="Empty" title="Awaiting data" body="FIRE path activates once income, expenses, and at least one investment are recorded." />
+          ) : (
+            <AreaLine
+              xLabels={charts.firePath.map((p) => `${p.year} · ${p.age}`)}
+              series={[
+                { label: "Liquid wealth",  values: charts.firePath.map((p) => p.liquidWealth),       color: "#C97030", fill: true },
+                { label: "Total wealth",   values: charts.firePath.map((p) => p.totalWealth),        color: "#7B6CF6" },
+                { label: "Passive income", values: charts.firePath.map((p) => p.passiveIncomeAnnual), color: "#3FA88F" },
+              ]}
+              height={260}
+            />
           )}
         </SurfaceCard>
       </section>
