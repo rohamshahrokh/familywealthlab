@@ -141,7 +141,7 @@ export function WorkspaceShell({
   return (
     <div className="min-h-screen bg-bg-base flex flex-col md:flex-row">
       {/* ── Mobile topbar ─────────────────────────────────────────────────── */}
-      <header className="md:hidden sticky top-0 z-40 glass-nav">
+      <header className="md:hidden sticky top-0 z-40 bg-bg-base/95 border-b border-line">
         <div className="container mx-auto h-14 flex items-center justify-between">
           <Link href={`/workspace/${householdId}/overview`} className="flex items-center gap-2.5 focus-ring rounded-md">
             <Logo />
@@ -160,7 +160,7 @@ export function WorkspaceShell({
           </button>
         </div>
         {open && (
-          <div className="border-t border-line bg-bg-base/95 backdrop-blur-md max-h-[80vh] overflow-y-auto">
+          <div className="border-t border-line bg-bg-base max-h-[calc(100dvh-3.5rem)] overflow-y-auto overscroll-contain">
             <div className="container mx-auto py-4 flex flex-col gap-1">
               <SidebarNav groups={groups} isActiveLeaf={isActiveLeaf} groupHasActive={groupHasActive} onNavigate={() => setOpen(false)} />
               <div className="hairline my-3" />
@@ -177,7 +177,7 @@ export function WorkspaceShell({
       </header>
 
       {/* ── Desktop rail ─────────────────────────────────────────────────── */}
-      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:border-r md:border-line md:bg-bg-base/80 md:backdrop-blur-xl">
+      <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 md:border-r md:border-line md:bg-bg-base">
         <div className="px-6 pt-7 pb-5">
           <Link href={`/workspace/${householdId}/overview`} className="flex items-center gap-2.5 focus-ring rounded-md">
             <Logo />
@@ -195,7 +195,7 @@ export function WorkspaceShell({
           </div>
         </div>
 
-        <nav className="px-3 flex-1 space-y-1 overflow-y-auto">
+        <nav className="px-3 flex-1 min-h-0 space-y-1 overflow-y-auto overscroll-contain">
           <SidebarNav groups={groups} isActiveLeaf={isActiveLeaf} groupHasActive={groupHasActive} />
         </nav>
 

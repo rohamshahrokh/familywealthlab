@@ -1,5 +1,6 @@
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
+import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 import { Hero } from "@/components/sections/Hero";
 import { StatsBand } from "@/components/sections/StatsBand";
 import { Chaos } from "@/components/sections/Chaos";
@@ -12,7 +13,7 @@ import { FinalCTA } from "@/components/sections/FinalCTA";
 
 export default function HomePage() {
   return (
-    <>
+    <SmoothScrollProvider>
       <Nav />
       <main className="relative">
         <Hero />
@@ -26,6 +27,6 @@ export default function HomePage() {
         <FinalCTA />
       </main>
       <Footer />
-    </>
+    </SmoothScrollProvider>
   );
 }

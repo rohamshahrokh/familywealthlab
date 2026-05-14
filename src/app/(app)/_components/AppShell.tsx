@@ -30,7 +30,7 @@ export function AppShell({ children, displayName, email }: Props) {
   return (
     <div className="min-h-screen bg-bg-base">
       {/* Mobile top bar */}
-      <header className="md:hidden sticky top-0 z-40 bg-bg-base/90 backdrop-blur-md border-b border-line">
+      <header className="md:hidden sticky top-0 z-40 bg-bg-base/95 border-b border-line">
         <div className="container mx-auto h-14 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2.5 focus-ring rounded-md">
             <Logo />

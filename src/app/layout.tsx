@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
+// SmoothScrollProvider is intentionally NOT mounted globally. Lenis is heavy
+// (RAF loop + wheel-event interception) and made the authenticated app feel
+// sluggish vs. the original personal version. It is now opt-in per page via
+// `<SmoothScrollProvider>` on the marketing landing only.
 
 const inter = Inter({
   subsets: ["latin"],
@@ -60,7 +63,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-AU" className={`${inter.variable} ${jetbrains.variable}`}>
       <body className="bg-bg-base text-ink-secondary font-sans">
-        <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        {children}
       </body>
     </html>
   );
