@@ -10,6 +10,8 @@
 import * as React from "react";
 import { MatrixGrid, type MatrixCell, type MatrixColumn, type MatrixRow } from "@/components/ui/MatrixGrid";
 
+export type DecisionMetricFormat = "percent" | "money" | "moneyCompact" | "raw";
+
 export interface DecisionRiskMetric {
   label: string;
   caption?: string;
@@ -17,8 +19,12 @@ export interface DecisionRiskMetric {
   /** thresholds: <= warnAt = positive, <= dangerAt = warning, else negative */
   warnAt: number;
   dangerAt: number;
-  /** Format the value for display. */
-  format?: (v: number) => string;
+  /** Serializable formatter selector (default: "percent"). */
+  format?: DecisionMetricFormat;
+  /** Optional pre-formatted display strings, one per candidate. Takes
+   *  precedence over `format` when provided. Useful for server pages that
+   *  want absolute control over numerals. */
+  displayValues?: string[];
   /** True when "higher is better" (e.g. survival). Default false. */
   higherIsBetter?: boolean;
 }
@@ -37,7 +43,15 @@ interface Props {
   className?: string;
 }
 
-const defaultFmt = (n: number) => `${(n * 100).toFixed(1)}%`;
+function formatValue(n: number, format: DecisionMetricFormat | undefined): string {
+  switch (format) {
+    case "money":        return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", maximumFractionDigits: 0 }).format(n);
+    case "moneyCompact": return new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD", notation: "compact", maximumFractionDigits: 1 }).format(n);
+    case "raw":          return n.toLocaleString("en-AU");
+    case "percent":
+    default:             return `${(n * 100).toFixed(1)}%`;
+  }
+}
 
 function toneFor(
   v: number,
@@ -70,8 +84,8 @@ export function DecisionMatrix({
     caption: m.caption,
     cells: candidates.map<MatrixCell>((_, i) => {
       const v = m.values[i] ?? 0;
-      const fmt = m.format ?? defaultFmt;
-      return { value: fmt(v), tone: toneFor(v, m) };
+      const display = m.displayValues?.[i] ?? formatValue(v, m.format);
+      return { value: display, tone: toneFor(v, m) };
     }),
   }));
 

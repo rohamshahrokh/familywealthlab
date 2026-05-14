@@ -6,26 +6,41 @@
 
 import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CHART_PALETTE, fmtAud, EASE_OUT_EXPO } from "./chart-utils";
+import { CHART_PALETTE, fmtAud, fmtCompact, EASE_OUT_EXPO } from "./chart-utils";
 
 interface Row {
   label: string;
   value: number;
   color?: string;
   meta?: string;
+  /** Optional pre-formatted value string. Use this instead of `valueFormat`
+   *  when callers want full control (e.g. server pages, which can't pass
+   *  a function prop into this client component). */
+  valueText?: string;
 }
+
+export type BarValueFormat = "money" | "moneyCompact" | "raw";
 
 interface Props {
   rows: Row[];
-  valueLabel?: (n: number) => string;
+  /** Built-in formatter selector — serializable across the RSC boundary. */
+  valueFormat?: BarValueFormat;
   max?: number;
 }
 
-export function InteractiveBarRow({ rows, valueLabel, max }: Props) {
+function defaultFmt(format: BarValueFormat | undefined, n: number) {
+  switch (format) {
+    case "moneyCompact": return fmtCompact(n);
+    case "raw":          return String(n);
+    case "money":
+    default:             return fmtAud(n);
+  }
+}
+
+export function InteractiveBarRow({ rows, valueFormat, max }: Props) {
   const reduceMotion = useReducedMotion();
   const [hover, setHover] = React.useState<number | null>(null);
   const ceiling = max ?? Math.max(...rows.map((r) => r.value), 1);
-  const fmt = valueLabel ?? ((n: number) => fmtAud(n));
 
   return (
     <div className="space-y-2.5">
@@ -49,7 +64,7 @@ export function InteractiveBarRow({ rows, valueLabel, max }: Props) {
                 {r.label}
               </span>
               <span className="text-ink-primary tabular-nums font-medium">
-                {fmt(r.value)}
+                {r.valueText ?? defaultFmt(valueFormat, r.value)}
                 {r.meta && (
                   <span className="text-ink-quaternary ml-1.5">{r.meta}</span>
                 )}
