@@ -3,7 +3,15 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import { Section, SystemLabel } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
+import { Sparkline } from "@/components/ui/Sparkline";
+import { Counter } from "@/components/ui/Counter";
+import { LiveValue } from "@/components/ui/LiveValue";
 import { Bell, Sparkles } from "lucide-react";
+
+// 12-mo trailing net-worth curve for mobile dashboard sparkline
+const NW_TRAIL = [2.18, 2.21, 2.19, 2.24, 2.26, 2.29, 2.31, 2.33, 2.36, 2.38, 2.40, 2.41];
+// Cashflow projection — 24 months ahead, generally upward with slight oscillation
+const CASHFLOW_PATH = [4.2, 4.4, 4.3, 4.6, 4.8, 4.7, 5.0, 5.3, 5.2, 5.5, 5.8, 5.9, 6.1, 6.4, 6.3, 6.6, 6.9, 7.0, 7.3, 7.6, 7.5, 7.9, 8.2, 8.4];
 
 export function MobileExperience() {
   return (
@@ -90,13 +98,31 @@ function ScreenDashboard() {
     <div className="flex flex-col gap-3">
       <p className="text-[0.6rem] mono uppercase tracking-wider text-ember-500">[GM] GOOD MORNING</p>
       <div>
-        <p className="text-h3 text-ink-primary mono">$2.41M</p>
-        <p className="text-caption text-positive mono">+$184K YoY · P50 $4.82M</p>
+        <LiveValue
+          to={2.41}
+          prefix="$"
+          suffix="M"
+          decimals={2}
+          jitter={0.004}
+          tickMs={3800}
+          duration={1.4}
+          className="text-h3 text-ink-primary mono"
+        />
+        <p className="text-caption text-positive mono">
+          +$<Counter to={184} suffix="K YoY" duration={1.2} className="inline" /> · P50 $4.82M
+        </p>
       </div>
-      <div className="rounded-md border border-line bg-bg-inset p-3 h-20 flex items-end">
-        <svg viewBox="0 0 200 50" className="w-full h-full">
-          <path d="M0,40 C40,32 80,26 120,18 C160,10 180,8 200,4" fill="none" stroke="#0B0F1A" strokeWidth="1.5" />
-        </svg>
+      <div className="rounded-md border border-line bg-bg-inset p-3 h-20 flex items-end overflow-hidden">
+        <Sparkline
+          data={NW_TRAIL}
+          width={200}
+          height={50}
+          stroke="#0B0F1A"
+          fill="rgba(11,15,26,0.06)"
+          endDot
+          duration={1.4}
+          className="w-full h-full"
+        />
       </div>
       <div className="grid grid-cols-2 gap-2 text-caption">
         {[["FIRE", "2039"], ["SURV", "94%"], ["LVR", "58%"], ["DD", "−21%"]].map(([k, v]) => (
@@ -155,10 +181,21 @@ function ScreenAI() {
         </p>
       </div>
       <div className="rounded-md border border-line bg-bg-inset p-2.5 text-caption">
-        <p className="text-[0.6rem] mono uppercase tracking-wider text-ink-quaternary mb-1">CASHFLOW PATH</p>
-        <svg viewBox="0 0 200 40" className="w-full h-8">
-          <path d="M0,30 L40,28 L80,22 L120,26 L160,16 L200,12" fill="none" stroke="#0B0F1A" strokeWidth="1.5" />
-        </svg>
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-[0.6rem] mono uppercase tracking-wider text-ink-quaternary">CASHFLOW PATH</p>
+          <span className="text-[0.6rem] mono text-ember-500">+$<Counter to={4.2} decimals={1} suffix="K/mo" duration={1.4} className="inline" /></span>
+        </div>
+        <Sparkline
+          data={CASHFLOW_PATH}
+          width={200}
+          height={32}
+          stroke="#C97030"
+          fill="rgba(201,112,48,0.08)"
+          endDot
+          duration={1.6}
+          delay={0.1}
+          className="w-full h-8"
+        />
       </div>
     </div>
   );

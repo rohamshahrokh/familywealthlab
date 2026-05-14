@@ -3,6 +3,8 @@ import * as React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Section, SystemLabel } from "@/components/ui/Section";
 import { Reveal } from "@/components/ui/Reveal";
+import { Counter } from "@/components/ui/Counter";
+import { LiveValue } from "@/components/ui/LiveValue";
 
 type Fragment = {
   label: string;
@@ -90,8 +92,19 @@ export function Chaos() {
               </span>
             </div>
             <div className="mt-4 flex items-baseline gap-3">
-              <span className="text-display text-ink-primary mono tracking-tightest">$2.41M</span>
-              <span className="text-body-sm text-positive mono">+$184K YoY</span>
+              <LiveValue
+                to={2.41}
+                prefix="$"
+                suffix="M"
+                decimals={2}
+                jitter={0.004}
+                tickMs={4200}
+                duration={1.6}
+                className="text-display text-ink-primary mono tracking-tightest"
+              />
+              <span className="text-body-sm text-positive mono">
+                +$<Counter to={184} suffix="K YoY" duration={1.4} className="inline" />
+              </span>
             </div>
             <p className="mt-1.5 text-caption text-ink-quaternary mono uppercase tracking-wider">
               Net worth · reconciled across 14 sources
