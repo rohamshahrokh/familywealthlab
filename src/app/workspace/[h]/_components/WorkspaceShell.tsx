@@ -147,7 +147,7 @@ export function WorkspaceShell({
             <Logo />
             <span className="inline-flex items-baseline gap-1.5">
               <span className="text-body-sm font-semibold tracking-tight text-ink-primary">Family Wealth Lab</span>
-              <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
+              <span className="mono text-[0.625rem] text-ink-quaternary tracking-wider">[FWL]</span>
             </span>
           </Link>
           <button
@@ -166,8 +166,8 @@ export function WorkspaceShell({
               <div className="hairline my-3" />
               <form action="/auth/signout" method="post">
                 <button type="submit"
-                  className="w-full inline-flex items-center gap-3 rounded-2xl px-3.5 h-11 text-body-sm text-ink-secondary hover:bg-bg-inset hover:text-ink-primary focus-ring">
-                  <LogOut className="h-4 w-4" />
+                  className="w-full inline-flex items-center gap-3 rounded-xl px-3.5 h-10 text-body-sm text-ink-secondary hover:bg-bg-inset hover:text-ink-primary focus-ring">
+                  <LogOut className="h-3.5 w-3.5" />
                   <span>Sign out</span>
                 </button>
               </form>
@@ -183,7 +183,7 @@ export function WorkspaceShell({
             <Logo />
             <span className="inline-flex items-baseline gap-1.5">
               <span className="text-body-sm font-semibold tracking-tight text-ink-primary">Family Wealth Lab</span>
-              <span className="mono text-[0.625rem] text-ember-500 tracking-wider">[FWL]</span>
+              <span className="mono text-[0.625rem] text-ink-quaternary tracking-wider">[FWL]</span>
             </span>
           </Link>
         </div>
@@ -272,13 +272,13 @@ function SidebarGroup({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         className={cn(
-          "w-full flex items-center gap-3 rounded-2xl px-3.5 h-11 text-body-sm font-medium focus-ring transition-colors",
+          "w-full flex items-center gap-3 rounded-xl px-3.5 h-10 text-body-sm font-medium focus-ring transition-colors duration-tactile",
           forceOpen ? "text-ink-primary" : "text-ink-secondary hover:bg-bg-inset hover:text-ink-primary",
         )}
       >
-        <Icon className="h-4 w-4" />
+        <Icon className="h-3.5 w-3.5" />
         <span className="flex-1 text-left">{group.label}</span>
-        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-tactile", open && "rotate-180")} />
       </button>
       {open && (
         <div className="mt-1 ml-2 pl-3 border-l border-line space-y-0.5">
@@ -301,7 +301,7 @@ function SidebarGroup({
                 )}
                 <span className={cn(
                   "mono text-[0.625rem] tracking-wider",
-                  active ? "text-white/70" : "text-ember-500",
+                  active ? "text-white/70" : "text-ink-quaternary",
                 )}>
                   {leaf.index}
                 </span>

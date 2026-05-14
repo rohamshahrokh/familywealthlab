@@ -33,8 +33,7 @@ export default async function OverviewPage({ params }: Props) {
   return (
     <div className="space-y-8 sm:space-y-10">
       {/* ── [01] Welcome ─────────────────────────────────────────── */}
-      <section className="card-cinematic p-7 sm:p-10 relative overflow-hidden">
-        <div className="absolute inset-0 ember-glow pointer-events-none" aria-hidden />
+      <section className="card-cinematic p-6 sm:p-8 relative overflow-hidden">
         <div className="relative">
           <div className="syslabel mb-4">
             <span className="syslabel-bracket">[01]</span>

@@ -11,21 +11,23 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Light-first OS palette — refined: paper, porcelain, graphite.
+        // Design-polish-v1 — Apple-grade family-office. Calmer, warmer paper.
+        // Surfaces are deliberately closer in value so the page feels stable,
+        // not stripey. Cards sit a notch above the page, not screaming above it.
         bg: {
-          base: "#F4F5F7",       // page background — slightly cooler than v3
+          base: "#F5F6F8",       // page — slightly warmer than v3 to feel less clinical
           surface: "#FFFFFF",    // primary cards
           elevated: "#FFFFFF",   // raised cards
-          inset: "#EDEEF1",      // recessed wells (slightly cooler)
-          soft: "#E8EAEE",       // tinted strips
-          deep: "#0B0F1A",       // deep navy — used for dark contrast strips
-          deeper: "#070A12",     // deepest navy for hero bottom band
+          inset: "#EFF0F3",      // recessed wells — closer to base for less contrast noise
+          soft: "#EAECEF",       // tinted strips
+          deep: "#0B0F1A",       // deep navy — dark contrast strips
+          deeper: "#070A12",     // deepest navy — hero bottom band
         },
-        // Hairlines — black-blue with very low alpha.
+        // Hairlines — slightly softer than v3 so card edges whisper, not shout.
         line: {
-          DEFAULT: "rgba(20, 28, 46, 0.10)",
-          strong: "rgba(20, 28, 46, 0.18)",
-          subtle: "rgba(20, 28, 46, 0.06)",
+          DEFAULT: "rgba(20, 28, 46, 0.08)",
+          strong: "rgba(20, 28, 46, 0.14)",
+          subtle: "rgba(20, 28, 46, 0.04)",
           ondark: "rgba(255, 255, 255, 0.08)",
           ondarkStrong: "rgba(255, 255, 255, 0.14)",
         },
@@ -55,18 +57,19 @@ const config: Config = {
           800: "#161F31",
           900: "#0E1422",
         },
-        // EMBER — the single point of warmth. Used sparingly: live signals, primary CTA hover, key deltas.
+        // EMBER — the single point of warmth. Slightly desaturated for a calmer,
+        // more premium-banking feel (less crypto-orange, more autumn-bronze).
         ember: {
-          50: "#FDF3EC",
-          100: "#FBE2D2",
-          200: "#F6BF99",
-          300: "#F19E63",
-          400: "#EC8540",
-          500: "#E26F2D",         // primary ember
-          600: "#C25920",
-          700: "#9D481C",
-          800: "#7A381A",
-          900: "#5A2A16",
+          50: "#FBF2EA",
+          100: "#F6E2D0",
+          200: "#EFC299",
+          300: "#E6A165",
+          400: "#DA8642",
+          500: "#C97030",         // primary ember — desaturated from E26F2D
+          600: "#A85A24",
+          700: "#88491F",
+          800: "#6A391B",
+          900: "#4F2B17",
         },
         // Ink — deep neutrals, NOT warm white.
         ink: {
@@ -118,17 +121,21 @@ const config: Config = {
         ],
       },
       fontSize: {
-        "eyebrow":    ["0.6875rem", { lineHeight: "1",   letterSpacing: "0.18em", fontWeight: "500" }],
-        "caption":    ["0.75rem",   { lineHeight: "1.4", letterSpacing: "0.005em" }],
-        "body-sm":    ["0.875rem",  { lineHeight: "1.55" }],
-        "body":       ["0.9375rem", { lineHeight: "1.6" }],
-        "body-lg":    ["1.0625rem", { lineHeight: "1.55" }],
-        "lead":       ["1.1875rem", { lineHeight: "1.5", letterSpacing: "-0.005em" }],
-        "h6":         ["1.0625rem", { lineHeight: "1.4",  letterSpacing: "-0.01em",  fontWeight: "600" }],
-        "h5":         ["1.125rem",  { lineHeight: "1.35", letterSpacing: "-0.012em", fontWeight: "600" }],
-        "h4":         ["1.25rem",   { lineHeight: "1.35", letterSpacing: "-0.015em", fontWeight: "600" }],
-        "h3":         ["1.625rem",  { lineHeight: "1.25", letterSpacing: "-0.02em", fontWeight: "600" }],
-        "h2":         ["clamp(1.875rem, 2.6vw + 0.5rem, 2.75rem)", { lineHeight: "1.1", letterSpacing: "-0.025em", fontWeight: "600" }],
+        // Type scale — calmer hierarchy. Heading weights dropped from 600 to 580–600,
+        // line-heights opened slightly so app surfaces feel more breathable.
+        // Eyebrow tracking eased from 0.18em → 0.14em (less Bloomberg-y).
+        "eyebrow":    ["0.6875rem", { lineHeight: "1.1", letterSpacing: "0.14em", fontWeight: "500" }],
+        "caption":    ["0.75rem",   { lineHeight: "1.45", letterSpacing: "0.003em" }],
+        "body-sm":    ["0.875rem",  { lineHeight: "1.6" }],
+        "body":       ["0.9375rem", { lineHeight: "1.62" }],
+        "body-lg":    ["1.0625rem", { lineHeight: "1.58" }],
+        "lead":       ["1.1875rem", { lineHeight: "1.5", letterSpacing: "-0.005em", fontWeight: "500" }],
+        "h6":         ["1.0625rem", { lineHeight: "1.4",  letterSpacing: "-0.012em", fontWeight: "600" }],
+        "h5":         ["1.125rem",  { lineHeight: "1.35", letterSpacing: "-0.014em", fontWeight: "600" }],
+        "h4":         ["1.25rem",   { lineHeight: "1.32", letterSpacing: "-0.018em", fontWeight: "600" }],
+        "h3":         ["1.5625rem", { lineHeight: "1.22", letterSpacing: "-0.022em", fontWeight: "600" }],
+        "h2":         ["clamp(1.75rem, 2.2vw + 0.5rem, 2.375rem)", { lineHeight: "1.14", letterSpacing: "-0.024em", fontWeight: "600" }],
+        // Display sizes retained for the marketing landing only.
         "display":    ["clamp(2.5rem, 4.2vw + 0.5rem, 4rem)",        { lineHeight: "1.04", letterSpacing: "-0.035em", fontWeight: "600" }],
         "display-lg": ["clamp(3rem, 5.6vw + 0.5rem, 5.25rem)",       { lineHeight: "1.0",  letterSpacing: "-0.042em", fontWeight: "600" }],
         "display-xl": ["clamp(3.5rem, 7.2vw + 0.5rem, 6.5rem)",      { lineHeight: "0.98", letterSpacing: "-0.05em",  fontWeight: "600" }],
@@ -143,25 +150,31 @@ const config: Config = {
         widest: "0.18em",
       },
       borderRadius: {
+        // Softened to feel Apple/iOS-native. Cards now use 20px not 24px;
+        // input wells 14px not 12px (more tactile on touch).
         xs: "6px",
-        sm: "8px",
-        md: "12px",
-        lg: "16px",
+        sm: "10px",
+        md: "14px",
+        lg: "18px",
         xl: "20px",
-        "2xl": "24px",
-        "3xl": "32px",
+        "2xl": "22px",
+        "3xl": "28px",
       },
       boxShadow: {
-        soft:     "0 1px 1px rgba(11, 15, 26, 0.04), 0 1px 2px rgba(11, 15, 26, 0.05)",
-        card:     "0 1px 0 rgba(20, 28, 46, 0.04), 0 1px 3px rgba(11, 15, 26, 0.04), 0 8px 24px -10px rgba(11, 15, 26, 0.08)",
-        elevated: "0 1px 0 rgba(255, 255, 255, 0.9) inset, 0 1px 3px rgba(11, 15, 26, 0.04), 0 12px 32px -10px rgba(11, 15, 26, 0.10), 0 24px 56px -20px rgba(11, 15, 26, 0.10)",
-        wallet:   "0 1px 0 rgba(255, 255, 255, 1) inset, 0 1px 2px rgba(11, 15, 26, 0.06), 0 20px 48px -16px rgba(11, 15, 26, 0.14), 0 40px 80px -24px rgba(11, 15, 26, 0.12)",
-        // NEW — cinematic depth for floating glass cards
-        cinematic:"0 1px 0 rgba(255, 255, 255, 0.95) inset, 0 2px 4px rgba(11, 15, 26, 0.04), 0 16px 40px -12px rgba(11, 15, 26, 0.12), 0 32px 64px -20px rgba(11, 15, 26, 0.10), 0 64px 120px -32px rgba(52, 70, 106, 0.10)",
-        ring:     "0 0 0 1px rgba(20, 28, 46, 0.10)",
-        "accent-ring":"0 0 0 1px rgba(52, 70, 106, 0.28)",
-        "ember-glow":"0 0 0 1px rgba(226, 111, 45, 0.22), 0 4px 18px -4px rgba(226, 111, 45, 0.32)",
-        inset:    "inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(20, 28, 46, 0.04)",
+        // Shadow scale — Apple-grade calm. Two layers max for every card.
+        // The previous 4-layer 'cinematic' (64px + 120px halo) was the single
+        // biggest contributor to the 'too-much' feel. It's gone.
+        soft:     "0 1px 2px rgba(11, 15, 26, 0.04)",
+        card:     "0 1px 2px rgba(11, 15, 26, 0.04), 0 4px 12px -4px rgba(11, 15, 26, 0.06)",
+        elevated: "0 1px 2px rgba(11, 15, 26, 0.04), 0 8px 24px -8px rgba(11, 15, 26, 0.08)",
+        wallet:   "0 1px 2px rgba(11, 15, 26, 0.05), 0 12px 32px -12px rgba(11, 15, 26, 0.10)",
+        // Cinematic — much calmer than v3. Single soft halo, no neon glow.
+        cinematic:"0 1px 2px rgba(11, 15, 26, 0.04), 0 12px 32px -12px rgba(11, 15, 26, 0.08)",
+        ring:     "0 0 0 1px rgba(20, 28, 46, 0.08)",
+        "accent-ring":"0 0 0 1px rgba(52, 70, 106, 0.20)",
+        // ember-glow is retained as a token but its opacity is dialed back ~70%.
+        "ember-glow":"0 0 0 1px rgba(201, 112, 48, 0.14), 0 2px 8px -2px rgba(201, 112, 48, 0.12)",
+        inset:    "inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(20, 28, 46, 0.03)",
       },
       backgroundImage: {
         "grid-faint": "radial-gradient(circle at 1px 1px, rgba(20,28,46,0.07) 1px, transparent 0)",
@@ -210,10 +223,20 @@ const config: Config = {
         "scan": "scan 8s linear infinite",
       },
       transitionTimingFunction: {
-        calm: "cubic-bezier(0.22, 1, 0.36, 1)",
-        precise: "cubic-bezier(0.4, 0, 0.2, 1)",
-        spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
-        bloom: "cubic-bezier(0.16, 1, 0.3, 1)",
+        // Standardised motion language. Default to 'calm' for everything
+        // except critical state changes which use 'precise'.
+        calm: "cubic-bezier(0.22, 1, 0.36, 1)",      // Apple-style ease-out
+        precise: "cubic-bezier(0.4, 0, 0.2, 1)",      // iOS Material precise
+        spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",  // playful — used rarely
+        bloom: "cubic-bezier(0.16, 1, 0.3, 1)",        // hero reveals only
+      },
+      transitionDuration: {
+        // Single source of truth for durations. 180ms is the new default;
+        // everything tactile (button press, hover lift) snaps under 200ms.
+        snap: "120ms",
+        tactile: "180ms",
+        calm: "260ms",
+        cinematic: "480ms",
       },
     },
   },
