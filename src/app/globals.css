@@ -123,8 +123,8 @@
   }
 
   /* ── Hairlines ─────────────────────────────────────────────────── */
-  .hairline { border-top: 1px solid rgba(20, 28, 46, 0.08); }
-  .hairline-strong { border-top: 1px solid rgba(20, 28, 46, 0.14); }
+  .hairline { border-top: 1px solid rgba(20, 28, 46, 0.06); }
+  .hairline-strong { border-top: 1px solid rgba(20, 28, 46, 0.12); }
   .hairline-ondark { border-top: 1px solid rgba(255, 255, 255, 0.08); }
 
   /* ── Labels ────────────────────────────────────────────────────── */
@@ -160,7 +160,7 @@
     @apply outline-none focus-visible:ring-2 focus-visible:ring-ember-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base;
   }
 
-  .ring-hairline { box-shadow: 0 0 0 1px rgba(20, 28, 46, 0.08); }
+  .ring-hairline { box-shadow: 0 0 0 1px rgba(20, 28, 46, 0.06); }
 
   /* Section eyebrow with leading line */
   .section-eyebrow {
