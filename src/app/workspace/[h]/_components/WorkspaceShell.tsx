@@ -75,11 +75,11 @@ const GROUPS = (h: string): NavGroup[] => [
     label: "Strategy",
     icon: Target,
     items: [
-      { href: `/workspace/${h}/strategy/plan`,     label: "Financial plan", index: "[03·01]", status: "soon" },
-      { href: `/workspace/${h}/strategy/property`, label: "Property plan",  index: "[03·02]", status: "soon" },
-      { href: `/workspace/${h}/strategy/debt`,     label: "Debt strategy",  index: "[03·03]", status: "soon" },
-      { href: `/workspace/${h}/strategy/tax`,      label: "Tax strategy",   index: "[03·04]", status: "soon" },
-      { href: `/workspace/${h}/strategy/cgt`,      label: "CGT simulator",  index: "[03·05]", status: "soon" },
+      { href: `/workspace/${h}/strategy/plan`,     label: "Financial plan", index: "[03·01]", status: "live" },
+      { href: `/workspace/${h}/strategy/property`, label: "Property plan",  index: "[03·02]", status: "live" },
+      { href: `/workspace/${h}/strategy/debt`,     label: "Debt strategy",  index: "[03·03]", status: "live" },
+      { href: `/workspace/${h}/strategy/tax`,      label: "Tax strategy",   index: "[03·04]", status: "live" },
+      { href: `/workspace/${h}/strategy/cgt`,      label: "CGT simulator",  index: "[03·05]", status: "live" },
     ],
   },
   {
@@ -87,9 +87,9 @@ const GROUPS = (h: string): NavGroup[] => [
     label: "Forecast",
     icon: LineChart,
     items: [
-      { href: `/workspace/${h}/forecast/baseline`, label: "Baseline forecast", index: "[04·01]", status: "soon" },
-      { href: `/workspace/${h}/forecast/fire`,     label: "FIRE projection",   index: "[04·02]", status: "soon" },
-      { href: `/workspace/${h}/forecast/montecarlo`, label: "Monte Carlo",     index: "[04·03]", status: "soon" },
+      { href: `/workspace/${h}/forecast/baseline`, label: "Baseline forecast", index: "[04·01]", status: "live" },
+      { href: `/workspace/${h}/forecast/fire`,     label: "FIRE projection",   index: "[04·02]", status: "live" },
+      { href: `/workspace/${h}/forecast/montecarlo`, label: "Monte Carlo",     index: "[04·03]", status: "live" },
     ],
   },
   {
@@ -98,8 +98,8 @@ const GROUPS = (h: string): NavGroup[] => [
     icon: Brain,
     items: [
       { href: `/workspace/${h}/decision`, label: "Decision Engine", index: "[05·01]", status: "live" },
-      { href: `/workspace/${h}/action/whatif`,  label: "What-If",   index: "[05·02]", status: "soon" },
-      { href: `/workspace/${h}/action/compare`, label: "Scenario compare", index: "[05·03]", status: "soon" },
+      { href: `/workspace/${h}/action/whatif`,  label: "What-If",   index: "[05·02]", status: "live" },
+      { href: `/workspace/${h}/action/compare`, label: "Scenario compare", index: "[05·03]", status: "live" },
     ],
   },
   {
@@ -107,8 +107,9 @@ const GROUPS = (h: string): NavGroup[] => [
     label: "Support · Settings",
     icon: Sliders,
     items: [
-      { href: `/workspace/${h}/settings/assumptions`, label: "Assumptions centre", index: "[06·01]", status: "soon" },
+      { href: `/workspace/${h}/settings/assumptions`, label: "Assumptions centre", index: "[06·01]", status: "live" },
       { href: `/settings/security`,                   label: "Security",           index: "[06·02]", status: "live" },
+      { href: `/settings/billing`,                    label: "Billing",            index: "[06·03]", status: "live" },
     ],
   },
 ];

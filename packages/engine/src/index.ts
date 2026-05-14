@@ -64,3 +64,15 @@ export {
   type DeltaType,
   type MonthKey,
 } from "./scenarioV2";
+
+// AU Tax helpers (used by Strategy module pages)
+export {
+  computeWageTax,
+  computeCgt,
+  propertyAnnualTax,
+  type WageTaxInput,
+  type WageTaxOutput,
+  type CgtInput,
+  type CgtOutput,
+  type AuState,
+} from "./scenarioV2/auTax";
