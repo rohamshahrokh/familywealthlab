@@ -17,6 +17,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/finance-port/queryClient";
+import { getSbUrl } from "@/lib/finance-port/sbEnv";
 import { useAppStore } from "@/lib/finance-port/store";
 import { formatCurrency } from "@/lib/finance-port/finance";
 import { Input } from "@/components/ui/input";
@@ -64,7 +65,7 @@ import {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 // FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
-const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const SUPABASE_URL  = getSbUrl();
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const SB_HEADERS = {
   apikey: SUPABASE_ANON,

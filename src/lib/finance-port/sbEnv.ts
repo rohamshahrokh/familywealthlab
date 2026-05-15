@@ -84,3 +84,18 @@ export function getSupabaseRestHeaders(): {
 export function hasRealSupabase(): boolean {
   return getSupabaseConfig() !== null;
 }
+
+/**
+ * Convenience: returns the Supabase base URL with any trailing slash stripped,
+ * or `""` when not configured / stubbed. Use this in modules that build REST
+ * paths like `${getSbUrl()}/rest/v1/...` so a Netlify dashboard typo with a
+ * trailing slash cannot produce `...supabase.co//rest/v1/...` (which causes
+ * a mix of 200s and 404s on PostgREST).
+ *
+ * Always return a string so existing callsites can keep their string-typed
+ * `SB_URL` variable without null-handling churn; downstream code already
+ * guards on empty (e.g. `if (!SB_URL) return`).
+ */
+export function getSbUrl(): string {
+  return getSupabaseConfig()?.url ?? "";
+}

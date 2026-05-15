@@ -14,10 +14,11 @@ import { computeRiskRadar, buildRiskInput } from './riskEngine';
 import { computeFirePath, buildFirePathInput, type FIREPathResult } from './firePathEngine';
 import { computeBestMove, type BestMoveResult } from './bestMoveEngine';
 import { computeAllScenarios, defaultScenarioInputs } from './propertyBuyEngine';
+import { getSbUrl } from './sbEnv';
 
 // ─── Supabase ─────────────────────────────────────────────────────────────────
 // FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
-const SB_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SB_URL  = getSbUrl();
 const SB_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SB_HDR  = {
   apikey: SB_ANON,

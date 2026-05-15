@@ -21,11 +21,12 @@
 import { safeNum } from './mathUtils';
 import { PROFILE_DEFAULTS } from './forecastStore';
 import type { YearAssumptions } from './forecastStore';
+import { getSbUrl } from './sbEnv';
 
 // ─── Supabase config ──────────────────────────────────────────────────────────
 
 // FWL_ENV_VAR_WIRING_PASS_01: env-sourced, no personal-project fallback.
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SB_URL = getSbUrl();
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const OWNER   = 'shahrokh-family-main';
 const HDRS    = {

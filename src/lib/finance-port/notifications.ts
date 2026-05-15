@@ -19,12 +19,13 @@
  */
 
 import { pickFamilyMessage, getPendingSlotsByTime, type FamilyMsgLanguage, type FamilyMsgRecipient } from './familyMessages';
+import { getSbUrl } from './sbEnv';
 
 // ─── Supabase constants (same as supabaseClient.ts) ──────────────────────────
 // FWL_ENV_VAR_WIRING_PASS_01: read from env instead of hardcoding the personal
 // project. When unset or stubbed, fetch() will fail and the existing catch
 // handlers in each call site fall back to empty data — demo mode.
-const SUPABASE_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_URL  = getSbUrl();
 const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SB_HEADERS = {
   apikey: SUPABASE_ANON,

@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { maskValue } from '@/components/port/PrivacyMask';
 import { useAppStore } from '@/lib/finance-port/store';
+import { getSbUrl } from '@/lib/finance-port/sbEnv';
 import {
   computeAllScenarios, defaultScenarioInputs,
   type PropertyBuyResult,
@@ -61,7 +62,7 @@ export default function PropertyBuyWidget() {
     try {
       // FWL_ENV_VAR_WIRING_PASS_01: env-sourced. When env vars are unset, the
       // fetch fails fast and we fall through to the empty-snap defaults branch.
-      const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+      const SB_URL = getSbUrl();
       const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
       let rows: any[] = [];
       if (SB_URL && SB_KEY) {

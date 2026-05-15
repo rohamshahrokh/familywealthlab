@@ -17,6 +17,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/finance-port/queryClient";
+import { getSbUrl } from "@/lib/finance-port/sbEnv";
 import { formatCurrency, safeNum } from "@/lib/finance-port/finance";
 import {
   selectCanonicalNetWorth,
@@ -192,7 +193,7 @@ export default function DataHealthPage() {
   useEffect(() => {
     const testConnection = async () => {
       setConnectionStatus('checking');
-      const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+      const SUPABASE_URL = getSbUrl();
       const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
       if (!SUPABASE_URL || !SUPABASE_ANON) {
         setConnectionStatus('error');
@@ -418,7 +419,7 @@ export default function DataHealthPage() {
           <p className="text-xs text-muted-foreground mt-1">
             {(() => {
               try {
-                const u = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                const u = getSbUrl();
                 return u ? new URL(u).host : 'Commercial Supabase project';
               } catch {
                 return 'Commercial Supabase project';
