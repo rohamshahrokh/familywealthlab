@@ -188,14 +188,19 @@ export default function DataHealthPage() {
   });
 
   // ── Test Supabase connection on mount ──────────────────────────────────────
+  // FWL_ENV_VAR_WIRING_PASS_01: env-sourced; guard on missing config.
   useEffect(() => {
     const testConnection = async () => {
       setConnectionStatus('checking');
+      const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+      const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+      if (!SUPABASE_URL || !SUPABASE_ANON) {
+        setConnectionStatus('error');
+        return;
+      }
       try {
-        const SUPABASE_URL = 'https://uoraduyyxhtzixcsaidg.supabase.co';
-        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c';
         const res = await fetch(
-          `${SUPABASE_URL}/rest/v1/sf_snapshot?id=eq.shahrokh-family-main&select=id`,
+          `${SUPABASE_URL}/rest/v1/sf_snapshot?select=id&limit=1`,
           { headers: { apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` } }
         );
         setConnectionStatus(res.ok ? 'ok' : 'error');
@@ -410,7 +415,16 @@ export default function DataHealthPage() {
               {connectionStatus === 'ok' ? 'Connected' : connectionStatus === 'error' ? 'Error' : 'Checking…'}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-1">uoraduyyxhtzixcsaidg.supabase.co</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            {(() => {
+              try {
+                const u = process.env.NEXT_PUBLIC_SUPABASE_URL;
+                return u ? new URL(u).host : 'Commercial Supabase project';
+              } catch {
+                return 'Commercial Supabase project';
+              }
+            })()}
+          </p>
         </div>
 
         {/* Last sync */}

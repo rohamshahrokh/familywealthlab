@@ -59,17 +59,27 @@ export default function PropertyBuyWidget() {
     setLoading(true);
     setError(null);
     try {
-      // Fetch snapshot for defaults
-      const res = await fetch(
-        'https://uoraduyyxhtzixcsaidg.supabase.co/rest/v1/sf_snapshot?id=eq.shahrokh-family-main',
-        {
-          headers: {
-            apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c',
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c',
-          },
+      // FWL_ENV_VAR_WIRING_PASS_01: env-sourced. When env vars are unset, the
+      // fetch fails fast and we fall through to the empty-snap defaults branch.
+      const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+      const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+      let rows: any[] = [];
+      if (SB_URL && SB_KEY) {
+        try {
+          const res = await fetch(
+            `${SB_URL}/rest/v1/sf_snapshot?id=eq.shahrokh-family-main`,
+            {
+              headers: {
+                apikey: SB_KEY,
+                Authorization: `Bearer ${SB_KEY}`,
+              },
+            }
+          );
+          rows = res.ok ? await res.json() : [];
+        } catch {
+          rows = [];
         }
-      );
-      const rows = res.ok ? await res.json() : [];
+      }
       const snap = rows?.[0] ?? {};
       const defaults = defaultScenarioInputs(snap);
       const r = computeAllScenarios(defaults);
