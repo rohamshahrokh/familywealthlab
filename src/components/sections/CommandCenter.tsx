@@ -9,6 +9,15 @@ import { LiveValue } from "@/components/ui/LiveValue";
 import { MatrixGrid } from "@/components/ui/MatrixGrid";
 import { Counter } from "@/components/ui/Counter";
 import { Wallet, LineChart, GitBranch, Sparkles, ArrowRight } from "lucide-react";
+import {
+  HERO_P10_M,
+  HERO_P50_M,
+  HERO_P90_M,
+  HERO_KPIS,
+  COMMAND_TRAIL_M,
+  COMMAND_FIRE_READINESS,
+  HOUSEHOLD_KPIS,
+} from "@/lib/finance-port/marketingDemoSeries";
 
 type Module = {
   idx: string;
@@ -172,8 +181,11 @@ export function CommandCenter() {
 /* ─── Visualizations ─────────────────────────────────────────── */
 
 function VisualNetWorth() {
-  // Trailing 12-month net worth trajectory (in $M)
-  const trail = [2.18, 2.21, 2.24, 2.26, 2.30, 2.32, 2.33, 2.36, 2.37, 2.39, 2.40, 2.41];
+  // Trailing 12-month net worth trajectory (in $M) — derived from real engine
+  const trail = COMMAND_TRAIL_M;
+  const today = HOUSEHOLD_KPIS.netWorthTodayM;
+  const yoyK = Math.round((trail[trail.length - 1] - trail[0]) * 1000);
+  const trailPct = (((trail[trail.length - 1] - trail[0]) / Math.max(trail[0], 0.0001)) * 100).toFixed(1);
   return (
     <div className="card-cinematic p-6">
       <div className="flex items-center justify-between">
@@ -187,7 +199,7 @@ function VisualNetWorth() {
       </div>
       <div className="mt-4 flex items-baseline gap-3 flex-wrap">
         <LiveValue
-          to={2.41}
+          to={today}
           prefix="$"
           suffix="M"
           decimals={2}
@@ -198,7 +210,7 @@ function VisualNetWorth() {
           className="text-display text-ink-primary mono tracking-tightest"
         />
         <span className="text-body-sm text-positive mono">
-          +$<Counter to={184} decimals={0} duration={1.2} delay={0.4} />K YoY
+          +$<Counter to={yoyK} decimals={0} duration={1.2} delay={0.4} />K YoY
         </span>
       </div>
       <p className="mt-1.5 text-caption text-ink-quaternary mono uppercase tracking-wider">
@@ -212,7 +224,7 @@ function VisualNetWorth() {
             TRAILING 12M · NET WORTH
           </span>
           <span className="text-[0.6rem] mono uppercase tracking-wider text-positive">
-            +9.6%
+            +{trailPct}%
           </span>
         </div>
         <Sparkline
@@ -286,23 +298,31 @@ function VisualNetWorth() {
 }
 
 function VisualForecast() {
-  const p50 = [2.41, 2.6, 2.85, 3.15, 3.5, 3.9, 4.35, 4.82];
-  const p10 = [2.41, 2.5, 2.6, 2.72, 2.8, 2.88, 2.94, 2.94];
-  const p90 = [2.41, 2.75, 3.18, 3.7, 4.32, 5.05, 6.2, 7.4];
-  // FIRE readiness % over 20Y — climbs from 12% → 100% around 2039
-  const fireReadiness = [12, 18, 26, 34, 44, 56, 70, 82, 92, 100];
+  // Real engine output (10Y horizon, P10/P50/P90 fan from 256 deterministic paths)
+  const p50 = HERO_P50_M;
+  const p10 = HERO_P10_M;
+  const p90 = HERO_P90_M;
+  const fireReadiness = COMMAND_FIRE_READINESS;
+  const p50End = HERO_KPIS.projectedNetWorthM;
+  const p10End = HERO_KPIS.p10M;
+  const p90End = HERO_KPIS.p90M;
+  const fireY = HERO_KPIS.fireYear;
+  const endY = HERO_KPIS.endYear;
+  const midY = Math.round((HERO_KPIS.startYear + endY) / 2);
+  const q1Y = Math.round(HERO_KPIS.startYear + (endY - HERO_KPIS.startYear) * 0.25);
+  const q3Y = Math.round(HERO_KPIS.startYear + (endY - HERO_KPIS.startYear) * 0.75);
   return (
     <div className="card-cinematic p-6">
       <div className="flex items-center justify-between">
         <span className="syslabel">
           <span className="mono text-ember-500">[02]</span>
-          <span>FORECAST · 20Y · 5,000 PATHS</span>
+          <span>FORECAST · {HERO_KPIS.horizonYears}Y · {HERO_KPIS.paths.toLocaleString()} PATHS</span>
         </span>
-        <span className="text-caption text-ink-tertiary mono">P50 2045</span>
+        <span className="text-caption text-ink-tertiary mono">P50 {endY}</span>
       </div>
       <div className="mt-3 flex items-baseline gap-3 flex-wrap">
         <LiveValue
-          to={4.82}
+          to={p50End}
           prefix="$"
           suffix="M"
           decimals={2}
@@ -312,7 +332,7 @@ function VisualForecast() {
           tickMs={4200}
           className="text-h2 text-ink-primary mono"
         />
-        <span className="text-caption text-ink-quaternary mono">P10 $2.94M · P90 $7.40M</span>
+        <span className="text-caption text-ink-quaternary mono">P10 ${p10End.toFixed(2)}M · P90 ${p90End.toFixed(2)}M</span>
       </div>
       <div className="mt-5 rounded-lg border border-line bg-bg-inset/60 p-4">
         <ChartLine
@@ -324,7 +344,7 @@ function VisualForecast() {
           height={200}
           width={560}
           showAxis
-          axisLabels={["2026", "2031", "2036", "2041", "2045"]}
+          axisLabels={[String(HERO_KPIS.startYear), String(q1Y), String(midY), String(q3Y), String(endY)]}
           className="w-full h-44"
         />
       </div>
@@ -336,7 +356,7 @@ function VisualForecast() {
             FIRE TIMELINE · % TO TARGET
           </span>
           <span className="text-[0.6rem] mono uppercase tracking-wider text-positive">
-            100% · 2039
+            100% · {fireY}
           </span>
         </div>
         <Sparkline
@@ -353,9 +373,9 @@ function VisualForecast() {
 
       <div className="mt-4 grid grid-cols-3 gap-2.5 text-caption">
         {[
-          ["P10", "$2.94M", "neg"],
-          ["P50", "$4.82M", "neu"],
-          ["P90", "$7.40M", "pos"],
+          ["P10", `$${p10End.toFixed(2)}M`, "neg"],
+          ["P50", `$${p50End.toFixed(2)}M`, "neu"],
+          ["P90", `$${p90End.toFixed(2)}M`, "pos"],
         ].map(([k, v, t]) => (
           <div key={k} className="rounded-md border border-line bg-bg-inset px-3 py-2.5">
             <p className="text-[0.6rem] uppercase text-ink-quaternary mono tracking-wider">{k}</p>
