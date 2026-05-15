@@ -9,7 +9,7 @@ import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { X, Upload } from "lucide-react";
 import { importExpensesXlsx } from "../xlsx-actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { ErrorBanner, SuccessBanner } from "@/components/workspace/forms/Field";
 
 type State = { ok: boolean; error?: string; created?: number; skipped?: number } | null;

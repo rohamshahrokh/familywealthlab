@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 interface Props {

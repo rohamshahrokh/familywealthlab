@@ -1,0 +1,997 @@
+/**
+ * localStore.ts
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Data layer for the static Vercel deployment.
+ *
+ * SOURCE OF TRUTH: Supabase (cloud database)
+ * CACHE:           localStorage (fallback + offline support)
+ *
+ * Strategy on every READ:
+ *   1. Fetch from Supabase first (always, no seeded gate)
+ *   2. On success → update localStorage cache, return Supabase data
+ *   3. On failure → fall back to localStorage cache
+ *   4. Log every outcome with [SF] prefix
+ *
+ * Strategy on every WRITE (Save button):
+ *   1. Save to Supabase first
+ *   2. Update localStorage cache with the returned value
+ *   3. If Supabase fails, fall back to localStorage only
+ *
+ * "Sync From Cloud" button: force-fetches Supabase and overwrites all cache.
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
+import {
+  sbSnapshot, sbExpenses, sbProperties, sbStocks, sbCrypto, sbTimeline, sbScenarios,
+  sbStockTx, sbCryptoTx, sbIncome, sbStockDCA, sbCryptoDCA,
+} from "./supabaseClient";
+
+// ─── Safe number helper ───────────────────────────────────────────────────────
+
+export function safeNum(v: unknown): number {
+  if (v === null || v === undefined || v === "") return 0;
+  const n = Number(v);
+  return isFinite(n) ? n : 0;
+}
+
+// ─── localStorage helpers ─────────────────────────────────────────────────────
+
+function lsGet<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch { return null; }
+}
+
+function lsSet<T>(key: string, value: T): void {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
+function nextId(items: { id: number }[]): number {
+  return items.length === 0 ? 1 : Math.max(...items.map((i) => i.id)) + 1;
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface Snapshot {
+  id: any;
+  ppor: number; cash: number; super_balance: number;
+  stocks: number; crypto: number; cars: number;
+  iran_property: number; other_assets: number;
+  mortgage: number; other_debts: number;
+  monthly_income: number; monthly_expenses: number;
+  updated_at: string;
+  // ── Superannuation fields (per-person) ──────────────────────────────────────
+  roham_super_balance?:          number;
+  roham_super_salary?:           number;
+  roham_employer_contrib?:       number;
+  roham_salary_sacrifice?:       number;
+  roham_super_personal_contrib?: number;
+  roham_super_annual_topup?:     number;
+  roham_super_growth_rate?:      number;
+  roham_super_fee_pct?:          number;
+  roham_super_insurance_pa?:     number;
+  roham_super_option?:           string;
+  roham_super_provider?:         string;
+  roham_retirement_age?:         number;
+  roham_super_contrib_freq?:     string;
+  fara_super_balance?:           number;
+  fara_super_salary?:            number;
+  fara_employer_contrib?:        number;
+  fara_salary_sacrifice?:        number;
+  fara_super_personal_contrib?:  number;
+  fara_super_annual_topup?:      number;
+  fara_super_growth_rate?:       number;
+  fara_super_fee_pct?:           number;
+  fara_super_insurance_pa?:      number;
+  fara_super_option?:            string;
+  fara_super_provider?:          string;
+  fara_retirement_age?:          number;
+  fara_super_contrib_freq?:      string;
+  // ── Other extended fields (stored in sf_snapshot) ────────────────────────
+  offset_balance?:               number;
+  [key: string]: any; // allow any future columns to pass through
+}
+export interface Expense {
+  id: number; date: string; amount: number; category: string;
+  source_code: string;                         // expense source/type code (e.g. D, T, M)
+  subcategory: string | null; description: string | null;
+  payment_method: string | null; family_member: string | null;
+  recurring: boolean; notes: string | null; created_at: string;
+}
+export interface Property {
+  id: number; name: string; type: string;
+  purchase_price: number; current_value: number; purchase_date: string | null;
+  loan_amount: number; interest_rate: number; loan_type: string; loan_term: number;
+  weekly_rent: number; rental_growth: number; vacancy_rate: number; management_fee: number;
+  council_rates: number; insurance: number; maintenance: number; capital_growth: number;
+  deposit: number; stamp_duty: number; legal_fees: number; selling_costs: number;
+  projection_years: number; notes: string | null; created_at: string;
+}
+export interface Stock {
+  id: number; ticker: string; name: string;
+  current_price: number; current_holding: number; allocation_pct: number;
+  expected_return: number; monthly_dca: number; annual_lump_sum: number;
+  projection_years: number; created_at: string;
+}
+export interface Crypto {
+  id: number; symbol: string; name: string;
+  current_price: number; current_holding: number;
+  expected_return: number; monthly_dca: number; lump_sum_amount: number;
+  projection_years: number; created_at: string;
+}
+export interface TimelineEvent {
+  id: number; year: number; title: string;
+  description: string | null; type: string; amount: number | null; created_at: string;
+}
+export interface Scenario {
+  id: number; name: string; data: string; created_at: string;
+}
+
+export interface StockTransaction {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  transaction_type: 'buy' | 'sell';
+  status: 'actual' | 'planned';
+  transaction_date: string; // YYYY-MM-DD
+  ticker: string;
+  asset_name: string;
+  units: number;
+  price_per_unit: number;
+  total_amount: number;
+  brokerage_fee: number;
+  notes: string;
+  created_by: string;
+}
+
+export interface IncomeRecord {
+  id: number;
+  date: string;          // YYYY-MM-DD
+  amount: number;
+  source: string;        // Salary | Bonus | Rental Income | Dividends | Interest | Tax Refund | Side Income | Other
+  description: string;
+  member: string;        // family member
+  frequency: string;    // Weekly | Fortnightly | Monthly | Quarterly | Annual | One-off
+  recurring: boolean;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// ─── DCA Schedule Types ───────────────────────────────────────────────────────
+
+export interface StockDCASchedule {
+  id: number;
+  ticker: string;
+  asset_name: string;
+  amount: number;
+  frequency: 'weekly' | 'fortnightly' | 'monthly' | 'quarterly';
+  start_date: string;   // YYYY-MM-DD
+  end_date: string | null;
+  enabled: boolean;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CryptoDCASchedule {
+  id: number;
+  symbol: string;
+  asset_name: string;
+  amount: number;
+  frequency: 'weekly' | 'fortnightly' | 'monthly' | 'quarterly';
+  start_date: string;   // YYYY-MM-DD
+  end_date: string | null;
+  enabled: boolean;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CryptoTransaction {
+  id: number;
+  created_at: string;
+  updated_at: string;
+  transaction_type: 'buy' | 'sell';
+  status: 'actual' | 'planned';
+  transaction_date: string; // YYYY-MM-DD
+  symbol: string;
+  asset_name: string;
+  units: number;
+  price_per_unit: number;
+  total_amount: number;
+  fee: number;
+  notes: string;
+  created_by: string;
+}
+
+// ─── Default seed values ──────────────────────────────────────────────────────
+
+const DEFAULT_SNAPSHOT: Snapshot = {
+  id: "shahrokh-family-main",
+  ppor: 0, cash: 0, super_balance: 0,
+  stocks: 0, crypto: 0, cars: 0,
+  iran_property: 0, other_assets: 0,
+  mortgage: 0, other_debts: 0,
+  monthly_income: 0, monthly_expenses: 0,
+  updated_at: new Date().toISOString(),
+};
+
+const DEFAULT_STOCKS: Omit<Stock, "id" | "created_at">[] = [
+  { ticker: "NVDA",    name: "NVIDIA Corporation",   current_price: 950, current_holding: 0, allocation_pct: 0, expected_return: 20, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "GOOGL",   name: "Alphabet Inc.",         current_price: 175, current_holding: 0, allocation_pct: 0, expected_return: 15, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "MSFT",    name: "Microsoft Corporation", current_price: 415, current_holding: 0, allocation_pct: 0, expected_return: 14, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "AVGO",    name: "Broadcom Inc.",         current_price: 185, current_holding: 0, allocation_pct: 0, expected_return: 16, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "CEG",     name: "Constellation Energy",  current_price: 240, current_holding: 0, allocation_pct: 0, expected_return: 18, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "ANET",    name: "Arista Networks",       current_price: 335, current_holding: 0, allocation_pct: 0, expected_return: 16, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "TSLA",    name: "Tesla Inc.",            current_price: 285, current_holding: 0, allocation_pct: 0, expected_return: 18, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+  { ticker: "OKLO",    name: "Oklo Inc.",             current_price: 35,  current_holding: 0, allocation_pct: 0, expected_return: 25, monthly_dca: 0, annual_lump_sum: 0, projection_years: 10 },
+];
+
+const DEFAULT_CRYPTOS: Omit<Crypto, "id" | "created_at">[] = [
+  { symbol: "BTC", name: "Bitcoin",  current_price: 95000, current_holding: 0, expected_return: 40, monthly_dca: 0, lump_sum_amount: 0, projection_years: 10 },
+  { symbol: "ETH", name: "Ethereum", current_price: 3200,  current_holding: 0, expected_return: 35, monthly_dca: 0, lump_sum_amount: 0, projection_years: 10 },
+];
+
+// ─── Storage keys ─────────────────────────────────────────────────────────────
+
+const KEYS = {
+  snapshot:   "sf_snapshot_v3",  // v3 — Supabase era
+  expenses:   "sf_expenses_v3",
+  properties: "sf_properties_v3",
+  stocks:     "sf_stocks_v3",
+  crypto:     "sf_crypto_v3",
+  timeline:   "sf_timeline_v3",
+  scenarios:  "sf_scenarios_v3",
+  seeded:     "sf_seeded_v3",
+  lastSync:   "sf_last_sync",
+  stockTx:    "sf_stock_tx_v1",
+  cryptoTx:   "sf_crypto_tx_v1",
+  income:     "sf_income_v1",
+  stockDCA:   "sf_stock_dca_v1",
+  cryptoDCA:  "sf_crypto_dca_v1",
+};
+
+// ─── Last sync timestamp (shown in UI) ───────────────────────────────────────
+
+export function getLastSync(): string | null {
+  return lsGet<string>(KEYS.lastSync);
+}
+
+function setLastSync() {
+  lsSet(KEYS.lastSync, new Date().toISOString());
+}
+
+// ─── Snapshot normaliser ──────────────────────────────────────────────────────
+
+// SUPER FIELDS: all roham_super_* / fara_super_* columns stored in sf_snapshot.
+// Listed here so they receive proper type coercion (numeric fields use safeNum,
+// string fields pass through as-is). Any field NOT listed here still passes
+// through via the spread at the end of normaliseSnapshot.
+const SUPER_NUM_FIELDS = [
+  // Super — per-person
+  'roham_super_balance', 'roham_super_salary', 'roham_employer_contrib',
+  'roham_salary_sacrifice', 'roham_super_personal_contrib', 'roham_super_annual_topup',
+  'roham_super_growth_rate', 'roham_super_fee_pct', 'roham_super_insurance_pa',
+  'roham_retirement_age',
+  'fara_super_balance', 'fara_super_salary', 'fara_employer_contrib',
+  'fara_salary_sacrifice', 'fara_super_personal_contrib', 'fara_super_annual_topup',
+  'fara_super_growth_rate', 'fara_super_fee_pct', 'fara_super_insurance_pa',
+  'fara_retirement_age',
+  // Cash split fields
+  'offset_balance', 'savings_cash', 'emergency_cash', 'other_cash',
+  // Income sub-fields (now columns in sf_snapshot after migration)
+  'roham_monthly_income', 'fara_monthly_income', 'rental_income_total', 'other_income',
+  // Expense sub-fields
+  'childcare_monthly', 'insurance_monthly', 'utilities_monthly', 'subscriptions_monthly',
+  // Goals
+  'fire_target_age', 'fire_target_monthly_income', 'property_savings_monthly',
+] as const;
+
+const SUPER_STR_FIELDS = [
+  'roham_super_option', 'roham_super_provider', 'roham_super_contrib_freq',
+  'fara_super_option',  'fara_super_provider',  'fara_super_contrib_freq',
+] as const;
+
+// rn = round-number: safeNum + Math.round to eliminate float decimals like 32652.2566...
+function rn(v: any): number { return Math.round(safeNum(v)); }
+
+function normaliseSnapshot(raw: any): Snapshot {
+  // Start with the core required fields (always coerced + rounded to integers)
+  const base: Snapshot = {
+    id:               raw?.id ?? "shahrokh-family-main",
+    ppor:             rn(raw?.ppor),
+    cash:             rn(raw?.cash),
+    super_balance:    rn(raw?.super_balance),
+    stocks:           rn(raw?.stocks),
+    crypto:           rn(raw?.crypto),
+    cars:             rn(raw?.cars),
+    iran_property:    rn(raw?.iran_property),
+    other_assets:     rn(raw?.other_assets),
+    mortgage:         rn(raw?.mortgage),
+    other_debts:      rn(raw?.other_debts),
+    monthly_income:   rn(raw?.monthly_income),
+    monthly_expenses: rn(raw?.monthly_expenses),
+    updated_at:       raw?.updated_at ?? new Date().toISOString(),
+  };
+
+  // Apply extended numeric fields — only if present in raw (undefined stays undefined,
+  // not defaulted to 0, so form shows blank rather than a misleading zero)
+  for (const f of SUPER_NUM_FIELDS) {
+    if (raw?.[f] !== undefined && raw?.[f] !== null) base[f] = rn(raw[f]);
+  }
+
+  // ── Data integrity guard: prevent offset_balance from being double-counted as other_cash ──
+  // If other_cash equals offset_balance (contaminated by old migrations) zero it out.
+  // Users who intentionally set other_cash to a different value are unaffected.
+  const rawOther  = rn(raw?.other_cash);
+  const rawOffset = rn(raw?.offset_balance);
+  if (rawOther > 0 && rawOffset > 0 && rawOther === rawOffset) {
+    console.warn('[localStore] other_cash === offset_balance — likely duplicate, zeroing other_cash');
+    base['other_cash'] = 0;
+  }
+
+  // Apply super string fields
+  for (const f of SUPER_STR_FIELDS) {
+    if (raw?.[f] !== undefined && raw?.[f] !== null) base[f] = String(raw[f]);
+  }
+
+  return base;
+}
+
+// ─── Initial seed — ONLY seeds empty Supabase tables, no localStorage gate ───
+// This runs once on first load. It will NOT block reads — reads always go to
+// Supabase regardless. This only seeds Supabase if it is completely empty.
+
+async function seedSupabaseIfEmpty() {
+  try {
+    const sbSnap = await sbSnapshot.get();
+    if (!sbSnap) {
+      console.log("[SF] Supabase snapshot empty — seeding defaults");
+      await sbSnapshot.upsert({ ...DEFAULT_SNAPSHOT });
+    }
+
+    const sbStocksData = await sbStocks.getAll();
+    if (sbStocksData.length === 0) {
+      console.log("[SF] Supabase stocks empty — seeding defaults");
+      for (const s of DEFAULT_STOCKS) await sbStocks.create(s);
+    }
+
+    const sbCryptoData = await sbCrypto.getAll();
+    if (sbCryptoData.length === 0) {
+      console.log("[SF] Supabase crypto empty — seeding defaults");
+      for (const c of DEFAULT_CRYPTOS) await sbCrypto.create(c);
+    }
+  } catch (err) {
+    console.warn("[SF] Seed check failed (non-fatal):", err);
+  }
+}
+
+// Kick off seed check asynchronously — doesn't block first render
+seedSupabaseIfEmpty().catch(() => {});
+
+// ─── Cloud sync — pull everything from Supabase into cache ───────────────────
+
+export async function syncFromCloud(): Promise<void> {
+  console.log("[SF] syncFromCloud: pulling all data from Supabase...");
+  const [snap, expenses, props, stocks, cryptos, timeline, scenarios, stockTxs, cryptoTxs, incomeRecords] = await Promise.all([
+    sbSnapshot.get(),
+    sbExpenses.getAll(),
+    sbProperties.getAll(),
+    sbStocks.getAll(),
+    sbCrypto.getAll(),
+    sbTimeline.getAll(),
+    sbScenarios.getAll(),
+    sbStockTx.getAll(),
+    sbCryptoTx.getAll(),
+    sbIncome.getAll(),
+  ]);
+
+  if (snap) {
+    // Store the raw Supabase row (not normalised) so super fields survive in cache.
+    // normaliseSnapshot is applied at read time in getSnapshot().
+    lsSet(KEYS.snapshot, snap);
+    console.log("[SF] Loaded from Supabase: snapshot", snap);
+  }
+  lsSet(KEYS.expenses,   expenses);
+  lsSet(KEYS.properties, props);
+  lsSet(KEYS.stocks,     stocks);
+  lsSet(KEYS.crypto,     cryptos);
+  lsSet(KEYS.timeline,   timeline);
+  lsSet(KEYS.scenarios,  scenarios);
+  lsSet(KEYS.stockTx,    stockTxs);
+  lsSet(KEYS.cryptoTx,   cryptoTxs);
+  lsSet(KEYS.income,     incomeRecords);
+  setLastSync();
+  console.log("[SF] syncFromCloud complete. Rows:", {
+    expenses: expenses.length,
+    props: props.length,
+    stocks: stocks.length,
+    cryptos: cryptos.length,
+    timeline: timeline.length,
+    scenarios: scenarios.length,
+    stockTxs: stockTxs.length,
+    cryptoTxs: cryptoTxs.length,
+    incomeRecords: incomeRecords.length,
+  });
+}
+
+// ─── Public data store ────────────────────────────────────────────────────────
+
+export const localStore = {
+
+  // ── Snapshot ───────────────────────────────────────────────────────────────
+
+  async getSnapshot(): Promise<Snapshot> {
+    try {
+      const sbSnap = await sbSnapshot.get();
+      if (sbSnap) {
+        // Cache the raw row (not normalised) so super fields are preserved in localStorage.
+        lsSet(KEYS.snapshot, sbSnap);
+        const result = normaliseSnapshot(sbSnap);
+        console.log("[SF] Loaded from Supabase: snapshot", result);
+        return result;
+      }
+      // Supabase returned null — fall back to raw cache
+      const cached = lsGet<any>(KEYS.snapshot);
+      if (cached) {
+        console.log("[SF] Fallback to local cache: snapshot");
+        return normaliseSnapshot(cached);
+      }
+      console.log("[SF] No data anywhere — using defaults: snapshot");
+      return { ...DEFAULT_SNAPSHOT };
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: snapshot", err);
+      const cached = lsGet<any>(KEYS.snapshot);
+      return cached ? normaliseSnapshot(cached) : { ...DEFAULT_SNAPSHOT };
+    }
+  },
+
+  /**
+   * updateSnapshot — PATCH-style partial write.
+   *
+   * CRITICAL ARCHITECTURE NOTE:
+   * ──────────────────────────────────────────────────────────────────────────
+   * Previous versions merged `data` over a localStorage cache as the source
+   * of truth, then upserted the FULL merged payload to Supabase. This caused
+   * catastrophic data loss whenever the localStorage cache was empty or stale
+   * (private browsing, fresh device, cleared cache, after a deploy that
+   * rotates the service-worker scope, etc.). The merge would fill in zeros
+   * from DEFAULT_SNAPSHOT and overwrite real Supabase values with $0.
+   *
+   * NEW ARCHITECTURE (production-safe):
+   *  1. ONLY send the fields the caller explicitly passed (no merge bloat).
+   *  2. Supabase remains the single source of truth — we never compose a full
+   *     payload from local cache and upsert it.
+   *  3. localStorage is updated AFTER the Supabase write succeeds, using the
+   *     returned row (which is the authoritative post-merge state).
+   *  4. If Supabase is unreachable, the write FAILS loudly instead of
+   *     silently clobbering the source of truth.
+   * ──────────────────────────────────────────────────────────────────────────
+   */
+  async updateSnapshot(data: Partial<Snapshot>): Promise<Snapshot> {
+    // Defensive copy — strip undefined/null so we never send "this field becomes null"
+    // unless the caller explicitly opted in to that semantics (which no current caller does).
+    const delta: Record<string, any> = {};
+    for (const [k, v] of Object.entries(data ?? {})) {
+      if (v === undefined) continue;          // never send undefined
+      if (k === 'id') continue;               // id is set by sbSnapshot.upsert
+      if (k === 'updated_at') continue;       // updated_at is set by sbSnapshot.upsert
+      delta[k] = v;
+    }
+
+    if (Object.keys(delta).length === 0) {
+      // No-op — return current state from Supabase so the caller still sees the row.
+      console.warn("[SF] updateSnapshot called with empty delta — returning current state");
+      return await this.getSnapshot();
+    }
+
+    // 1. Send only the delta to Supabase. PostgREST UPSERT with merge-duplicates
+    //    on conflict (id) acts as a PATCH for the columns we send — every other
+    //    column is preserved unchanged on the server. This eliminates the
+    //    stale-cache-overwrite vulnerability entirely.
+    const saved = await sbSnapshot.upsert(delta);
+    if (!saved) {
+      throw new Error('[SF] updateSnapshot: Supabase returned no row — refusing to update local cache to avoid data divergence');
+    }
+
+    // 2. Normalise the returned row for the caller
+    const result = normaliseSnapshot(saved);
+
+    // 3. NOW it is safe to cache — we have the authoritative server row
+    lsSet(KEYS.snapshot, saved);
+    setLastSync();
+    console.log("[SF] Saved to Supabase (PATCH): keys=", Object.keys(delta), "server returned", saved);
+    return result;
+  },
+
+  // ── Expenses ───────────────────────────────────────────────────────────────
+
+  async getExpenses(): Promise<Expense[]> {
+    try {
+      const rows = await sbExpenses.getAll();
+      lsSet(KEYS.expenses, rows);
+      console.log("[SF] Loaded from Supabase: expenses", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: expenses", err);
+      return lsGet<Expense[]>(KEYS.expenses) ?? [];
+    }
+  },
+
+  async createExpense(data: Omit<Expense, "id" | "created_at">): Promise<Expense> {
+    const saved = await sbExpenses.create(data);
+    if (saved) {
+      const items = lsGet<Expense[]>(KEYS.expenses) ?? [];
+      lsSet(KEYS.expenses, [saved, ...items]);
+      console.log("[SF] Saved to Supabase: expense created", saved.id);
+      return saved;
+    }
+    // fallback: local only
+    const items = lsGet<Expense[]>(KEYS.expenses) ?? [];
+    const item: Expense = { ...data, id: nextId(items), created_at: new Date().toISOString() } as Expense;
+    lsSet(KEYS.expenses, [item, ...items]);
+    console.log("[SF] Fallback to local cache: expense created locally", item.id);
+    return item;
+  },
+
+  async updateExpense(id: number, data: Partial<Expense>): Promise<Expense> {
+    const saved = await sbExpenses.update(id, data);
+    const items = (lsGet<Expense[]>(KEYS.expenses) ?? []).map((i) => (i.id === id ? { ...i, ...(saved ?? data) } : i));
+    lsSet(KEYS.expenses, items);
+    console.log("[SF] Saved to Supabase: expense updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteExpense(id: number): Promise<void> {
+    await sbExpenses.delete(id);
+    lsSet(KEYS.expenses, (lsGet<Expense[]>(KEYS.expenses) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: expense deleted", id);
+  },
+
+  async bulkCreateExpenses(rows: Omit<Expense, "id" | "created_at">[]): Promise<Expense[]> {
+    const saved = await sbExpenses.bulkCreate(rows);
+    if (saved.length > 0) {
+      const items = lsGet<Expense[]>(KEYS.expenses) ?? [];
+      lsSet(KEYS.expenses, [...saved, ...items]);
+      console.log("[SF] Saved to Supabase: bulk expenses created", saved.length);
+      return saved;
+    }
+    return Promise.all(rows.map((r) => this.createExpense(r)));
+  },
+
+  // ── Properties ─────────────────────────────────────────────────────────────
+
+  async getProperties(): Promise<Property[]> {
+    try {
+      const rows = await sbProperties.getAll();
+      lsSet(KEYS.properties, rows);
+      console.log("[SF] Loaded from Supabase: properties", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: properties", err);
+      return lsGet<Property[]>(KEYS.properties) ?? [];
+    }
+  },
+
+  async createProperty(data: Omit<Property, "id" | "created_at">): Promise<Property> {
+    const saved = await sbProperties.create(data);
+    if (saved) {
+      const items = lsGet<Property[]>(KEYS.properties) ?? [];
+      lsSet(KEYS.properties, [...items, saved]);
+      console.log("[SF] Saved to Supabase: property created", saved.id);
+      return saved;
+    }
+    const items = lsGet<Property[]>(KEYS.properties) ?? [];
+    const item: Property = { ...data, id: nextId(items), created_at: new Date().toISOString() } as Property;
+    lsSet(KEYS.properties, [...items, item]);
+    console.log("[SF] Fallback to local cache: property created locally", item.id);
+    return item;
+  },
+
+  async updateProperty(id: number, data: Partial<Property>): Promise<Property> {
+    const saved = await sbProperties.update(id, data);
+    const items = (lsGet<Property[]>(KEYS.properties) ?? []).map((i) => (i.id === id ? { ...i, ...(saved ?? data) } : i));
+    lsSet(KEYS.properties, items);
+    console.log("[SF] Saved to Supabase: property updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteProperty(id: number): Promise<void> {
+    await sbProperties.delete(id);
+    lsSet(KEYS.properties, (lsGet<Property[]>(KEYS.properties) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: property deleted", id);
+  },
+
+  // ── Stocks ─────────────────────────────────────────────────────────────────
+
+  async getStocks(): Promise<Stock[]> {
+    try {
+      const rows = await sbStocks.getAll();
+      lsSet(KEYS.stocks, rows);
+      console.log("[SF] Loaded from Supabase: stocks", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: stocks", err);
+      return lsGet<Stock[]>(KEYS.stocks) ?? [];
+    }
+  },
+
+  async createStock(data: Omit<Stock, "id" | "created_at">): Promise<Stock> {
+    // throws on Supabase failure — no silent localStorage fallback
+    const saved = await sbStocks.create(data);
+    const items = lsGet<Stock[]>(KEYS.stocks) ?? [];
+    lsSet(KEYS.stocks, [...items, saved]);
+    console.log("[SF] Saved to Supabase: stock created", saved.id);
+    return saved;
+  },
+
+  async updateStock(id: number, data: Partial<Stock>): Promise<Stock> {
+    const saved = await sbStocks.update(id, data);
+    const items = (lsGet<Stock[]>(KEYS.stocks) ?? []).map((i) => (i.id === id ? { ...i, ...(saved ?? data) } : i));
+    lsSet(KEYS.stocks, items);
+    console.log("[SF] Saved to Supabase: stock updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteStock(id: number): Promise<void> {
+    await sbStocks.delete(id);
+    lsSet(KEYS.stocks, (lsGet<Stock[]>(KEYS.stocks) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: stock deleted", id);
+  },
+
+  // ── Crypto ─────────────────────────────────────────────────────────────────
+
+  async getCryptos(): Promise<Crypto[]> {
+    try {
+      const rows = await sbCrypto.getAll();
+      lsSet(KEYS.crypto, rows);
+      console.log("[SF] Loaded from Supabase: crypto", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: crypto", err);
+      return lsGet<Crypto[]>(KEYS.crypto) ?? [];
+    }
+  },
+
+  async createCrypto(data: Omit<Crypto, "id" | "created_at">): Promise<Crypto> {
+    // throws on Supabase failure — no silent localStorage fallback
+    const saved = await sbCrypto.create(data);
+    const items = lsGet<Crypto[]>(KEYS.crypto) ?? [];
+    lsSet(KEYS.crypto, [...items, saved]);
+    console.log("[SF] Saved to Supabase: crypto created", saved.id);
+    return saved;
+  },
+
+  async updateCrypto(id: number, data: Partial<Crypto>): Promise<Crypto> {
+    const saved = await sbCrypto.update(id, data);
+    const items = (lsGet<Crypto[]>(KEYS.crypto) ?? []).map((i) => (i.id === id ? { ...i, ...(saved ?? data) } : i));
+    lsSet(KEYS.crypto, items);
+    console.log("[SF] Saved to Supabase: crypto updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteCrypto(id: number): Promise<void> {
+    await sbCrypto.delete(id);
+    lsSet(KEYS.crypto, (lsGet<Crypto[]>(KEYS.crypto) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: crypto deleted", id);
+  },
+
+  // ── Timeline ───────────────────────────────────────────────────────────────
+
+  async getTimelineEvents(): Promise<TimelineEvent[]> {
+    try {
+      const rows = await sbTimeline.getAll();
+      lsSet(KEYS.timeline, rows);
+      console.log("[SF] Loaded from Supabase: timeline", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: timeline", err);
+      return lsGet<TimelineEvent[]>(KEYS.timeline) ?? [];
+    }
+  },
+
+  async createTimelineEvent(data: Omit<TimelineEvent, "id" | "created_at">): Promise<TimelineEvent> {
+    const saved = await sbTimeline.create(data);
+    if (saved) {
+      const items = lsGet<TimelineEvent[]>(KEYS.timeline) ?? [];
+      lsSet(KEYS.timeline, [...items, saved]);
+      console.log("[SF] Saved to Supabase: timeline event created", saved.id);
+      return saved;
+    }
+    const items = lsGet<TimelineEvent[]>(KEYS.timeline) ?? [];
+    const item: TimelineEvent = { ...data, id: nextId(items), created_at: new Date().toISOString() } as TimelineEvent;
+    lsSet(KEYS.timeline, [...items, item]);
+    console.log("[SF] Fallback to local cache: timeline event created locally", item.id);
+    return item;
+  },
+
+  async updateTimelineEvent(id: number, data: Partial<TimelineEvent>): Promise<TimelineEvent> {
+    const saved = await sbTimeline.update(id, data);
+    const items = (lsGet<TimelineEvent[]>(KEYS.timeline) ?? []).map((i) => (i.id === id ? { ...i, ...(saved ?? data) } : i));
+    lsSet(KEYS.timeline, items);
+    console.log("[SF] Saved to Supabase: timeline event updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteTimelineEvent(id: number): Promise<void> {
+    await sbTimeline.delete(id);
+    lsSet(KEYS.timeline, (lsGet<TimelineEvent[]>(KEYS.timeline) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: timeline event deleted", id);
+  },
+
+  // ── Settings (localStorage only — not synced, device preference) ───────────
+
+  getSetting(key: string): string | null {
+    const settings = lsGet<Record<string, string>>("sf_settings") ?? {};
+    return settings[key] ?? null;
+  },
+  setSetting(key: string, value: string): void {
+    const settings = lsGet<Record<string, string>>("sf_settings") ?? {};
+    lsSet("sf_settings", { ...settings, [key]: value });
+  },
+
+  // ── Scenarios ──────────────────────────────────────────────────────────────
+
+  async getScenarios(): Promise<Scenario[]> {
+    try {
+      const rows = await sbScenarios.getAll();
+      lsSet(KEYS.scenarios, rows);
+      console.log("[SF] Loaded from Supabase: scenarios", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: scenarios", err);
+      return lsGet<Scenario[]>(KEYS.scenarios) ?? [];
+    }
+  },
+
+  async createScenario(data: Omit<Scenario, "id" | "created_at">): Promise<Scenario> {
+    const saved = await sbScenarios.create(data);
+    if (saved) {
+      const items = lsGet<Scenario[]>(KEYS.scenarios) ?? [];
+      lsSet(KEYS.scenarios, [...items, saved]);
+      console.log("[SF] Saved to Supabase: scenario created", saved.id);
+      return saved;
+    }
+    const items = lsGet<Scenario[]>(KEYS.scenarios) ?? [];
+    const item: Scenario = { ...data, id: nextId(items), created_at: new Date().toISOString() } as Scenario;
+    lsSet(KEYS.scenarios, [...items, item]);
+    console.log("[SF] Fallback to local cache: scenario created locally", item.id);
+    return item;
+  },
+
+  async deleteScenario(id: number): Promise<void> {
+    await sbScenarios.delete(id);
+    lsSet(KEYS.scenarios, (lsGet<Scenario[]>(KEYS.scenarios) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: scenario deleted", id);
+  },
+
+  // ── Stock Transactions ─────────────────────────────────────────────────────
+
+  async getStockTransactions(): Promise<StockTransaction[]> {
+    try {
+      const rows = await sbStockTx.getAll();
+      lsSet(KEYS.stockTx, rows);
+      console.log("[SF] Loaded from Supabase: stock transactions", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: stock transactions", err);
+      return lsGet<StockTransaction[]>(KEYS.stockTx) ?? [];
+    }
+  },
+
+  async createStockTransaction(data: Omit<StockTransaction, "id" | "created_at" | "updated_at">): Promise<StockTransaction> {
+    const saved = await sbStockTx.create(data);
+    if (saved) {
+      const items = lsGet<StockTransaction[]>(KEYS.stockTx) ?? [];
+      lsSet(KEYS.stockTx, [saved, ...items]);
+      console.log("[SF] Saved to Supabase: stock transaction created", saved.id);
+      return saved;
+    }
+    const items = lsGet<StockTransaction[]>(KEYS.stockTx) ?? [];
+    const now = new Date().toISOString();
+    const item: StockTransaction = {
+      ...data,
+      id: nextId(items),
+      created_at: now,
+      updated_at: now,
+    } as StockTransaction;
+    lsSet(KEYS.stockTx, [item, ...items]);
+    console.log("[SF] Fallback to local cache: stock transaction created locally", item.id);
+    return item;
+  },
+
+  async updateStockTransaction(id: number, data: Partial<StockTransaction>): Promise<StockTransaction> {
+    const saved = await sbStockTx.update(id, data);
+    const items = (lsGet<StockTransaction[]>(KEYS.stockTx) ?? []).map(
+      (i) => (i.id === id ? { ...i, ...(saved ?? data) } : i)
+    );
+    lsSet(KEYS.stockTx, items);
+    console.log("[SF] Saved to Supabase: stock transaction updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteStockTransaction(id: number): Promise<void> {
+    await sbStockTx.delete(id);
+    lsSet(KEYS.stockTx, (lsGet<StockTransaction[]>(KEYS.stockTx) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: stock transaction deleted", id);
+  },
+
+  // ── Crypto Transactions ────────────────────────────────────────────────────
+
+  async getCryptoTransactions(): Promise<CryptoTransaction[]> {
+    try {
+      const rows = await sbCryptoTx.getAll();
+      lsSet(KEYS.cryptoTx, rows);
+      console.log("[SF] Loaded from Supabase: crypto transactions", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: crypto transactions", err);
+      return lsGet<CryptoTransaction[]>(KEYS.cryptoTx) ?? [];
+    }
+  },
+
+  async createCryptoTransaction(data: Omit<CryptoTransaction, "id" | "created_at" | "updated_at">): Promise<CryptoTransaction> {
+    const saved = await sbCryptoTx.create(data);
+    if (saved) {
+      const items = lsGet<CryptoTransaction[]>(KEYS.cryptoTx) ?? [];
+      lsSet(KEYS.cryptoTx, [saved, ...items]);
+      console.log("[SF] Saved to Supabase: crypto transaction created", saved.id);
+      return saved;
+    }
+    const items = lsGet<CryptoTransaction[]>(KEYS.cryptoTx) ?? [];
+    const now = new Date().toISOString();
+    const item: CryptoTransaction = {
+      ...data,
+      id: nextId(items),
+      created_at: now,
+      updated_at: now,
+    } as CryptoTransaction;
+    lsSet(KEYS.cryptoTx, [item, ...items]);
+    console.log("[SF] Fallback to local cache: crypto transaction created locally", item.id);
+    return item;
+  },
+
+  async updateCryptoTransaction(id: number, data: Partial<CryptoTransaction>): Promise<CryptoTransaction> {
+    const saved = await sbCryptoTx.update(id, data);
+    const items = (lsGet<CryptoTransaction[]>(KEYS.cryptoTx) ?? []).map(
+      (i) => (i.id === id ? { ...i, ...(saved ?? data) } : i)
+    );
+    lsSet(KEYS.cryptoTx, items);
+    console.log("[SF] Saved to Supabase: crypto transaction updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteCryptoTransaction(id: number): Promise<void> {
+    await sbCryptoTx.delete(id);
+    lsSet(KEYS.cryptoTx, (lsGet<CryptoTransaction[]>(KEYS.cryptoTx) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: crypto transaction deleted", id);
+  },
+
+  // ── Income ────────────────────────────────────────────────────────────────
+
+  async getIncomeRecords(): Promise<IncomeRecord[]> {
+    try {
+      const rows = await sbIncome.getAll();
+      lsSet(KEYS.income, rows);
+      console.log("[SF] Loaded from Supabase: income", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: income", err);
+      return lsGet<IncomeRecord[]>(KEYS.income) ?? [];
+    }
+  },
+
+  async createIncomeRecord(data: Omit<IncomeRecord, "id" | "created_at" | "updated_at">): Promise<IncomeRecord> {
+    // throws on Supabase failure — no silent localStorage fallback
+    const saved = await sbIncome.create(data);
+    const items = lsGet<IncomeRecord[]>(KEYS.income) ?? [];
+    lsSet(KEYS.income, [saved, ...items]);
+    console.log("[SF] Saved to Supabase: income record created", saved.id);
+    return saved;
+  },
+
+  async updateIncomeRecord(id: number, data: Partial<IncomeRecord>): Promise<IncomeRecord> {
+    const saved = await sbIncome.update(id, data);
+    const items = (lsGet<IncomeRecord[]>(KEYS.income) ?? []).map(
+      (i) => (i.id === id ? { ...i, ...(saved ?? data) } : i)
+    );
+    lsSet(KEYS.income, items);
+    console.log("[SF] Saved to Supabase: income record updated", id);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteIncomeRecord(id: number): Promise<void> {
+    await sbIncome.delete(id);
+    lsSet(KEYS.income, (lsGet<IncomeRecord[]>(KEYS.income) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: income record deleted", id);
+  },
+
+  // ── Stock DCA Schedules ───────────────────────────────────────────────────
+
+  async getStockDCASchedules(): Promise<StockDCASchedule[]> {
+    try {
+      const rows = await sbStockDCA.getAll();
+      lsSet(KEYS.stockDCA, rows);
+      console.log("[SF] Loaded from Supabase: stock DCA schedules", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: stock DCA", err);
+      return lsGet<StockDCASchedule[]>(KEYS.stockDCA) ?? [];
+    }
+  },
+
+  async createStockDCASchedule(data: Omit<StockDCASchedule, "id" | "created_at" | "updated_at">): Promise<StockDCASchedule> {
+    // throws on Supabase failure — no silent localStorage fallback
+    const saved = await sbStockDCA.create(data);
+    const items = lsGet<StockDCASchedule[]>(KEYS.stockDCA) ?? [];
+    lsSet(KEYS.stockDCA, [...items, saved]);
+    console.log("[SF] Saved to Supabase: stock DCA created", saved.id);
+    return saved;
+  },
+
+  async updateStockDCASchedule(id: number, data: Partial<StockDCASchedule>): Promise<StockDCASchedule> {
+    const saved = await sbStockDCA.update(id, data);
+    const items = (lsGet<StockDCASchedule[]>(KEYS.stockDCA) ?? []).map(
+      (i) => (i.id === id ? { ...i, ...(saved ?? data) } : i)
+    );
+    lsSet(KEYS.stockDCA, items);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteStockDCASchedule(id: number): Promise<void> {
+    await sbStockDCA.delete(id);
+    lsSet(KEYS.stockDCA, (lsGet<StockDCASchedule[]>(KEYS.stockDCA) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: stock DCA deleted", id);
+  },
+
+  // ── Crypto DCA Schedules ──────────────────────────────────────────────────
+
+  async getCryptoDCASchedules(): Promise<CryptoDCASchedule[]> {
+    try {
+      const rows = await sbCryptoDCA.getAll();
+      lsSet(KEYS.cryptoDCA, rows);
+      console.log("[SF] Loaded from Supabase: crypto DCA schedules", rows.length, "rows");
+      return rows;
+    } catch (err) {
+      console.warn("[SF] Supabase error, fallback to local cache: crypto DCA", err);
+      return lsGet<CryptoDCASchedule[]>(KEYS.cryptoDCA) ?? [];
+    }
+  },
+
+  async createCryptoDCASchedule(data: Omit<CryptoDCASchedule, "id" | "created_at" | "updated_at">): Promise<CryptoDCASchedule> {
+    // throws on Supabase failure — no silent localStorage fallback
+    const saved = await sbCryptoDCA.create(data);
+    const items = lsGet<CryptoDCASchedule[]>(KEYS.cryptoDCA) ?? [];
+    lsSet(KEYS.cryptoDCA, [...items, saved]);
+    console.log("[SF] Saved to Supabase: crypto DCA created", saved.id);
+    return saved;
+  },
+
+  async updateCryptoDCASchedule(id: number, data: Partial<CryptoDCASchedule>): Promise<CryptoDCASchedule> {
+    const saved = await sbCryptoDCA.update(id, data);
+    const items = (lsGet<CryptoDCASchedule[]>(KEYS.cryptoDCA) ?? []).map(
+      (i) => (i.id === id ? { ...i, ...(saved ?? data) } : i)
+    );
+    lsSet(KEYS.cryptoDCA, items);
+    return items.find((i) => i.id === id)!;
+  },
+
+  async deleteCryptoDCASchedule(id: number): Promise<void> {
+    await sbCryptoDCA.delete(id);
+    lsSet(KEYS.cryptoDCA, (lsGet<CryptoDCASchedule[]>(KEYS.cryptoDCA) ?? []).filter((i) => i.id !== id));
+    console.log("[SF] Saved to Supabase: crypto DCA deleted", id);
+  },
+
+  async bulkCreateIncomeRecords(rows: Omit<IncomeRecord, "id" | "created_at" | "updated_at">[]): Promise<IncomeRecord[]> {
+    const saved = await sbIncome.bulkCreate(rows);
+    if (saved.length > 0) {
+      const items = lsGet<IncomeRecord[]>(KEYS.income) ?? [];
+      lsSet(KEYS.income, [...saved, ...items]);
+      console.log("[SF] Saved to Supabase: bulk income records created", saved.length);
+      return saved;
+    }
+    return Promise.all(rows.map((r) => this.createIncomeRecord(r)));
+  },
+};

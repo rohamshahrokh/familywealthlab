@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useFormState, useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, FormError, FormSuccess, Label, Input } from "@/components/auth/Field";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { Divider } from "@/components/auth/Divider";

@@ -10,7 +10,7 @@ import { useFormState, useFormStatus } from "react-dom";
 import { createIncome } from "../income-actions";
 import { INCOME_SOURCES, INCOME_FREQUENCIES } from "../income-constants";
 import { FAMILY_MEMBERS } from "../expense-constants";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, ErrorBanner, SuccessBanner, inputCls, textareaCls } from "@/components/workspace/forms/Field";
 
 type State = { ok: boolean; error?: string } | null;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Menu, X, Command } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Ticker, type TickerItem } from "@/components/ui/Ticker";
 import { cn } from "@/lib/utils";
 

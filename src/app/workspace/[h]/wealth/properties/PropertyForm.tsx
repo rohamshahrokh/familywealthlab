@@ -9,7 +9,7 @@
 import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createProperty, updateProperty } from "./actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, inputCls, textareaCls, ErrorBanner, SuccessBanner } from "@/components/workspace/forms/Field";
 
 type ActionState = { ok: boolean; error?: string } | null;

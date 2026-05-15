@@ -13,7 +13,7 @@
 
 import * as React from "react";
 import { Download, FileSpreadsheet, Upload, Zap, Plus } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { ImportXlsxPanel } from "./ImportXlsxPanel";
 import { AddExpenseModal } from "./AddExpenseModal";
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { importExpensesCsv } from "./actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, ErrorBanner, SuccessBanner, textareaCls } from "@/components/workspace/forms/Field";
 
 type ActionState =

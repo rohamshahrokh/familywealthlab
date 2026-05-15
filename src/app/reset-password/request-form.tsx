@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, FormError, FormSuccess, Label, Input } from "@/components/auth/Field";
 import { requestPasswordReset } from "@/app/auth/actions";
 

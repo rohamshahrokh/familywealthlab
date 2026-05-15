@@ -9,7 +9,7 @@
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Field, inputCls } from "@/components/workspace/forms/Field";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 
 export function IpCapacityForm({ basePath }: { basePath: string }) {
   const sp = useSearchParams();
