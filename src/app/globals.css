@@ -17,6 +17,44 @@
        lockups. Deeper on light to preserve WCAG AA contrast. */
     --brand-amber:    #F5A623;
     --brand-amber-dk: #C5841A;
+
+    /* APP_SHELL_UI_UX_FIX_PASS_01 — Issue 5 & 6
+       shadcn-compatible semantic tokens for the migrated /app/* dashboard.
+       The ported personal-app components use `bg-background`, `bg-card`,
+       `text-foreground`, `text-muted-foreground`, `border-border`,
+       `bg-muted`, `text-primary`, etc. — these are wired here so the
+       light/dark toggle actually changes surfaces, text, and borders.
+       HSL space lets Tailwind alpha-modifier syntax (`bg-card/50`) work. */
+    --background:           220 14% 97%;     /* page  */
+    --foreground:           224 28% 8%;      /* primary text */
+    --card:                 0   0% 100%;     /* card surface */
+    --card-foreground:      224 28% 8%;
+    --muted:                220 14% 93%;     /* recessed wells */
+    --muted-foreground:     224 10% 38%;     /* meta / captions */
+    --border:               224 18% 88%;     /* hairlines */
+    --input:                224 18% 88%;
+    --primary:              224 30% 16%;     /* solid accent */
+    --primary-foreground:   0   0% 100%;
+    --accent:               224 18% 93%;
+    --accent-foreground:    224 28% 8%;
+    --ring:                 24  72% 49%;     /* focus ring — ember */
+  }
+
+  /* Dark theme — applied via the `.dark` class toggled by useAppStore. */
+  .dark {
+    --background:           224 28% 6%;
+    --foreground:           220 12% 96%;
+    --card:                 224 24% 10%;
+    --card-foreground:      220 12% 96%;
+    --muted:                224 22% 14%;
+    --muted-foreground:     220 12% 64%;
+    --border:               224 20% 18%;
+    --input:                224 20% 18%;
+    --primary:              24  72% 56%;     /* ember on dark */
+    --primary-foreground:   224 28% 6%;
+    --accent:               224 24% 16%;
+    --accent-foreground:    220 12% 96%;
+    --ring:                 24  72% 56%;
   }
 
   html {
@@ -316,6 +354,13 @@
   /* Tabular numerics utility */
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
 }
+
+/* APP_SHELL_UI_UX_FIX_PASS_01 — Issue 6
+   The dashboard page wraps itself in `bg-background text-foreground` which
+   under the new variable system now drives the visible page surface. We
+   also need the html/body to follow the theme so there is no flash of the
+   wrong color around the edges. */
+html.dark, html.dark body { background: hsl(var(--background)); }
 
 /* Hide-sensitive-values mode — blurs all numerical / tabular figures. */
 .fwl-blur-values .tabular,
