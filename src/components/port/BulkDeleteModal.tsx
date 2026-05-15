@@ -36,7 +36,10 @@ export default function BulkDeleteModal({
   title = "Delete selected items",
   description = "This is a demo. No data will be removed.",
   count,
+  label,
   onConfirm,
+  onCancel,
+  onExportBackup,
 }: BulkDeleteModalProps) {
   return (
     <Dialog open={open} onOpenChange={(o) => onOpenChange?.(o)}>
