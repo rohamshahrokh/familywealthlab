@@ -7,14 +7,15 @@ import { HeroDashboard } from "./HeroDashboard";
 import { AmbientMesh, Spotlight } from "@/components/ui/AmbientMesh";
 import { Magnetic } from "@/components/ui/MagneticButton";
 import { heroIn, fadeUp, t } from "@/lib/motion";
+import { HERO_KPIS } from "@/lib/finance-port/marketingDemoSeries";
 
 const SIDE_RAIL = [
-  { label: "PATHS", value: "5,000", delta: "MONTE CARLO" },
-  { label: "HORIZON", value: "20Y", delta: "FY26 → FY46" },
-  { label: "P10",   value: "$2.94M", delta: "10TH PCT" },
-  { label: "P50",   value: "$4.82M", delta: "MEDIAN" },
-  { label: "P90",   value: "$7.40M", delta: "90TH PCT" },
-  { label: "TAX",   value: "FY26",   delta: "AU RULES" },
+  { label: "PATHS", value: HERO_KPIS.paths.toLocaleString(), delta: "MONTE CARLO" },
+  { label: "HORIZON", value: `${HERO_KPIS.horizonYears}Y`, delta: `FY${String(HERO_KPIS.startYear).slice(-2)} → FY${String(HERO_KPIS.endYear).slice(-2)}` },
+  { label: "P10",   value: `$${HERO_KPIS.p10M.toFixed(2)}M`, delta: "10TH PCT" },
+  { label: "P50",   value: `$${HERO_KPIS.projectedNetWorthM.toFixed(2)}M`, delta: "MEDIAN" },
+  { label: "P90",   value: `$${HERO_KPIS.p90M.toFixed(2)}M`, delta: "90TH PCT" },
+  { label: "TAX",   value: `FY${String(HERO_KPIS.startYear).slice(-2)}`,   delta: "AU RULES" },
 ];
 
 export function Hero() {
