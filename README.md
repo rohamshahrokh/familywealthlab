@@ -155,6 +155,29 @@ You'll set up the commercial environment yourself, on your own schedule:
 
 ---
 
+## Environment variables
+
+The app reads its Supabase configuration (and a few other runtime knobs)
+from environment variables. Locally, copy `.env.example` to `.env.local`
+and fill in the values. In Netlify, set them under **Site settings →
+Environment variables** — they are deliberately **not** committed to
+`netlify.toml` so secrets stay out of source control.
+
+| Variable                        | Required | Notes                                       |
+| ------------------------------- | -------- | ------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes      | Live Supabase project URL                   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes      | Supabase anon / publishable key             |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Server   | Service-role key for server-only operations |
+| `NEXT_PUBLIC_SITE_URL`          | Yes      | Public site URL (OAuth + email redirects)   |
+| `NEXT_PUBLIC_MFA_REQUIRED`      | No       | `"true"` to enforce step-up auth            |
+
+> If `NEXT_PUBLIC_SUPABASE_URL` points at a dead / wrong project, the
+> Supabase JS client logs ~13 × 404 per page load and cascades into
+> React error-state re-renders — verify the dashboard value matches an
+> `ACTIVE_HEALTHY` project before measuring performance.
+
+---
+
 ## Accessibility & performance
 
 - All animation paths respect `prefers-reduced-motion`.
