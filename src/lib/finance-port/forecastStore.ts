@@ -13,6 +13,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { getSbUrl } from './sbEnv';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -165,7 +166,7 @@ export function generateYearlyFromProfile(profile: ForecastProfile): YearAssumpt
 
 // FWL_ENV_VAR_WIRING_PASS_01: env-sourced. The old VITE_ fallback for the
 // personal app's Vite build is gone — commercial is Next.js with NEXT_PUBLIC_*.
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SB_URL = getSbUrl();
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const OWNER   = 'shahrokh-family-main';
 const HEADERS = {

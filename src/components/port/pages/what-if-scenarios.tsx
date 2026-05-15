@@ -65,11 +65,12 @@ import {
   type ActionPlan, type ScenarioComparisonRow, type AssumptionWarning,
 } from '@/lib/finance-port/whatIfEngine';
 import { PROFILE_DEFAULTS } from '@/lib/finance-port/forecastStore';
+import { getSbUrl } from '@/lib/finance-port/sbEnv';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 // FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
-const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const SB_URL = getSbUrl();
 const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SB_HDRS = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` };
 const HAS_SB = Boolean(SB_URL && SB_KEY);

@@ -24,6 +24,7 @@ import { sbBills, sbBudgets, sbTelegramSettings, sbAlertLogs, sbFamilyMsgLog, sb
 import { sbFireSettings, sbFireScenarioConfig, sbFireYearAssumptions } from "./supabaseClient";
 import { sbTaxProfile } from "./supabaseClient";
 import { sbMCFireSettings, sbMCFireResults, sbMCFirePresets } from "./supabaseClient";
+import { getSbUrl } from "./sbEnv";
 import {
   getDemoDataset,
   DEMO_FIRE_SETTINGS, DEMO_APP_SETTINGS, DEMO_TAX_PROFILE,
@@ -697,8 +698,8 @@ async function handleLocalRequest(method: string, path: string, body?: unknown):
 
   // ─── Market News cache ──────────────────────────────────────────────────
   if (path === "/api/market-news-cache") {
-    // FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
-    const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+    // FWL_ENV_VAR_WIRING_PASS_01 + slash-safety: env-sourced via sbEnv.getSbUrl().
+    const SB_URL = getSbUrl();
     const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
     const headers = { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" };
     if (m === "GET") {
