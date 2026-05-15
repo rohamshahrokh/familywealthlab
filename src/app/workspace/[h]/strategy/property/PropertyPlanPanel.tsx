@@ -12,6 +12,7 @@ import type { TaxRuleset, GearingRule, TaxMode } from "@/lib/finance/taxEngine";
 import { fmtMoney, fmtMoneyCompact, fmtPercent } from "@/components/workspace/format";
 import { Property30YChart } from "./Property30YChart";
 import { PropertyCashflowBars } from "./PropertyCashflowBars";
+import { PropertyForecastSection } from "@/components/finance/PropertyForecastSection";
 
 interface Props {
   initial: PropertyEngineInput;
@@ -128,11 +129,32 @@ export function PropertyPlanPanel({ initial }: Props) {
         <Property30YChart rows={projection.rows} />
       </SurfaceCard>
 
-      {/* ── Cashflow bars ──────────────────────────────────────── */}
+      {/* ── Cashflow bars (deterministic, preserved) ──────────── */}
       <SurfaceCard>
         <div className="syslabel mb-3"><span className="syslabel-bracket">[D]</span><span>Annual cashflow · gearing · refund</span></div>
         <PropertyCashflowBars rows={projection.rows} period={periodic} />
       </SurfaceCard>
+
+      {/* ── Forecast Intelligence Engine v1 (additive) ─────────── */}
+      <PropertyForecastSection
+        input={{
+          purchasePrice: purchase,
+          currentValue: value,
+          loanBalance: loan,
+          interestRate: rate,
+          loanTermYears: term,
+          rentalIncomePA: rent,
+          operatingExpensesPA: opex,
+          growthRate: growth,
+          rentGrowthRate: rentGrowth,
+          acquiredAt: initial.acquiredAt,
+          isInvestment: isIp,
+          baseHouseholdIncome: initial.baseHouseholdIncome,
+          ruleset,
+          gearingRule: gearing,
+        }}
+        period={periodic}
+      />
 
       {/* ── Key metrics ────────────────────────────────────────── */}
       <section>
