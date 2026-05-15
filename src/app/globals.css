@@ -316,3 +316,16 @@
   /* Tabular numerics utility */
   .tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "lnum" 1; }
 }
+
+/* Hide-sensitive-values mode — blurs all numerical / tabular figures. */
+.fwl-blur-values .tabular,
+.fwl-blur-values .tabular-nums,
+.fwl-blur-values .num {
+  filter: blur(6px);
+  transition: filter 0.18s ease-out;
+}
+.fwl-blur-values .tabular:hover,
+.fwl-blur-values .tabular-nums:hover,
+.fwl-blur-values .num:hover {
+  filter: blur(0);
+}

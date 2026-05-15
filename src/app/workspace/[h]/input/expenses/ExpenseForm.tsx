@@ -11,7 +11,7 @@ import {
   FAMILY_MEMBERS,
   PAYMENT_METHODS,
 } from "./expense-constants";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, ErrorBanner, inputCls, textareaCls } from "@/components/workspace/forms/Field";
 
 type ActionState = { ok: boolean; error?: string } | null;

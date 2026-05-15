@@ -13,6 +13,7 @@ import {
 } from "@/components/workspace/charts-interactive";
 import { getChartBundle } from "@/lib/dashboard/charts";
 import { fmtMoney, fmtMoneyCompact, fmtPercent, fmtNumber } from "@/components/workspace/format";
+import { CommandCentreToolbar } from "./CommandCentreToolbar";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +77,9 @@ export default async function OverviewPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* Toolbar */}
+      <CommandCentreToolbar />
 
       {/* ── [02] Headline KPIs ───────────────────────────────────── */}
       <section>

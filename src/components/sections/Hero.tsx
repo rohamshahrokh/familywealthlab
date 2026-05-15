@@ -2,7 +2,7 @@
 import * as React from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, Lock, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { HeroDashboard } from "./HeroDashboard";
 import { AmbientMesh, Spotlight } from "@/components/ui/AmbientMesh";
 import { Magnetic } from "@/components/ui/MagneticButton";

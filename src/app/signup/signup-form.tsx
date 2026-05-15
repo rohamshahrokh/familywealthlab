@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, Helper, FormError, Label, Input } from "@/components/auth/Field";
 import { GoogleButton } from "@/components/auth/GoogleButton";
 import { Divider } from "@/components/auth/Divider";

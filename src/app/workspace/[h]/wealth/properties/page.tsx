@@ -18,7 +18,7 @@ import { TabBar } from "./_components/TabBar";
 import { PortfolioView } from "./_views/PortfolioView";
 import { BuyVsWaitView } from "./_views/BuyVsWaitView";
 import { ImpactView } from "./_views/ImpactView";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import type { PropertyRow } from "./PropertyForm";
 
 export const dynamic = "force-dynamic";

@@ -68,6 +68,8 @@ const GROUPS = (h: string): NavGroup[] => [
       { href: `/workspace/${h}/input/expenses`,     label: "Expenses",      index: "[02·06]", status: "live" },
       { href: `/workspace/${h}/input/stocks`,       label: "Stocks",        index: "[02·07]", status: "live" },
       { href: `/workspace/${h}/input/crypto`,       label: "Crypto",        index: "[02·08]", status: "live" },
+      { href: `/workspace/${h}/portfolio/stocks`,   label: "Stock portfolio", index: "[02·09]", status: "live" },
+      { href: `/workspace/${h}/portfolio/crypto`,   label: "Crypto portfolio", index: "[02·10]", status: "live" },
     ],
   },
   {
@@ -76,7 +78,8 @@ const GROUPS = (h: string): NavGroup[] => [
     icon: Target,
     items: [
       { href: `/workspace/${h}/strategy/plan`,     label: "Financial plan", index: "[03·01]", status: "live" },
-      { href: `/workspace/${h}/strategy/property`, label: "Property plan",  index: "[03·02]", status: "live" },
+      { href: `/workspace/${h}/strategy/property`,      label: "Property strategy", index: "[03·02·A]", status: "live" },
+      { href: `/workspace/${h}/strategy/property/plan`, label: "Property plan",     index: "[03·02·B]", status: "live" },
       { href: `/workspace/${h}/strategy/debt`,     label: "Debt strategy",  index: "[03·03]", status: "live" },
       { href: `/workspace/${h}/strategy/tax`,      label: "Tax strategy",   index: "[03·04]", status: "live" },
       { href: `/workspace/${h}/strategy/cgt`,      label: "CGT simulator",  index: "[03·05]", status: "live" },
@@ -88,8 +91,9 @@ const GROUPS = (h: string): NavGroup[] => [
     icon: LineChart,
     items: [
       { href: `/workspace/${h}/forecast/baseline`, label: "Baseline forecast", index: "[04·01]", status: "live" },
-      { href: `/workspace/${h}/forecast/fire`,     label: "FIRE projection",   index: "[04·02]", status: "live" },
-      { href: `/workspace/${h}/forecast/montecarlo`, label: "Monte Carlo",     index: "[04·03]", status: "live" },
+      { href: `/workspace/${h}/forecast/cashflow`, label: "Cashflow forecast", index: "[04·02]", status: "live" },
+      { href: `/workspace/${h}/forecast/fire`,     label: "FIRE projection",   index: "[04·03]", status: "live" },
+      { href: `/workspace/${h}/forecast/montecarlo`, label: "Monte Carlo",     index: "[04·04]", status: "live" },
     ],
   },
   {
@@ -100,6 +104,9 @@ const GROUPS = (h: string): NavGroup[] => [
       { href: `/workspace/${h}/decision`, label: "Decision Engine", index: "[05·01]", status: "live" },
       { href: `/workspace/${h}/action/whatif`,  label: "What-If",   index: "[05·02]", status: "live" },
       { href: `/workspace/${h}/action/compare`, label: "Scenario compare", index: "[05·03]", status: "live" },
+      { href: `/workspace/${h}/action/bills`,   label: "Recurring bills", index: "[05·04]", status: "live" },
+      { href: `/workspace/${h}/action/reports`, label: "Reports", index: "[05·05]", status: "live" },
+      { href: `/workspace/${h}/action/help`,    label: "Help",    index: "[05·06]", status: "live" },
     ],
   },
   {

@@ -10,7 +10,7 @@ import Link from "next/link";
 import { SurfaceCard, KpiCard, EmptyState } from "@/components/workspace/cards";
 import { fmtMoney, fmtPercent, fmtMoneyCompact } from "@/components/workspace/format";
 import { deriveCalcs } from "@/lib/finance/property";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { PropertyCard } from "../_components/PropertyCard";
 import { IpCapacityCalculator } from "../_components/IpCapacityCalculator";
 import { AddPropertyModal } from "../_components/AddPropertyModal";

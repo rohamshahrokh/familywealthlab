@@ -1,0 +1,462 @@
+"use client";
+
+/**
+ * CFODashboardWidget.tsx — Saturday Morning Bulletin executive card for Dashboard.
+ *
+ * Uses CFOBulletin type (new engine). Shows:
+ *   - Overall CFO score (large) + 5 sub-score rings
+ *   - Snapshot: Net Worth delta, Liquid Cash, Monthly Surplus, FIRE %
+ *   - Smart action of the week
+ *   - Top risk alert
+ *   - 7-day cashflow status
+ *   - "Full Bulletin" link
+ */
+
+import { useEffect, useState, useCallback } from "react";
+import { Link } from "wouter";
+import {
+  getCFOReports,
+  generateCFOReport,
+  saveCFOReport,
+  type CFOBulletin,
+} from "@/lib/finance-port/cfoEngine";
+import {
+  BrainCircuit,
+  TrendingUp,
+  Wallet,
+  ShieldCheck,
+  Target,
+  ChevronRight,
+  RefreshCw,
+  Loader2,
+  AlertCircle,
+  Calendar,
+  Zap,
+  DollarSign,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { maskValue } from "@/components/port/PrivacyMask";
+import { useAppStore } from "@/lib/finance-port/store";
+
+// ─── Format helpers ───────────────────────────────────────────────────────────
+function fmt(n: number): string {
+  if (Math.abs(n) >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (Math.abs(n) >= 1_000) return `$${Math.round(n / 1_000)}K`;
+  return `$${Math.round(n)}`;
+}
+
+function fmtShort(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("en-AU", {
+      day: "numeric", month: "short", year: "numeric",
+    });
+  } catch { return iso; }
+}
+
+// ─── Score ring ───────────────────────────────────────────────────────────────
+function ScoreRing({
+  score, label, color, size = 52,
+}: {
+  score: number; label: string; color: string; size?: number;
+}) {
+  const c = Math.max(0, Math.min(100, score));
+  const r = 20;
+  const circ = 2 * Math.PI * r;
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          style={{ width: size, height: size }}
+          className="-rotate-90"
+          viewBox="0 0 48 48"
+        >
+          <circle cx="24" cy="24" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="4" />
+          <circle
+            cx="24" cy="24" r={r} fill="none" stroke={color} strokeWidth="4"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={circ - (c / 100) * circ}
+            style={{ transition: "stroke-dashoffset 0.7s ease" }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[11px] font-black text-foreground">{c}</span>
+        </div>
+      </div>
+      <span className="text-[9px] text-slate-500 text-center">{label}</span>
+    </div>
+  );
+}
+
+// ─── Legacy row normaliser ─────────────────────────────────────────────────────
+function normaliseBulletin(raw: any): CFOBulletin | null {
+  if (!raw) return null;
+  if (
+    raw.scores && typeof raw.scores.overall === 'number' &&
+    raw.snapshot && typeof raw.snapshot.debt_ratio === 'number'
+  ) return raw as CFOBulletin;
+
+  const oldSnap = raw.snapshot ?? {};
+  const oldFire = oldSnap.fire ?? {};
+  const n = (v: any) => (typeof v === 'number' && isFinite(v) ? v : 0);
+  const s = (v: any) => (typeof v === 'string' ? v : '');
+  const b = (v: any) => (typeof v === 'boolean' ? v : true);
+
+  const snapshot = {
+    net_worth:              n(oldSnap.net_worth         ?? raw.networth),
+    net_worth_delta:        n(oldSnap.net_worth_delta   ?? raw.networth_delta),
+    cash_everyday:          n(oldSnap.cash_everyday     ?? oldSnap.cash ?? raw.cash),
+    cash_savings:           n(oldSnap.cash_savings),
+    cash_emergency:         n(oldSnap.cash_emergency),
+    cash_other:             n(oldSnap.cash_other),
+    offset_balance:         n(oldSnap.offset_balance),
+    liquid_cash:            n(oldSnap.liquid_cash       ?? oldSnap.cash ?? raw.cash),
+    offset_interest_saving: n(oldSnap.offset_interest_saving),
+    monthly_surplus:        n(oldSnap.monthly_surplus   ?? raw.monthly_surplus),
+    debt_ratio:             n(oldSnap.debt_ratio),
+    fire_progress_pct:      n(oldSnap.fire_progress_pct ?? oldFire.progress_pct ?? raw.fire_progress),
+    years_to_fire:          n(oldSnap.years_to_fire     ?? oldFire.years_away),
+    fire_year:              n(oldSnap.fire_year         ?? oldFire.fire_year    ?? raw.fire_year),
+    fire_on_track:          b(oldSnap.fire_on_track     ?? oldFire.on_track),
+    total_assets:           n(oldSnap.total_assets),
+    total_debt:             n(oldSnap.total_debt        ?? raw.debt_total),
+    portfolio_value:        n(oldSnap.portfolio_value   ?? raw.portfolio_value),
+    super_combined:         n(oldSnap.super_combined),
+  };
+  const oldCF = raw.cashflow ?? {};
+  const cashflow = {
+    income_expected: n(oldCF.income_expected),
+    bills_total:     n(oldCF.bills_total),
+    net_cashflow:    n(oldCF.net_cashflow ?? raw.cashflow_next14),
+    status: (['green','amber','red'].includes(oldCF.status) ? oldCF.status : 'green') as 'green'|'amber'|'red',
+    bills: Array.isArray(oldCF.bills) ? oldCF.bills : (Array.isArray(raw.bills_ahead) ? raw.bills_ahead : []),
+  };
+  const oldInv = raw.investment ?? {};
+  const investment = {
+    stocks_value: n(oldInv.stocks_value), stocks_delta: n(oldInv.stocks_delta ?? oldInv.stocks_change),
+    stocks_delta_pct: n(oldInv.stocks_delta_pct), best_stock: s(oldInv.best_stock), worst_stock: s(oldInv.worst_stock),
+    crypto_value: n(oldInv.crypto_value), crypto_delta: n(oldInv.crypto_delta ?? oldInv.crypto_change),
+    crypto_delta_pct: n(oldInv.crypto_delta_pct),
+    dca_active: Array.isArray(oldInv.dca_active) ? oldInv.dca_active : (Array.isArray(oldInv.dca_scheduled) ? oldInv.dca_scheduled : []),
+    planned_buys: Array.isArray(oldInv.planned_buys) ? oldInv.planned_buys : [],
+    portfolio_total: n(oldInv.portfolio_total ?? raw.portfolio_value),
+  };
+  const oldF = raw.fire ?? {};
+  const fire = {
+    target_passive_income: n(oldF.target_passive_income), current_passive_income: n(oldF.current_passive_income),
+    years_remaining: n(oldF.years_remaining ?? oldF.years_away ?? oldFire.years_away),
+    progress_pct: n(oldF.progress_pct ?? oldFire.progress_pct ?? raw.fire_progress),
+    fire_year: n(oldF.fire_year ?? oldFire.fire_year ?? raw.fire_year), semi_fire_year: n(oldF.semi_fire_year),
+    target_capital: n(oldF.target_capital ?? oldFire.target_capital), investable: n(oldF.investable ?? oldFire.investable),
+    on_track: b(oldF.on_track ?? oldFire.on_track), accelerator: s(oldF.accelerator),
+  };
+  const oldPW = raw.property_watch ?? {};
+  const property_watch = {
+    buy_score: n(oldPW.buy_score ?? 5), wait_score: n(oldPW.wait_score ?? 5),
+    borrowing_power: n(oldPW.borrowing_power), deposit_ready: n(oldPW.deposit_ready), market_summary: s(oldPW.market_summary),
+  };
+  const oldTA = raw.tax_alpha ?? {};
+  const tax_alpha = {
+    neg_gearing_benefit: n(oldTA.neg_gearing_benefit), super_room_remaining: n(oldTA.super_room_remaining),
+    estimated_refund: s(oldTA.estimated_refund) || 'N/A', tips: Array.isArray(oldTA.tips) ? oldTA.tips : [],
+  };
+  const wS = n(raw.wealth_score ?? raw.scores?.wealth);
+  const cS = n(raw.cashflow_score ?? raw.scores?.cashflow);
+  const rS = n(raw.risk_score ?? raw.scores?.risk);
+  const dS = n(raw.discipline_score ?? raw.scores?.discipline);
+  const scores = {
+    wealth: n(raw.scores?.wealth ?? wS), cashflow: n(raw.scores?.cashflow ?? cS),
+    risk: n(raw.scores?.risk ?? rS), discipline: n(raw.scores?.discipline ?? dS),
+    opportunity: n(raw.scores?.opportunity),
+    overall: n(raw.scores?.overall ?? Math.round((wS + cS + rS + dS) / 4)),
+  };
+  return {
+    ...raw,
+    week_date: s(raw.week_date) || new Date().toISOString().split('T')[0],
+    generated_at: s(raw.generated_at) || s(raw.week_date) || new Date().toISOString(),
+    scores, snapshot, cashflow, investment, fire, property_watch, tax_alpha,
+    risk_alerts:        Array.isArray(raw.risk_alerts)  ? raw.risk_alerts  : (Array.isArray(raw.alerts) ? raw.alerts : []),
+    top_expenses:       Array.isArray(raw.top_expenses) ? raw.top_expenses : [],
+    spending_insight:   s(raw.spending_insight),
+    smart_action:       s(raw.smart_action ?? raw.best_move),
+    smart_action_value: s(raw.smart_action_value),
+    cfo_insight:        s(raw.cfo_insight ?? raw.summary),
+    opportunities:      Array.isArray(raw.opportunities) ? raw.opportunities : [],
+  } as CFOBulletin;
+}
+
+// ─── Traffic dot ──────────────────────────────────────────────────────────────
+function TrafficDot({ status }: { status: "green" | "amber" | "red" }) {
+  const cls = status === "green" ? "bg-emerald-400" : status === "amber" ? "bg-amber-400" : "bg-red-400";
+  return <span className={`inline-block w-1.5 h-1.5 rounded-full ${cls} mr-1`} />;
+}
+
+// ─── Widget ───────────────────────────────────────────────────────────────────
+export default function CFODashboardWidget() {
+  const { privacyMode } = useAppStore();
+  const mv = (val: string) => maskValue(val, privacyMode, "currency");
+
+  const [report, setReport]       = useState<CFOBulletin | null>(null);
+  const [loading, setLoading]     = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError]         = useState<string | null>(null);
+
+  const fetchLatest = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const rows = await getCFOReports(1);
+      setReport(normaliseBulletin(rows?.[0]?.json_payload));
+    } catch {
+      setError("Could not load bulletin.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchLatest(); }, [fetchLatest]);
+
+  const handleGenerate = useCallback(async () => {
+    setGenerating(true);
+    setError(null);
+    try {
+      const r = await generateCFOReport("Balanced");
+      await saveCFOReport(r, false);
+      setReport(r);
+    } catch {
+      setError("Failed to generate bulletin. Please try again.");
+    } finally {
+      setGenerating(false);
+    }
+  }, []);
+
+  // ── Loading ──────────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-border/40 bg-card p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4">
+          <BrainCircuit size={17} className="text-cyan-400" />
+          <span className="text-sm font-semibold text-foreground">Saturday Morning Bulletin</span>
+        </div>
+        <div className="flex items-center justify-center py-8">
+          <Loader2 size={22} className="animate-spin text-cyan-400" />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error ────────────────────────────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-border/40 bg-card p-6 mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <BrainCircuit size={17} className="text-cyan-400" />
+          <span className="text-sm font-semibold text-foreground">Saturday Morning Bulletin</span>
+        </div>
+        <div className="flex items-center gap-2 text-red-400 text-sm mb-3">
+          <AlertCircle size={13} />
+          <span>{error}</span>
+        </div>
+        <Button size="sm" variant="outline" className="text-xs" onClick={fetchLatest}>
+          <RefreshCw size={12} className="mr-1" /> Retry
+        </Button>
+      </div>
+    );
+  }
+
+  // ── No report yet ────────────────────────────────────────────────────────────
+  if (!report) {
+    return (
+      <div className="rounded-2xl border border-dashed border-border bg-card p-6 mb-6">
+        <div className="flex items-center gap-2 mb-2">
+          <BrainCircuit size={17} className="text-cyan-400" />
+          <span className="text-sm font-semibold text-foreground">Saturday Morning Bulletin</span>
+        </div>
+        <p className="text-slate-400 text-sm mb-4">
+          No bulletin generated yet. Run your first weekly briefing to see your financial score,
+          cash breakdown, 7-day cashflow, FIRE tracker, and your best move.
+        </p>
+        <Button
+          size="sm"
+          className="bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-semibold text-xs"
+          onClick={handleGenerate}
+          disabled={generating}
+        >
+          {generating
+            ? <><Loader2 size={12} className="mr-1.5 animate-spin" />Generating…</>
+            : <><BrainCircuit size={12} className="mr-1.5" />Generate First Bulletin</>}
+        </Button>
+      </div>
+    );
+  }
+
+  // ── Report present ───────────────────────────────────────────────────────────
+  const { scores, snapshot: snap, cashflow } = report;
+  const nwUp       = snap.net_worth_delta >= 0;
+  const surplusUp  = snap.monthly_surplus >= 0;
+  const scoreColor = scores.overall >= 75 ? "#22d3ee" : scores.overall >= 55 ? "#f59e0b" : "#f87171";
+  const scoreLabel = scores.overall >= 75 ? "Excellent" : scores.overall >= 55 ? "Fair" : "Needs Attention";
+
+  return (
+    <div className="rounded-2xl border border-border bg-card mb-6 overflow-hidden">
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-white/[0.05]">
+        <div className="flex items-center gap-2">
+          <BrainCircuit size={17} className="text-cyan-400" />
+          <span className="text-sm font-semibold text-foreground">Saturday Morning Bulletin</span>
+          <span className="text-[10px] text-slate-600 ml-1">
+            Week of {fmtShort(report.week_date)}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-slate-500 hover:text-cyan-400 transition-colors"
+            onClick={handleGenerate}
+            disabled={generating}
+            title="Regenerate bulletin"
+          >
+            {generating
+              ? <Loader2 size={13} className="animate-spin" />
+              : <RefreshCw size={13} />}
+          </button>
+          <Link href="/ai-weekly-cfo">
+            <button className="flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors">
+              Full Bulletin <ChevronRight size={12} />
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Body */}
+      <div className="px-5 py-4">
+        <div className="flex items-stretch gap-4 flex-wrap sm:flex-nowrap">
+
+          {/* Left: overall score */}
+          <div className="flex flex-col items-center justify-center min-w-[80px]">
+            <div
+              className="text-5xl font-black tabular-nums leading-none"
+              style={{ color: scoreColor, textShadow: `0 0 28px ${scoreColor}50` }}
+            >
+              {scores.overall}
+            </div>
+            <div className="text-[10px] font-semibold mt-1" style={{ color: scoreColor }}>
+              {scoreLabel}
+            </div>
+            <div className="text-[9px] text-slate-600 mt-0.5">CFO Score</div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px bg-white/[0.05] self-stretch hidden sm:block" />
+
+          {/* Centre: 5 score rings + snapshot */}
+          <div className="flex-1 min-w-0">
+            {/* Score rings — 5 */}
+            <div className="flex gap-2.5 mb-3.5 flex-wrap">
+              <ScoreRing score={scores.wealth}      label="Wealth"      color="#22d3ee" />
+              <ScoreRing score={scores.cashflow}    label="Cashflow"    color="#a78bfa" />
+              <ScoreRing score={scores.risk}        label="Risk"        color="#34d399" />
+              <ScoreRing score={scores.discipline}  label="Discipline"  color="#f59e0b" />
+              <ScoreRing score={scores.opportunity} label="Opportunity" color="#f97316" />
+            </div>
+
+            {/* Snapshot row */}
+            <div className="grid grid-cols-4 gap-1.5 mb-3">
+              {/* Net Worth */}
+              <div className="rounded-xl bg-white/[0.04] px-2.5 py-2">
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">Net Worth</div>
+                <div className="text-xs font-bold text-foreground mt-0.5">{mv(fmt(snap.net_worth))}</div>
+                <div className={`text-[10px] mt-0.5 ${nwUp ? "text-emerald-400" : "text-red-400"}`}>
+                  {nwUp ? "▲" : "▼"} {mv(fmt(Math.abs(snap.net_worth_delta)))}
+                </div>
+              </div>
+              {/* Liquid Cash */}
+              <div className="rounded-xl bg-white/[0.04] px-2.5 py-2">
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">Liquid Cash</div>
+                <div className="text-xs font-bold text-foreground mt-0.5">{mv(fmt(snap.liquid_cash))}</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Offset: {mv(fmt(snap.offset_balance))}</div>
+              </div>
+              {/* Surplus */}
+              <div className="rounded-xl bg-white/[0.04] px-2.5 py-2">
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">Surplus/mo</div>
+                <div className={`text-xs font-bold mt-0.5 ${surplusUp ? "text-emerald-400" : "text-red-400"}`}>
+                  {mv(fmt(snap.monthly_surplus))}
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Debt: {(snap.debt_ratio * 100).toFixed(0)}%</div>
+              </div>
+              {/* FIRE */}
+              <div className="rounded-xl bg-white/[0.04] px-2.5 py-2">
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider">FIRE</div>
+                <div className="text-xs font-bold text-orange-400 mt-0.5">{snap.fire_progress_pct.toFixed(0)}%</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">FY {snap.fire_year}</div>
+              </div>
+            </div>
+
+            {/* Smart action */}
+            {report.smart_action && (
+              <div className="rounded-xl bg-cyan-500/[0.08] border border-cyan-500/20 px-3 py-2">
+                <div className="flex items-start gap-2">
+                  <Zap size={11} className="text-cyan-400 mt-0.5 shrink-0" />
+                  <div>
+                    <div className="text-[9px] font-semibold text-cyan-400 uppercase tracking-wider mb-0.5">
+                      Smart Action
+                    </div>
+                    <div className="text-xs text-slate-200 leading-snug">{report.smart_action}</div>
+                    {report.smart_action_value && (
+                      <div className="text-[10px] text-cyan-300/70 mt-0.5">{report.smart_action_value}</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* CFO insight */}
+        {report.cfo_insight && (
+          <div className="mt-3 text-xs text-slate-400 border-t border-white/[0.04] pt-3">
+            <span className="text-violet-400 font-medium">CFO: </span>
+            {report.cfo_insight}
+          </div>
+        )}
+
+        {/* Top risk alert */}
+        {report.risk_alerts && report.risk_alerts.length > 0 && (
+          <div className="mt-2 flex items-start gap-1.5 text-xs text-amber-400">
+            <AlertCircle size={11} className="mt-0.5 shrink-0" />
+            <span className="line-clamp-2">{report.risk_alerts[0]}</span>
+          </div>
+        )}
+
+        {/* 7-day cashflow status */}
+        {cashflow && (
+          <div className="mt-2 flex items-center gap-1.5 text-xs">
+            <Calendar size={11} className="text-blue-400 shrink-0" />
+            <TrafficDot status={cashflow.status} />
+            <span className="text-slate-400">
+              {cashflow.bills.length} bill{cashflow.bills.length !== 1 ? "s" : ""} due (7d)
+              {" — "}net{" "}
+              <span className={cashflow.net_cashflow >= 0 ? "text-emerald-400" : "text-red-400"}>
+                {mv(fmt(cashflow.net_cashflow))}
+              </span>
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-5 py-3 border-t border-white/[0.04] flex items-center justify-between">
+        <span className="text-[10px] text-slate-600">
+          {report.risk_alerts?.length ?? 0} alert{(report.risk_alerts?.length ?? 0) !== 1 ? "s" : ""}
+          {" · "}
+          {report.top_expenses?.length ?? 0} top expense{(report.top_expenses?.length ?? 0) !== 1 ? "s" : ""}
+        </span>
+        <Link href="/ai-weekly-cfo">
+          <button className="flex items-center gap-1 text-[11px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
+            View full bulletin <ChevronRight size={12} />
+          </button>
+        </Link>
+      </div>
+    </div>
+  );
+}

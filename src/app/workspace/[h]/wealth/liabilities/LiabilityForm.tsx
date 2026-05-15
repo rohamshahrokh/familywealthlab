@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { createLiability } from "./actions";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Field, ErrorBanner, inputCls, textareaCls } from "@/components/workspace/forms/Field";
 
 type ActionState = { ok: boolean; error?: string } | null;

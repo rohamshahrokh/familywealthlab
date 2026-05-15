@@ -9,7 +9,7 @@ import * as React from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { Sparkles } from "lucide-react";
 import { generateAiInsights } from "../ai-insights-action";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { SurfaceCard } from "@/components/workspace/cards";
 
 type State = { ok: boolean; error?: string; result?: string } | null;

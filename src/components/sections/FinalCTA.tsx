@@ -2,7 +2,7 @@
 import * as React from "react";
 import { ArrowRight } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/cta-button";
 import { Magnetic } from "@/components/ui/MagneticButton";
 import { AmbientMesh, Spotlight, EmberGlow } from "@/components/ui/AmbientMesh";
 import { SystemLabel } from "@/components/ui/Section";
