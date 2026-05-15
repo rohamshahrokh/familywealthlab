@@ -11,6 +11,23 @@
 # as static files, which is why the previous deploy returned 404 on `/`
 # (Next stores compiled HTML/JS inside `.next/server/` and `.next/static/`,
 # not as a flat static bundle).
+#
+# ──────────────────────────────────────────────────────────────────────
+# Required environment variables (set in Netlify dashboard → Site
+# settings → Environment variables — NOT in this file, to keep secrets
+# out of source control):
+#
+#   NEXT_PUBLIC_SUPABASE_URL        — Supabase project URL
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY   — Supabase anon (publishable) key
+#   SUPABASE_SERVICE_ROLE_KEY       — Supabase service-role key (server)
+#   NEXT_PUBLIC_SITE_URL            — public site URL (OAuth / email links)
+#   NEXT_PUBLIC_MFA_REQUIRED        — "true" to enforce step-up auth
+#
+# Names only here; see README "Environment variables" section and
+# .env.example for the canonical list. If NEXT_PUBLIC_SUPABASE_URL
+# points at a dead project, the client emits ~13 × 404 per page load,
+# which polluted earlier Lighthouse runs.
+# ──────────────────────────────────────────────────────────────────────
 
 [build]
   command = "npm run build"
