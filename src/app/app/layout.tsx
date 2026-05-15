@@ -22,7 +22,11 @@ export const metadata = {
 export default function AppShellLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppProviders>
-      <div className="min-h-screen bg-bg-base text-ink-primary flex flex-col lg:flex-row">
+      {/* Hybrid V2 shell: warm-bone (light) or graphite-navy (dark) page,
+          slate / sage accents flow through shadcn token aliases rewritten
+          in globals.css. The sidebar sits on surface-0, the main column on
+          --background, and cards on --card. */}
+      <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row">
         <AppSidebar />
         <div className="flex-1 min-w-0 flex flex-col">
           <AppTopBar />

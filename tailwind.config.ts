@@ -120,6 +120,33 @@ const config: Config = {
         border:      "hsl(var(--border) / <alpha-value>)",
         input:       "hsl(var(--input) / <alpha-value>)",
         ring:        "hsl(var(--ring) / <alpha-value>)",
+
+        // FWL Hybrid V2 — surface scale + semantic palette.
+        // Source variables in globals.css under :root and .dark. These keep
+        // v2 visuals available as first-class Tailwind utilities
+        // (`bg-v2-surface-1`, `text-v2-accent`, `border-v2-warmth-strong`)
+        // without disturbing the shadcn semantic aliases above.
+        v2: {
+          "surface-0":    "hsl(var(--v2-surface-0) / <alpha-value>)",
+          "surface-1":    "hsl(var(--v2-surface-1) / <alpha-value>)",
+          "surface-2":    "hsl(var(--v2-surface-2) / <alpha-value>)",
+          "surface-3":    "hsl(var(--v2-surface-3) / <alpha-value>)",
+          "text-strong":  "hsl(var(--v2-text-strong) / <alpha-value>)",
+          "text-muted":   "hsl(var(--v2-text-muted) / <alpha-value>)",
+          "text-subtle":  "hsl(var(--v2-text-subtle) / <alpha-value>)",
+          "text-faint":   "hsl(var(--v2-text-faint) / <alpha-value>)",
+          accent:         "hsl(var(--v2-accent) / <alpha-value>)",
+          "accent-strong":"hsl(var(--v2-accent-strong) / <alpha-value>)",
+          warmth:         "hsl(var(--v2-warmth) / <alpha-value>)",
+          "warmth-strong":"hsl(var(--v2-warmth-strong) / <alpha-value>)",
+          pos:            "hsl(var(--v2-pos) / <alpha-value>)",
+          neg:            "hsl(var(--v2-neg) / <alpha-value>)",
+          warn:           "hsl(var(--v2-warn) / <alpha-value>)",
+          "chart-1":      "hsl(var(--v2-chart-1) / <alpha-value>)",
+          "chart-2":      "hsl(var(--v2-chart-2) / <alpha-value>)",
+          "chart-3":      "hsl(var(--v2-chart-3) / <alpha-value>)",
+          "chart-4":      "hsl(var(--v2-chart-4) / <alpha-value>)",
+        },
       },
       fontFamily: {
         sans: [
@@ -150,9 +177,12 @@ const config: Config = {
           "Consolas",
           "monospace",
         ],
-        // Brand serif — ONLY for the Family Wealth Lab wordmark in <Logo>.
-        // Do NOT use elsewhere in the UI; the product stays sans-serif.
+        // Brand serif — used for the Family Wealth Lab wordmark and the
+        // FWL Hybrid V2 hero numerics (38px Source Serif on the snapshot net
+        // worth + forecast hero). Prefer the v2 serif (Source Serif 4) and
+        // fall back to system serifs for the wordmark/legacy uses.
         serif: [
+          "var(--font-serif-display)",
           "var(--font-serif)",
           "ui-serif",
           "Iowan Old Style",
@@ -203,6 +233,12 @@ const config: Config = {
         xl: "20px",
         "2xl": "22px",
         "3xl": "28px",
+        // FWL Hybrid V2 — radius scale (canonical, exposed as utilities).
+        "v2-1": "4px",
+        "v2-2": "7px",
+        "v2-3": "10px",
+        "v2-4": "12px",
+        "v2-5": "14px",
       },
       boxShadow: {
         // Shadow scale — Apple-grade calm. Two layers max for every card.
@@ -273,6 +309,7 @@ const config: Config = {
         precise: "cubic-bezier(0.4, 0, 0.2, 1)",      // iOS Material precise
         spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",  // playful — used rarely
         bloom: "cubic-bezier(0.16, 1, 0.3, 1)",        // hero reveals only
+        v2:    "cubic-bezier(0.4, 0, 0.2, 1)",        // Hybrid V2 — alias of precise
       },
       transitionDuration: {
         // Single source of truth for durations. 180ms is the new default;
@@ -281,6 +318,7 @@ const config: Config = {
         tactile: "180ms",
         calm: "260ms",
         cinematic: "480ms",
+        v2: "120ms",   // FWL Hybrid V2 — canonical micro-interaction duration
       },
     },
   },

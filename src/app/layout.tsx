@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 // SmoothScrollProvider is intentionally NOT mounted globally. Lenis is heavy
 // (RAF loop + wheel-event interception) and made the authenticated app feel
@@ -17,6 +17,16 @@ const jetbrains = JetBrains_Mono({
   display: "swap",
   variable: "--font-mono",
   weight: ["400", "500", "600"],
+});
+
+// FWL Hybrid V2 — Source Serif (4 is the maintained release of Source Serif Pro)
+// powers the brand wordmark and the hero display numerics (.v2-num-display).
+// Loaded with display:swap and only two weights to keep payload modest.
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-serif-display",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -69,8 +79,26 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-AU" className={`${inter.variable} ${jetbrains.variable}`}>
-      <body className="bg-bg-base text-ink-secondary font-sans">
+    <html
+      lang="en-AU"
+      className={`${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`}
+    >
+      <head>
+        {/* FWL Hybrid V2 — perf priority 1: preconnect to the correct Supabase
+            project so the TLS + DNS hop overlaps with the document parse. The
+            crossOrigin attribute is required for CORS-credentialed fetches the
+            Supabase JS client will issue (anon JWT in Authorization). */}
+        <link
+          rel="preconnect"
+          href="https://uoraduyyxhtzixcsaidg.supabase.co"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="dns-prefetch"
+          href="https://uoraduyyxhtzixcsaidg.supabase.co"
+        />
+      </head>
+      <body className="bg-background text-foreground font-sans">
         {children}
       </body>
     </html>

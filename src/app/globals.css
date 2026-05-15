@@ -18,43 +18,93 @@
     --brand-amber:    #F5A623;
     --brand-amber-dk: #C5841A;
 
-    /* APP_SHELL_UI_UX_FIX_PASS_01 — Issue 5 & 6
-       shadcn-compatible semantic tokens for the migrated /app/* dashboard.
-       The ported personal-app components use `bg-background`, `bg-card`,
-       `text-foreground`, `text-muted-foreground`, `border-border`,
-       `bg-muted`, `text-primary`, etc. — these are wired here so the
-       light/dark toggle actually changes surfaces, text, and borders.
-       HSL space lets Tailwind alpha-modifier syntax (`bg-card/50`) work. */
-    --background:           220 14% 97%;     /* page  */
-    --foreground:           224 28% 8%;      /* primary text */
-    --card:                 0   0% 100%;     /* card surface */
-    --card-foreground:      224 28% 8%;
-    --muted:                220 14% 93%;     /* recessed wells */
-    --muted-foreground:     224 10% 38%;     /* meta / captions */
-    --border:               224 18% 88%;     /* hairlines */
-    --input:                224 18% 88%;
-    --primary:              224 30% 16%;     /* solid accent */
+    /* FWL Hybrid V2 — shadcn-compatible semantic tokens.
+       The /app/* dashboard consumes these via Tailwind utilities
+       (bg-background, bg-card, text-foreground, text-muted-foreground,
+       border-border, etc.) so rewriting these values cascades the v2
+       palette across every migrated surface automatically. HSL space lets
+       Tailwind alpha-modifier syntax (`bg-card/50`) work.
+
+       LIGHT — warm bone scale + slate primary + sage focus ring. */
+    --background:           45  27% 94%;     /* #F4F2EC warm bone page */
+    --foreground:           215 19% 13%;     /* #1A1F26 body text */
+    --card:                 0   0% 100%;     /* #FFFFFF card surface */
+    --card-foreground:      215 19% 13%;
+    --muted:                45  26% 91%;     /* #EEEBE2 surface-0 / wells */
+    --muted-foreground:     216 10% 40%;     /* #5D6571 captions */
+    --border:               46  20% 83%;     /* #DDD9CC hairlines */
+    --input:                46  20% 83%;
+    --primary:              215 35% 38%;     /* #3F5C84 slate accent */
     --primary-foreground:   0   0% 100%;
-    --accent:               224 18% 93%;
-    --accent-foreground:    224 28% 8%;
-    --ring:                 24  72% 49%;     /* focus ring — ember */
+    --accent:               43  47% 97%;     /* #FBF9F4 surface-2 hover */
+    --accent-foreground:    215 19% 13%;
+    --ring:                 126 14% 39%;     /* #557158 sage focus ring */
+
+    /* V2 surface scale + semantic extensions (consumed by v2 primitives).
+       These mirror the canonical _tokens.css values so any component can
+       opt-in to v2 surfaces without inventing new colours. */
+    --v2-surface-0:    45 26% 91%;     /* #EEEBE2 chrome / sidebar */
+    --v2-surface-1:    0  0%  100%;    /* #FFFFFF card */
+    --v2-surface-2:    43 47% 97%;     /* #FBF9F4 elevated / hover */
+    --v2-surface-3:    46 27% 90%;     /* #EDEAE0 selected */
+    --v2-text-strong:  210 25% 8%;     /* #0F1419 */
+    --v2-text-muted:   216 10% 40%;    /* #5D6571 */
+    --v2-text-subtle:  216 8%  47%;    /* #6F7682 */
+    --v2-text-faint:   40  4%  56%;    /* #93908A */
+    --v2-accent:       215 35% 38%;    /* slate #3F5C84 */
+    --v2-accent-strong:214 38% 30%;    /* #2F4869 */
+    --v2-warmth:       126 14% 39%;    /* sage #557158 */
+    --v2-warmth-strong:122 19% 30%;    /* #3F5C40 */
+    --v2-pos:          126 14% 39%;    /* #557158 */
+    --v2-neg:          6   31% 41%;    /* #8A4F49 */
+    --v2-warn:         44  44% 38%;    /* #8C7536 */
+    --v2-chart-1:      215 35% 38%;
+    --v2-chart-2:      126 14% 39%;
+    --v2-chart-3:      44  44% 38%;
+    --v2-chart-4:      6   31% 41%;
+    --v2-chart-grid:   215 19% 13% / 0.05;
+    --v2-chart-axis:   216 8%  47%;
   }
 
-  /* Dark theme — applied via the `.dark` class toggled by useAppStore. */
+  /* Dark theme — applied via the `.dark` class toggled by useAppStore.
+     5-step graphite scale lifted from pure black, slate primary, sage focus. */
   .dark {
-    --background:           224 28% 6%;
-    --foreground:           220 12% 96%;
-    --card:                 224 24% 10%;
-    --card-foreground:      220 12% 96%;
-    --muted:                224 22% 14%;
-    --muted-foreground:     220 12% 64%;
-    --border:               224 20% 18%;
-    --input:                224 20% 18%;
-    --primary:              24  72% 56%;     /* ember on dark */
-    --primary-foreground:   224 28% 6%;
-    --accent:               224 24% 16%;
-    --accent-foreground:    220 12% 96%;
-    --ring:                 24  72% 56%;
+    --background:           210 25% 8%;      /* #0F1419 page */
+    --foreground:           218 21% 93%;     /* #E8EBF0 body text */
+    --card:                 212 22% 13%;     /* #1A2129 surface-1 */
+    --card-foreground:      218 21% 93%;
+    --muted:                216 28% 10%;     /* #131922 surface-0 wells */
+    --muted-foreground:     214 11% 59%;     /* #8B95A2 captions */
+    --border:               214 19% 17%;     /* #232A33 hairlines */
+    --input:                214 19% 17%;
+    --primary:              213 32% 57%;     /* #6E8EB5 slate accent */
+    --primary-foreground:   210 25% 8%;
+    --accent:               210 20% 16%;     /* #212931 surface-2 hover */
+    --accent-foreground:    218 21% 93%;
+    --ring:                 125 19% 64%;     /* #93B596 sage focus ring */
+
+    /* V2 surface scale + semantic extensions (dark). */
+    --v2-surface-0:    216 28% 10%;    /* #131922 sidebar */
+    --v2-surface-1:    212 22% 13%;    /* #1A2129 card */
+    --v2-surface-2:    210 20% 16%;    /* #212931 hover */
+    --v2-surface-3:    212 18% 20%;    /* #2A333D selected */
+    --v2-text-strong:  216 29% 97%;    /* #F4F6F9 */
+    --v2-text-muted:   214 11% 59%;    /* #8B95A2 */
+    --v2-text-subtle:  217 7%  47%;    /* #6E7785 */
+    --v2-text-faint:   213 10% 41%;    /* #5E6772 */
+    --v2-accent:       213 32% 57%;    /* slate #6E8EB5 */
+    --v2-accent-strong:213 42% 66%;    /* #86A6CD */
+    --v2-warmth:       125 19% 64%;    /* sage #93B596 */
+    --v2-warmth-strong:124 19% 71%;    /* #A6C2A8 */
+    --v2-pos:          133 18% 58%;    /* #82A88A */
+    --v2-neg:          5   27% 57%;    /* #B07A75 */
+    --v2-warn:         41  34% 58%;    /* #B8A06E */
+    --v2-chart-1:      213 42% 66%;
+    --v2-chart-2:      124 19% 71%;
+    --v2-chart-3:      41  34% 58%;
+    --v2-chart-4:      5   27% 57%;
+    --v2-chart-grid:   0   0%  100% / 0.035;
+    --v2-chart-axis:   217 7%  47%;
   }
 
   html {
@@ -62,8 +112,10 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
-    background: #F4F5F7;
+    /* V2 — tabular nums globally for financial data, plus calibrated Inter feats. */
+    font-feature-settings: "tnum" 1, "cv11" 1, "ss03" 1, "cv02" 1, "cv03" 1, "cv04" 1, "ss01" 1;
+    /* Page background follows the active theme; default to warm-bone v2 light. */
+    background: hsl(var(--background));
   }
 
   body {
@@ -361,6 +413,113 @@
    also need the html/body to follow the theme so there is no flash of the
    wrong color around the edges. */
 html.dark, html.dark body { background: hsl(var(--background)); }
+
+/* ============================================================================
+   FWL Hybrid V2 — component utilities
+   Used by the v2 app shell, v2 primitives, and v2 signature moments. Live
+   alongside the shadcn tokens above so existing pages keep working while
+   v2 surfaces opt-in via these helpers.
+   ========================================================================== */
+@layer components {
+  /* Sage rail — 2px left-edge marker for active nav row */
+  .v2-nav-active-rail {
+    position: relative;
+  }
+  .v2-nav-active-rail::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    border-radius: 1px;
+    background: hsl(var(--v2-warmth));
+  }
+
+  /* v2 card surface — paper-on-table inset highlight (light) or whisper edge (dark) */
+  .v2-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 14px;
+    box-shadow:
+      0 1px 2px rgba(15, 20, 25, 0.04),
+      inset 0 1px 0 hsl(var(--card) / 0.6);
+    transition: border-color 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .dark .v2-card {
+    box-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  }
+
+  /* v2 hero metric — Source Serif 4 (Pro) at 38px display.
+     Loaded as a Next.js Google font and exposed via --font-serif-display.
+     Falls back gracefully to system serif during font swap. */
+  .v2-num-display {
+    font-family: var(--font-serif-display), "Source Serif Pro", "Iowan Old Style",
+      "Apple Garamond", Georgia, serif;
+    font-size: 38px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.018em;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    color: hsl(var(--v2-text-strong));
+  }
+
+  /* v2 eyebrow — 10px uppercase, generous tracking */
+  .v2-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: hsl(var(--v2-text-faint));
+  }
+
+  /* v2 signature moment 1 — chart end-of-series annotation */
+  .v2-chart-annotation {
+    font-size: 11px;
+    font-weight: 500;
+    fill: hsl(var(--v2-text-muted));
+    color: hsl(var(--v2-text-muted));
+    font-variant-numeric: tabular-nums;
+  }
+  .v2-chart-annotation-sub {
+    font-size: 10px;
+    font-weight: 500;
+    fill: hsl(var(--v2-warmth));
+    color: hsl(var(--v2-warmth));
+  }
+
+  /* v2 signature moment 2 — italic sage ".why" on top decision card only */
+  .v2-decision-why {
+    font-style: italic;
+    color: hsl(var(--v2-warmth));
+    font-size: 13.5px;
+    line-height: 1.5;
+    letter-spacing: 0.001em;
+  }
+
+  /* v2 pill — subtle outlined chip for metadata */
+  .v2-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 500;
+    color: hsl(var(--v2-text-muted));
+    background: hsl(var(--v2-surface-2));
+    border: 1px solid hsl(var(--border));
+  }
+  .v2-pill-pos { color: hsl(var(--v2-pos)); border-color: hsl(var(--v2-pos) / 0.24); background: hsl(var(--v2-pos) / 0.07); }
+  .v2-pill-neg { color: hsl(var(--v2-neg)); border-color: hsl(var(--v2-neg) / 0.24); background: hsl(var(--v2-neg) / 0.07); }
+  .v2-pill-accent { color: hsl(var(--v2-accent-strong)); border-color: hsl(var(--v2-accent) / 0.24); background: hsl(var(--v2-accent) / 0.08); }
+
+  /* v2 transition default — 120ms precise curve */
+  .v2-transition { transition: all 120ms cubic-bezier(0.4, 0, 0.2, 1); }
+}
 
 /* Hide-sensitive-values mode — blurs all numerical / tabular figures. */
 .fwl-blur-values .tabular,
