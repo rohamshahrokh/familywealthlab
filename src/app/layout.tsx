@@ -78,25 +78,34 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // FWL Hybrid V2 — perf priority 1: preconnect to the Supabase project so
+  // the TLS + DNS hop overlaps with the document parse. The host is derived
+  // from NEXT_PUBLIC_SUPABASE_URL at build time so it always matches the
+  // project the runtime actually talks to. Trailing slashes are stripped
+  // defensively (Netlify env values have historically carried a trailing /
+  // which would produce `//rest/v1` once the client concatenates).
+  const rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const supabaseOrigin = rawSupabaseUrl.replace(/\/+$/, "");
+
   return (
     <html
       lang="en-AU"
       className={`${inter.variable} ${jetbrains.variable} ${sourceSerif.variable}`}
     >
       <head>
-        {/* FWL Hybrid V2 — perf priority 1: preconnect to the correct Supabase
-            project so the TLS + DNS hop overlaps with the document parse. The
-            crossOrigin attribute is required for CORS-credentialed fetches the
-            Supabase JS client will issue (anon JWT in Authorization). */}
-        <link
-          rel="preconnect"
-          href="https://uoraduyyxhtzixcsaidg.supabase.co"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="dns-prefetch"
-          href="https://uoraduyyxhtzixcsaidg.supabase.co"
-        />
+        {supabaseOrigin && (
+          <>
+            {/* crossOrigin="anonymous" is required for CORS-credentialed
+                fetches the Supabase JS client issues (anon JWT in
+                Authorization). */}
+            <link
+              rel="preconnect"
+              href={supabaseOrigin}
+              crossOrigin="anonymous"
+            />
+            <link rel="dns-prefetch" href={supabaseOrigin} />
+          </>
+        )}
       </head>
       <body className="bg-background text-foreground font-sans">
         {children}
