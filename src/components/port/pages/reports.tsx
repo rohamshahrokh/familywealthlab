@@ -26,7 +26,6 @@ import {
   Building2, LineChart, Shield, Zap, Target, Printer, Share2,
   AlertTriangle, CheckCircle2, ArrowUpRight, ArrowDownRight,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -313,7 +312,9 @@ export default function ReportsPage() {
     setShowScenarioBulkModal(false);
     toast({ title: `Deleted ${selectedScenarios.size} scenarios` });
   };
-  const handleExportScenariosBackup = () => {
+  // XLSX is dynamically imported per-handler so SheetJS only loads on export.
+  const handleExportScenariosBackup = async () => {
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
     const sel = scenarios.filter((s: any) => selectedScenarios.has(s.id));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([
@@ -325,7 +326,8 @@ export default function ReportsPage() {
   };
 
   // ─── Excel Export ─────────────────────────────────────────────────────────
-  const exportExcel = () => {
+  const exportExcel = async () => {
+    const XLSX = await import("xlsx");
     const wb   = XLSX.utils.book_new();
     const date = new Date().toLocaleDateString('en-AU');
 

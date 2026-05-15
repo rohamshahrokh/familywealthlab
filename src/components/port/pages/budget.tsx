@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import * as XLSX from "xlsx";
 import { Target, Plus, Pencil, Trash2, Download, Copy, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -582,7 +581,9 @@ export default function BudgetPage() {
   // Export Excel
   // ---------------------------------------------------------------------------
 
-  const exportExcel = () => {
+  // XLSX is dynamically imported so SheetJS does not load until export is invoked.
+  const exportExcel = async () => {
+    const XLSX = await import("xlsx");
     const data = rows.map((r: any) => ({
       Category: r.category,
       Member: r.member ?? "",

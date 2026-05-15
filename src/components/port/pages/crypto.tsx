@@ -28,7 +28,6 @@ import {
 } from "lucide-react";
 import EmptyState from "@/components/port/EmptyState";
 import { useToast } from "@/hooks/use-toast";
-import * as XLSX from "xlsx";
 
 // ─── Colour palette ──────────────────────────────────────────────────────────
 const COLORS = [
@@ -152,7 +151,9 @@ const CRYPTO_IMPORT_HEADERS = [
   "Current Price (USD)", "Expected Return %", "Monthly DCA (AUD)",
 ];
 
-function downloadCryptoImportTemplate() {
+// XLSX is dynamically imported so SheetJS only loads on import/export click.
+async function downloadCryptoImportTemplate() {
+  const XLSX = await import("xlsx");
   const wb = XLSX.utils.book_new();
   const sample: any[] = [
     CRYPTO_IMPORT_HEADERS,
@@ -166,8 +167,9 @@ function downloadCryptoImportTemplate() {
 function parseCryptoImportFile(file: File): Promise<CryptoImportRow[]> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(e.target?.result, { type: "binary" });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const raw = XLSX.utils.sheet_to_json<any>(ws, { header: 1 });
@@ -1237,7 +1239,8 @@ export default function CryptoPage() {
     }
   };
 
-  const handleExportBackup = () => {
+  const handleExportBackup = async () => {
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
     const selectedCryptos = cryptos.filter((c: any) => selected.has(c.id));
     const headers = [

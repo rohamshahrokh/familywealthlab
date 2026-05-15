@@ -23,7 +23,6 @@ import {
   CheckSquare, Square, ChevronDown, Filter, TrendingDown, AlertTriangle, X,
   RefreshCw, Zap, TrendingUp, DollarSign,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 
 // ─── Master category list ─────────────────────────────────────────────────────
 const CATEGORIES = [
@@ -1129,7 +1128,9 @@ export default function ExpensesPage() {
     setShowBulkModal(false);
   };
 
-  const handleExportBackup = () => {
+  // XLSX is dynamically imported in each handler so SheetJS only loads on use.
+  const handleExportBackup = async () => {
+    const XLSX = await import("xlsx");
     const toExport = expenses.filter((e: any) => selected.has(e.id));
     const data = toExport.map((e: any) => ({
       Date: e.date, Amount: e.amount, 'Source Code': e.source_code || '',
@@ -1147,9 +1148,11 @@ export default function ExpensesPage() {
   // ── Excel import (expenses) ───────────────────────────────────────────────────
   const handleExcelImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // (XLSX is dynamically imported inside reader.onload below.)
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
+      const XLSX = await import("xlsx");
       const data = new Uint8Array(ev.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: 'array', cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
@@ -1216,11 +1219,13 @@ export default function ExpensesPage() {
   };
 
   // ── Excel import (income) ─────────────────────────────────────────────────────
+  // (XLSX is dynamically imported inside reader.onload below.)
   const handleIncomeExcelImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
+      const XLSX = await import("xlsx");
       const data = new Uint8Array(ev.target?.result as ArrayBuffer);
       const wb = XLSX.read(data, { type: 'array', cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
@@ -1323,7 +1328,8 @@ export default function ExpensesPage() {
     setIncomeImportRows([]);
   };
 
-  const handleExcelExport = () => {
+  const handleExcelExport = async () => {
+    const XLSX = await import("xlsx");
     const data = expenses.map((e: any) => ({
       Date: e.date, Amount: e.amount, 'Source Code': e.source_code || '', Category: e.category,
       'Sub-category': e.subcategory, Description: e.description, 'Payment Method': e.payment_method,
@@ -1336,7 +1342,8 @@ export default function ExpensesPage() {
     toast({ title: 'Exported', description: 'Expenses exported to Excel.' });
   };
 
-  const handleIncomeExport = () => {
+  const handleIncomeExport = async () => {
+    const XLSX = await import("xlsx");
     const data = incomeRecords.map((r: any) => ({
       Date: r.date, Amount: r.amount, Source: r.source, Description: r.description,
       Member: r.member, Frequency: r.frequency, Recurring: r.recurring ? 'Yes' : 'No',
@@ -1349,7 +1356,8 @@ export default function ExpensesPage() {
     toast({ title: 'Exported', description: 'Income exported to Excel.' });
   };
 
-  const handleDownloadTemplate = () => {
+  const handleDownloadTemplate = async () => {
+    const XLSX = await import("xlsx");
     const headers = [['Date', 'Amount', 'Code', 'Description', 'Member', 'Payment Method', 'Notes', 'Recurring']];
     const sample = [
       ['2026-04-01', '150.00', 'D', 'Weekly groceries — Coles', 'Family', 'Debit Card', '', 'No'],
@@ -1361,7 +1369,8 @@ export default function ExpensesPage() {
     XLSX.writeFile(wb, 'Shahrokh_Expense_Template.xlsx');
   };
 
-  const handleDownloadIncomeTemplate = () => {
+  const handleDownloadIncomeTemplate = async () => {
+    const XLSX = await import("xlsx");
     const headers = [['Date', 'Amount', 'Source', 'Description', 'Member', 'Frequency', 'Recurring', 'Notes']];
     const sample = [
       ['2026-04-01', '10000.00', 'Salary', 'April salary', 'Roham Shahrokh', 'Monthly', 'Yes', ''],

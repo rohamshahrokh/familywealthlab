@@ -26,7 +26,6 @@ import {
 import { syncFromCloud, getLastSync } from "@/lib/finance-port/localStore";
 import BulkDeleteModal from "@/components/port/BulkDeleteModal";
 import { useToast } from "@/hooks/use-toast";
-import * as XLSX from "xlsx";
 import {
   Shield, CheckCircle2, XCircle, AlertTriangle, RefreshCw,
   Trash2, Download, Database, Clock, FileJson, FileSpreadsheet,
@@ -314,7 +313,10 @@ export default function DataHealthPage() {
     toast({ title: 'JSON backup exported', description: 'All data saved to file.' });
   }, [snapshot, expenses, properties, stocks, cryptos, timeline, scenarios, toast]);
 
-  const handleExportExpensesExcel = useCallback(() => {
+  // XLSX is dynamically imported here so SheetJS does not weigh down the
+  // initial route bundle; it only loads when the user clicks export.
+  const handleExportExpensesExcel = useCallback(async () => {
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
     const headers = ['ID', 'Date', 'Amount', 'Category', 'Subcategory', 'Description', 'Payment Method', 'Family Member', 'Recurring', 'Notes', 'Created At'];
     const rows = expenses.map((e: any) => [
@@ -347,7 +349,8 @@ export default function DataHealthPage() {
     toast({ title: 'Duplicates deleted', description: `${deleted} duplicate records removed.` });
   }, [selectedDupeIds, duplicateGroups, qc, toast]);
 
-  const handleExportDupesBackup = useCallback(() => {
+  const handleExportDupesBackup = useCallback(async () => {
+    const XLSX = await import("xlsx");
     const idsToDelete = selectedDupeIds.length > 0
       ? selectedDupeIds
       : duplicateGroups.flatMap(g => g.deleteIds);

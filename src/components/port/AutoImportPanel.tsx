@@ -7,7 +7,6 @@ import {
   Upload, Play, Clock, CheckCircle, AlertTriangle, Info,
   RefreshCw, ChevronDown, ChevronUp,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 
 // ─── Source code → category map (duplicated here to keep component self-contained) ──
 const SOURCE_CODE_MAP: Record<string, string> = {
@@ -85,7 +84,9 @@ function normalizePaymentMethod(raw: string): string {
 }
 
 // ─── Parse an XLSX ArrayBuffer into expense rows ──────────────────────────────
-function parseXlsxBuffer(buffer: ArrayBuffer): any[] {
+// XLSX is dynamically imported so SheetJS only loads when an auto-import runs.
+async function parseXlsxBuffer(buffer: ArrayBuffer): Promise<any[]> {
+  const XLSX = await import("xlsx");
   const data = new Uint8Array(buffer);
   const wb = XLSX.read(data, { type: 'array', cellDates: true });
   const ws = wb.Sheets[wb.SheetNames[0]];
@@ -252,7 +253,7 @@ export default function AutoImportPanel({ expenses, onImportComplete }: AutoImpo
       const view = new Uint8Array(buffer);
       for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
 
-      const rows = parseXlsxBuffer(buffer);
+      const rows = await parseXlsxBuffer(buffer);
 
       // Duplicate check
       const existingFingerprints = new Set(

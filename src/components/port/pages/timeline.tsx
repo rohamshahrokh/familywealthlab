@@ -39,7 +39,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AIInsightsCard from "@/components/port/AIInsightsCard";
-import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/use-toast";
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
@@ -331,7 +330,10 @@ export default function TimelinePage() {
   }, [view, monthlySeries, annualSeries]);
 
   // ── Excel export ───────────────────────────────────────────────────────────
-  const handleExportExcel = () => {
+  // XLSX is dynamically imported here so the ~340 KB SheetJS bundle stays out
+  // of the initial route chunk; it only loads when the user clicks export.
+  const handleExportExcel = async () => {
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
 
     // Annual projection sheet

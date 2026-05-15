@@ -31,7 +31,6 @@ import {
   CheckSquare, Square, MapPin, DollarSign, Calculator, TrendingUp,
   Wallet, AlertCircle, Calendar, ShieldCheck, Target, Info, CheckCircle2,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 
 // ─── QLD Stamp Duty — delegates to australianTax.ts central function ────────
 const estimateStampDuty = estimateQldStampDuty;
@@ -1180,7 +1179,9 @@ export default function PropertyPage() {
     }
   };
 
-  const handleExportBackup = () => {
+  // XLSX is dynamically imported so SheetJS only loads when the user exports.
+  const handleExportBackup = async () => {
+    const XLSX = await import("xlsx");
     const wb = XLSX.utils.book_new();
     const selectedProps = properties.filter((p: any) => selected.has(p.id));
     const headers = [

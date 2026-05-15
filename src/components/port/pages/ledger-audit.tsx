@@ -32,7 +32,6 @@ import {
   Activity, ChevronDown, ChevronUp, RefreshCw, FileText,
   Table2, BarChart3, Shield, Eye, EyeOff,
 } from "lucide-react";
-import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -516,7 +515,9 @@ function EventsTable({ events, privacyMode }: { events: any[]; privacyMode: bool
 
   // ── Export handlers ──────────────────────────────────────────────────────
 
-  const exportCSV = () => {
+  // XLSX is dynamically imported per-handler so SheetJS only loads on export click.
+  const exportCSV = async () => {
+    const XLSX = await import("xlsx");
     const rows = filtered.map((e, i) => [
       i + 1,
       e.monthKey,
@@ -536,7 +537,8 @@ function EventsTable({ events, privacyMode }: { events: any[]; privacyMode: bool
     XLSX.writeFile(wb, `ledger_audit_${new Date().toISOString().split("T")[0]}.csv`, { bookType: "csv" });
   };
 
-  const exportXLSX = () => {
+  const exportXLSX = async () => {
+    const XLSX = await import("xlsx");
     const rows = filtered.map((e, i) => [
       i + 1,
       e.monthKey,
@@ -736,7 +738,8 @@ function ForecastPreview({ ledger, annual, privacyMode }: { ledger: any[]; annua
 
   const mv = (n: number) => privacyMode ? "••••" : fmt(n);
 
-  const exportXLSX = () => {
+  const exportXLSX = async () => {
+    const XLSX = await import("xlsx");
     const headers = ["Month","Opening Cash","Income","Expenses","Bills","Invest Buys","Property Costs","Tax Refund","Net CF","Closing Cash"];
     const rows = ledger.map(m => [
       m.label, m.openingCash, m.salaryIncome + m.rentalIncome + m.otherIncome,

@@ -17,7 +17,6 @@ import {
   Briefcase, TrendingUp, Info, BrainCircuit, FileText, Users, Sparkles,
 } from "lucide-react";
 import { sbHouseholdPermissions, type HouseholdPermissionSettings } from "@/lib/supabaseClient";
-import * as XLSX from "xlsx";
 import { sendTestMessage, sendBrowserPush, invalidateSettingsCache } from "@/lib/finance-port/notifications";
 
 // ─── Toggle Row helper ────────────────────────────────────────────────────────
