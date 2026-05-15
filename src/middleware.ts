@@ -24,6 +24,14 @@ function isPublic(pathname: string) {
   if (pathname.startsWith("/_next/")) return true;
   if (pathname.startsWith("/api/")) return true;
   if (pathname === "/favicon.ico") return true;
+  // /app/* is the migrated personal-app shell. It runs in forced demo mode
+  // (queryClient intercepts /api/* client-side) and intentionally has NO
+  // auth gate yet — see src/app/app/layout.tsx. Without this whitelist the
+  // Supabase middleware bounces every /app/* to /login?next=...
+  if (pathname === "/app" || pathname.startsWith("/app/")) return true;
+  // Public marketing pages.
+  if (pathname === "/pricing" || pathname === "/demo" || pathname.startsWith("/demo/")) return true;
+  if (pathname === "/onboarding" || pathname.startsWith("/onboarding/")) return true;
   if (/\.[a-zA-Z0-9]+$/.test(pathname)) return true;        // static files
   return false;
 }
