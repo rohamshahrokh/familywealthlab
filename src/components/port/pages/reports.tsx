@@ -793,16 +793,16 @@ export default function ReportsPage() {
                 <AreaChart data={nwChartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="rGradA" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(224,12%,22%)" vertical={false} />
                   <XAxis dataKey="year" tick={{ fontSize: 10, fill: 'hsl(220,10%,50%)' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 9, fill: 'hsl(220,10%,50%)' }} tickFormatter={v => `$${(v/1000000).toFixed(1)}M`} axisLine={false} tickLine={false} width={50} />
                   <Tooltip formatter={(v: number) => fmt(v, true)} contentStyle={{ background: 'var(--tooltip-bg, #fff)', border: '1px solid hsl(220,15%,82%)', borderRadius: 8, fontSize: 11 }} />
-                  <Area type="monotone" dataKey="netWorth" stroke="hsl(43,85%,55%)" fill="url(#rGradA)" strokeWidth={2} name="Net Worth" />
-                  <Area type="monotone" dataKey="assets" stroke="hsl(142,60%,45%)" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Assets" />
+                  <Area type="monotone" dataKey="netWorth" stroke="hsl(var(--v2-chart-3))" fill="url(#rGradA)" strokeWidth={2} name="Net Worth" />
+                  <Area type="monotone" dataKey="assets" stroke="hsl(var(--v2-pos))" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Assets" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -916,7 +916,7 @@ export default function ReportsPage() {
                   <YAxis tick={{ fontSize: 9, fill: 'hsl(220,10%,50%)' }} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} axisLine={false} tickLine={false} width={50} />
                   <Tooltip formatter={(v: number) => fmt(v, true)} contentStyle={{ background: 'var(--tooltip-bg,#fff)', border: '1px solid hsl(220,15%,82%)', borderRadius: 8, fontSize: 11 }} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="income" name="Income" fill="hsl(142,60%,45%)" radius={[3, 3, 0, 0]} maxBarSize={28} />
+                  <Bar dataKey="income" name="Income" fill="hsl(var(--v2-pos))" radius={[3, 3, 0, 0]} maxBarSize={28} />
                   <Bar dataKey="expenses" name="Outflows" fill="hsl(5,70%,55%)" radius={[3, 3, 0, 0]} maxBarSize={28} />
                 </BarChart>
               </ResponsiveContainer>

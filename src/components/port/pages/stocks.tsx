@@ -1488,16 +1488,16 @@ export default function StocksPage() {
                   <AreaChart data={combinedProjection} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="stockGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0} />
+                        <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(224,12%,20%)" />
                     <XAxis dataKey="year" tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} />
                     <YAxis tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Area type="monotone" dataKey="value" stroke="hsl(43,85%,55%)" fill="url(#stockGrad)" strokeWidth={2} name="Portfolio Value" />
-                    <Area type="monotone" dataKey="invested" stroke="hsl(188,60%,48%)" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Total Invested" />
+                    <Area type="monotone" dataKey="value" stroke="hsl(var(--v2-chart-3))" fill="url(#stockGrad)" strokeWidth={2} name="Portfolio Value" />
+                    <Area type="monotone" dataKey="invested" stroke="hsl(var(--v2-chart-1))" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Total Invested" />
                   </AreaChart>
                 </ResponsiveContainer>
               )}
@@ -1892,16 +1892,16 @@ export default function StocksPage() {
                 <AreaChart data={combinedProjection} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="projGrad2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(224,12%,20%)" />
                   <XAxis dataKey="year" tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="value" stroke="hsl(43,85%,55%)" fill="url(#projGrad2)" strokeWidth={2} name="Portfolio Value" />
-                  <Area type="monotone" dataKey="invested" stroke="hsl(188,60%,48%)" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Total Invested" />
+                  <Area type="monotone" dataKey="value" stroke="hsl(var(--v2-chart-3))" fill="url(#projGrad2)" strokeWidth={2} name="Portfolio Value" />
+                  <Area type="monotone" dataKey="invested" stroke="hsl(var(--v2-chart-1))" fill="none" strokeWidth={1.5} strokeDasharray="4 2" name="Total Invested" />
                 </AreaChart>
               </ResponsiveContainer>
 
@@ -2340,8 +2340,8 @@ export default function StocksPage() {
                         formatter={(v: any) => formatCurrency(v)}
                         contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
                       />
-                      <Area type="monotone" dataKey="netCF" name="Net Cash Flow" stroke="hsl(43,85%,55%)" fill="hsl(43,85%,25%)" fillOpacity={0.3} />
-                      <Area type="monotone" dataKey="closingCash" name="Closing Cash" stroke="hsl(142,60%,45%)" fill="hsl(142,60%,20%)" fillOpacity={0.2} />
+                      <Area type="monotone" dataKey="netCF" name="Net Cash Flow" stroke="hsl(var(--v2-chart-3))" fill="hsl(var(--v2-chart-3))" fillOpacity={0.3} />
+                      <Area type="monotone" dataKey="closingCash" name="Closing Cash" stroke="hsl(var(--v2-pos))" fill="hsl(var(--v2-pos))" fillOpacity={0.2} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>

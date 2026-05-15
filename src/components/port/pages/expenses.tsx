@@ -1627,7 +1627,7 @@ export default function ExpensesPage() {
                       />
                       <YAxis tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                       <Tooltip content={<ChartTip />} />
-                      <Bar dataKey="amount" name="Spend" fill="hsl(43,85%,55%)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="amount" name="Spend" fill="hsl(var(--v2-chart-3))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -1677,7 +1677,7 @@ export default function ExpensesPage() {
                           <XAxis dataKey="day" tick={{ fontSize: 9, fill: 'hsl(220,10%,55%)' }} angle={-45} textAnchor="end" interval={0} />
                           <YAxis tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(1)}K`} />
                           <Tooltip content={<ChartTip />} />
-                          <Bar dataKey="amount" name="Spend" fill="hsl(188,60%,48%)" radius={[3, 3, 0, 0]} />
+                          <Bar dataKey="amount" name="Spend" fill="hsl(var(--v2-chart-1))" radius={[3, 3, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </>
@@ -1697,7 +1697,7 @@ export default function ExpensesPage() {
                       <XAxis dataKey="week" tick={{ fontSize: 9, fill: 'hsl(220,10%,55%)' }} angle={-30} textAnchor="end" />
                       <YAxis tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(1)}K`} />
                       <Tooltip content={<ChartTip />} />
-                      <Line type="monotone" dataKey="amount" name="Spend" stroke="hsl(188,60%,48%)" strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="amount" name="Spend" stroke="hsl(var(--v2-chart-1))" strokeWidth={2} dot={false} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
@@ -2118,7 +2118,7 @@ export default function ExpensesPage() {
                       <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} />
                       <YAxis tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                       <Tooltip content={<ChartTip />} />
-                      <Bar dataKey="amount" name="Income" fill="hsl(142,60%,45%)" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="amount" name="Income" fill="hsl(var(--v2-pos))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -2437,8 +2437,8 @@ export default function ExpensesPage() {
                   <YAxis tick={{ fontSize: 11, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                   <Tooltip content={<ChartTip />} />
                   <Legend wrapperStyle={{ fontSize: 11, color: 'hsl(220,10%,55%)' }} />
-                  <Bar dataKey="income" name="Income" fill="hsl(142,60%,45%)" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="expenses" name="Expenses" fill="hsl(0,72%,51%)" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="income" name="Income" fill="hsl(var(--v2-pos))" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="expenses" name="Expenses" fill="hsl(var(--v2-neg))" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -2453,15 +2453,15 @@ export default function ExpensesPage() {
                 <AreaChart data={cashFlowData.monthly} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="cfGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0.02} />
+                      <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(224,12%,20%)" />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'hsl(220,10%,55%)' }} />
                   <YAxis tick={{ fontSize: 11, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                   <Tooltip content={<ChartTip />} />
-                  <Area type="monotone" dataKey="netCF" name="Net CF" stroke="hsl(43,85%,55%)" fill="url(#cfGrad)" strokeWidth={2} dot={{ fill: 'hsl(43,85%,55%)', r: 3 }} />
+                  <Area type="monotone" dataKey="netCF" name="Net CF" stroke="hsl(var(--v2-chart-3))" fill="url(#cfGrad)" strokeWidth={2} dot={{ fill: 'hsl(var(--v2-chart-3))', r: 3 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -2479,8 +2479,8 @@ export default function ExpensesPage() {
                   <YAxis tick={{ fontSize: 10, fill: 'hsl(220,10%,55%)' }} tickFormatter={v => `$${(v / 1000).toFixed(1)}K`} />
                   <Tooltip content={<ChartTip />} />
                   <Legend wrapperStyle={{ fontSize: 11, color: 'hsl(220,10%,55%)' }} />
-                  <Bar dataKey="income" name="Income" fill="hsl(142,60%,45%)" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="expenses" name="Expenses" fill="hsl(43,85%,55%)" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="income" name="Income" fill="hsl(var(--v2-pos))" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="expenses" name="Expenses" fill="hsl(var(--v2-chart-3))" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

@@ -866,11 +866,11 @@ export default function Tax() {
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="Net Pay" stackId="a" fill="hsl(142,60%,45%)" radius={[0, 0, 0, 0]} />
-            <Bar dataKey="Income Tax" stackId="a" fill="hsl(0,72%,51%)" />
+            <Bar dataKey="Net Pay" stackId="a" fill="hsl(var(--v2-pos))" radius={[0, 0, 0, 0]} />
+            <Bar dataKey="Income Tax" stackId="a" fill="hsl(var(--v2-neg))" />
             <Bar dataKey="Medicare" stackId="a" fill="hsl(25,90%,55%)" />
             <Bar dataKey="HELP" stackId="a" fill="hsl(270,60%,55%)" />
-            <Bar dataKey="Super" stackId="a" fill="hsl(210,70%,55%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Super" stackId="a" fill="hsl(var(--v2-chart-1))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

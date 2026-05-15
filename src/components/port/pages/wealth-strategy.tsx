@@ -919,7 +919,7 @@ function NetWorthSimulator({ snap }: { snap: Record<string, number> }) {
         {yr5 && <KpiCard label="5yr — Current Path" value={formatCurrency(yr5._a)} />}
         {yr10 && <KpiCard label="10yr — Current Path" value={formatCurrency(yr10._a)} />}
         {yr10 && yr5 && (
-          <KpiCard label="Best Scenario 10yr" value={formatCurrency(yr10._d)} color="hsl(142,60%,45%)" sub="IP + Stocks combined" />
+          <KpiCard label="Best Scenario 10yr" value={formatCurrency(yr10._d)} color="hsl(var(--v2-pos))" sub="IP + Stocks combined" />
         )}
       </div>
 
@@ -928,11 +928,11 @@ function NetWorthSimulator({ snap }: { snap: Record<string, number> }) {
         <SectionTitle>10-Year Net Worth Trajectories ($000s)</SectionTitle>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,18%)" />
-            <XAxis dataKey="year" tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
-            <YAxis tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--v2-neg))" />
+            <XAxis dataKey="year" tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
+            <YAxis tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
             <Tooltip
-              contentStyle={{ background: "hsl(0,0%,10%)", border: "1px solid hsl(0,0%,20%)", borderRadius: 8 }}
+              contentStyle={{ background: "hsl(var(--v2-neg))", border: "1px solid hsl(var(--v2-neg))", borderRadius: 8 }}
               formatter={(v: number) => [`$${v}k`, ""]}
             />
             <Legend />
@@ -948,16 +948,16 @@ function NetWorthSimulator({ snap }: { snap: Record<string, number> }) {
         <SectionTitle>5yr vs 10yr Comparison ($000s)</SectionTitle>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={barData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,18%)" />
-            <XAxis dataKey="scenario" tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
-            <YAxis tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--v2-neg))" />
+            <XAxis dataKey="scenario" tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
+            <YAxis tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
             <Tooltip
-              contentStyle={{ background: "hsl(0,0%,10%)", border: "1px solid hsl(0,0%,20%)", borderRadius: 8 }}
+              contentStyle={{ background: "hsl(var(--v2-neg))", border: "1px solid hsl(var(--v2-neg))", borderRadius: 8 }}
               formatter={(v: number) => [`$${v}k`, ""]}
             />
             <Legend />
-            <Bar dataKey="5yr" fill="hsl(210,80%,60%)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="10yr" fill="hsl(43,85%,55%)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="5yr" fill="hsl(var(--v2-chart-1))" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="10yr" fill="hsl(var(--v2-chart-3))" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -1468,14 +1468,14 @@ function TaxOptimizer({ snap, properties }: { snap: Record<string, number>; prop
             <SectionTitle>Income Bar</SectionTitle>
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={barData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,18%)" />
-                <XAxis type="number" tick={{ fill: "hsl(0,0%,55%)", fontSize: 10 }} />
-                <YAxis dataKey="name" type="category" tick={{ fill: "hsl(0,0%,55%)", fontSize: 10 }} width={80} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--v2-neg))" />
+                <XAxis type="number" tick={{ fill: "hsl(var(--v2-neg))", fontSize: 10 }} />
+                <YAxis dataKey="name" type="category" tick={{ fill: "hsl(var(--v2-neg))", fontSize: 10 }} width={80} />
                 <Tooltip
-                  contentStyle={{ background: "hsl(0,0%,10%)", border: "1px solid hsl(0,0%,20%)", borderRadius: 8 }}
+                  contentStyle={{ background: "hsl(var(--v2-neg))", border: "1px solid hsl(var(--v2-neg))", borderRadius: 8 }}
                   formatter={(v: number) => [`$${v}k`, ""]}
                 />
-                <Bar dataKey="value" fill="hsl(43,85%,55%)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="value" fill="hsl(var(--v2-chart-3))" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -1796,15 +1796,15 @@ function RetirementPredictor({ snap, stocks, crypto }: { snap: Record<string, nu
         <SectionTitle>Portfolio Growth to Age 80 ($000s)</SectionTitle>
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={merged}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,18%)" />
-            <XAxis dataKey="age" tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
-            <YAxis tick={{ fill: "hsl(0,0%,55%)", fontSize: 11 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--v2-neg))" />
+            <XAxis dataKey="age" tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
+            <YAxis tick={{ fill: "hsl(var(--v2-neg))", fontSize: 11 }} />
             <Tooltip
-              contentStyle={{ background: "hsl(0,0%,10%)", border: "1px solid hsl(0,0%,20%)", borderRadius: 8 }}
+              contentStyle={{ background: "hsl(var(--v2-neg))", border: "1px solid hsl(var(--v2-neg))", borderRadius: 8 }}
               formatter={(v: number) => [`$${v}k`, ""]}
             />
             <Legend />
-            <ReferenceLine x={targetAge} stroke="hsl(43,85%,55%)" strokeDasharray="4 4" label={{ value: `Target ${targetAge}`, fill: "hsl(43,85%,55%)", fontSize: 10 }} />
+            <ReferenceLine x={targetAge} stroke="hsl(var(--v2-chart-3))" strokeDasharray="4 4" label={{ value: `Target ${targetAge}`, fill: "hsl(var(--v2-chart-3))", fontSize: 10 }} />
             {scenarios.map((s) => (
               <Line key={s.label} type="monotone" dataKey={s.label} stroke={s.color} strokeWidth={2} dot={false} />
             ))}

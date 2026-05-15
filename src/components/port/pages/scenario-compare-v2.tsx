@@ -1393,7 +1393,7 @@ export default function ScenarioCompareV2Page() {
                         <Legend wrapperStyle={{ fontSize: 12 }} />
                         <Area type="monotone" dataKey="p10" stackId="1" stroke="#cbd5e1" fill="#e2e8f0" name="P10" />
                         <Area type="monotone" dataKey="p50Minus10" stackId="1" stroke="#7dd3fc" fill="#bae6fd" name="P10→P50" />
-                        <Area type="monotone" dataKey="p90Minus50" stackId="1" stroke="#0ea5e9" fill="#7dd3fc" name="P50→P90" />
+                        <Area type="monotone" dataKey="p90Minus50" stackId="1" stroke="hsl(var(--v2-chart-1))" fill="#7dd3fc" name="P50→P90" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>

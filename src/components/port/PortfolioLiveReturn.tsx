@@ -629,7 +629,7 @@ export default function PortfolioLiveReturn({ compact = false }: Props) {
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke={isUp ? "#34d399" : "#f87171"}
+                  stroke={isUp ? "hsl(var(--v2-pos))" : "hsl(var(--v2-neg))"}
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 4 }}

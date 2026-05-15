@@ -460,8 +460,8 @@ export default function TimelinePage() {
               <AreaChart data={nwChartData}>
                 <defs>
                   <linearGradient id="nwGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -471,10 +471,10 @@ export default function TimelinePage() {
                 <Area
                   type="monotone"
                   dataKey="Net Worth"
-                  stroke="hsl(43,85%,55%)"
+                  stroke="hsl(var(--v2-chart-3))"
                   strokeWidth={2.5}
                   fill="url(#nwGradient)"
-                  dot={{ r: 3, fill: 'hsl(43,85%,55%)', strokeWidth: 0 }}
+                  dot={{ r: 3, fill: 'hsl(var(--v2-chart-3))', strokeWidth: 0 }}
                   activeDot={{ r: 5 }}
                 />
               </AreaChart>
@@ -490,12 +490,12 @@ export default function TimelinePage() {
               <AreaChart data={nwChartData}>
                 <defs>
                   <linearGradient id="assetsGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(142,60%,45%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(142,60%,45%)" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-pos))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-pos))" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="liabGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(0,72%,51%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(0,72%,51%)" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-neg))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-neg))" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -503,8 +503,8 @@ export default function TimelinePage() {
                 <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(1)}M`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Area type="monotone" dataKey="Total Assets" stroke="hsl(142,60%,45%)" strokeWidth={2} fill="url(#assetsGrad)" />
-                <Area type="monotone" dataKey="Total Liabilities" stroke="hsl(0,72%,51%)" strokeWidth={2} fill="url(#liabGrad)" />
+                <Area type="monotone" dataKey="Total Assets" stroke="hsl(var(--v2-pos))" strokeWidth={2} fill="url(#assetsGrad)" />
+                <Area type="monotone" dataKey="Total Liabilities" stroke="hsl(var(--v2-neg))" strokeWidth={2} fill="url(#liabGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -532,9 +532,9 @@ export default function TimelinePage() {
                 <YAxis tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Line type="monotone" dataKey="Income" stroke="hsl(142,60%,45%)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Expenses" stroke="hsl(0,72%,51%)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="Net Cash Flow" stroke="hsl(43,85%,55%)" strokeWidth={2.5} dot={false} strokeDasharray={view === 'monthly' ? undefined : "5 2"} />
+                <Line type="monotone" dataKey="Income" stroke="hsl(var(--v2-pos))" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="Expenses" stroke="hsl(var(--v2-neg))" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="Net Cash Flow" stroke="hsl(var(--v2-chart-3))" strokeWidth={2.5} dot={false} strokeDasharray={view === 'monthly' ? undefined : "5 2"} />
               </LineChart>
             </ResponsiveContainer>
             )}
@@ -549,12 +549,12 @@ export default function TimelinePage() {
               <AreaChart data={equityChartData}>
                 <defs>
                   <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(188,60%,48%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(188,60%,48%)" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.02} />
                   </linearGradient>
                   <linearGradient id="propValGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0.02} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -562,9 +562,9 @@ export default function TimelinePage() {
                 <YAxis tickFormatter={v => `$${(v / 1_000_000).toFixed(1)}M`} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <Area type="monotone" dataKey="Property Value" stroke="hsl(43,85%,55%)" strokeWidth={2} fill="url(#propValGrad)" />
-                <Area type="monotone" dataKey="Property Equity" stroke="hsl(188,60%,48%)" strokeWidth={2} fill="url(#equityGrad)" />
-                <Area type="monotone" dataKey="Property Loans" stroke="hsl(0,72%,51%)" strokeWidth={1.5} fill="none" strokeDasharray="4 2" />
+                <Area type="monotone" dataKey="Property Value" stroke="hsl(var(--v2-chart-3))" strokeWidth={2} fill="url(#propValGrad)" />
+                <Area type="monotone" dataKey="Property Equity" stroke="hsl(var(--v2-chart-1))" strokeWidth={2} fill="url(#equityGrad)" />
+                <Area type="monotone" dataKey="Property Loans" stroke="hsl(var(--v2-neg))" strokeWidth={1.5} fill="none" strokeDasharray="4 2" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

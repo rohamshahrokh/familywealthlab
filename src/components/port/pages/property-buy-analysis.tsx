@@ -503,16 +503,16 @@ export default function PropertyBuyAnalysisPage() {
               <AreaChart data={equityChartData} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-pos))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-pos))" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -523,9 +523,9 @@ export default function PropertyBuyAnalysisPage() {
                   formatter={(v: any) => mv(fmt(v))}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, color: '#94a3b8', paddingTop: 8 }} />
-                <Area type="monotone" dataKey="Buy Now"       stroke="#10b981" fill="url(#g1)" strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="Wait 6m"       stroke="#f59e0b" fill="url(#g2)" strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="Wait 12m / Alt" stroke="#6366f1" fill="url(#g3)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="Buy Now"       stroke="hsl(var(--v2-pos))" fill="url(#g1)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="Wait 6m"       stroke="hsl(var(--v2-chart-3))" fill="url(#g2)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="Wait 12m / Alt" stroke="hsl(var(--v2-chart-1))" fill="url(#g3)" strokeWidth={2} dot={false} />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -546,9 +546,9 @@ export default function PropertyBuyAnalysisPage() {
                   formatter={(v: any) => `${v >= 0 ? '+' : ''}${mv(fmt(v))}/mo`}
                 />
                 <Legend wrapperStyle={{ fontSize: 11, color: '#94a3b8', paddingTop: 8 }} />
-                <Bar dataKey="Buy Now"        fill="#10b981" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Wait 6m"        fill="#f59e0b" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="Wait 12m / Alt" fill="#6366f1" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Buy Now"        fill="hsl(var(--v2-pos))" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Wait 6m"        fill="hsl(var(--v2-chart-3))" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="Wait 12m / Alt" fill="hsl(var(--v2-chart-1))" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
             <p className="text-[10px] text-slate-600 mt-2">

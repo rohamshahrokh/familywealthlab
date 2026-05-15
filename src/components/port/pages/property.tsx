@@ -811,21 +811,21 @@ function PropertyCard({ prop, onDelete, selected, onToggleSelect, privacyMode }:
               <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id={`valGrad-${prop.id}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(142,60%,45%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(142,60%,45%)" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-pos))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-pos))" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id={`eqGrad-${prop.id}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(43,85%,55%)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(43,85%,55%)" stopOpacity={0} />
+                    <stop offset="5%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="hsl(var(--v2-chart-3))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(224,12%,20%)" />
                 <XAxis dataKey="year" tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} />
                 <YAxis tick={{ fontSize: 10, fill: "hsl(220,10%,55%)" }} tickFormatter={v => `$${(v / 1000000).toFixed(1)}M`} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="Value" stroke="hsl(142,60%,45%)" fill={`url(#valGrad-${prop.id})`} strokeWidth={2} name="Value" />
-                <Area type="monotone" dataKey="Equity" stroke="hsl(43,85%,55%)" fill={`url(#eqGrad-${prop.id})`} strokeWidth={2} name="Equity" />
-                <Line type="monotone" dataKey="Loan Balance" stroke="hsl(0,72%,51%)" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="Loan Balance" />
+                <Area type="monotone" dataKey="Value" stroke="hsl(var(--v2-pos))" fill={`url(#valGrad-${prop.id})`} strokeWidth={2} name="Value" />
+                <Area type="monotone" dataKey="Equity" stroke="hsl(var(--v2-chart-3))" fill={`url(#eqGrad-${prop.id})`} strokeWidth={2} name="Equity" />
+                <Line type="monotone" dataKey="Loan Balance" stroke="hsl(var(--v2-neg))" strokeWidth={1.5} strokeDasharray="4 2" dot={false} name="Loan Balance" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -840,7 +840,7 @@ function PropertyCard({ prop, onDelete, selected, onToggleSelect, privacyMode }:
                 <YAxis tick={{ fontSize: 9, fill: "hsl(220,10%,55%)" }} tickFormatter={v => `$${(v / 1000).toFixed(0)}K`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="Annual Cash Flow" name="Annual Cash Flow"
-                  fill="hsl(43,85%,55%)"
+                  fill="hsl(var(--v2-chart-3))"
                   radius={[3, 3, 0, 0]}
                 />
               </BarChart>
@@ -1001,8 +1001,8 @@ function PropertyPortfolioImpact({
                 contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 8, fontSize: 12 }}
               />
               <Legend />
-              <Bar dataKey="withIP_cf" name="With IPs (Net CF)" fill="hsl(43,85%,55%)" radius={[3,3,0,0]} />
-              <Bar dataKey="withoutIP_cf" name="Without IPs (Net CF)" fill="hsl(188,60%,48%)" radius={[3,3,0,0]} />
+              <Bar dataKey="withIP_cf" name="With IPs (Net CF)" fill="hsl(var(--v2-chart-3))" radius={[3,3,0,0]} />
+              <Bar dataKey="withoutIP_cf" name="Without IPs (Net CF)" fill="hsl(var(--v2-chart-1))" radius={[3,3,0,0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

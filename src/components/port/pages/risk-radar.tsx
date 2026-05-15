@@ -224,8 +224,8 @@ export default function RiskRadarPage() {
             <Radar
               name="Safety Score"
               dataKey="score"
-              stroke={overall_level === 'green' ? '#34d399' : overall_level === 'amber' ? '#fbbf24' : '#f87171'}
-              fill={overall_level === 'green' ? '#34d399' : overall_level === 'amber' ? '#fbbf24' : '#f87171'}
+              stroke={overall_level === 'green' ? 'hsl(var(--v2-pos))' : overall_level === 'amber' ? 'hsl(var(--v2-chart-3))' : 'hsl(var(--v2-neg))'}
+              fill={overall_level === 'green' ? 'hsl(var(--v2-pos))' : overall_level === 'amber' ? 'hsl(var(--v2-chart-3))' : 'hsl(var(--v2-neg))'}
               fillOpacity={0.18}
               strokeWidth={2}
             />

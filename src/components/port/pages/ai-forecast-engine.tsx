@@ -706,8 +706,8 @@ export default function AIForecastEnginePage() {
             <ComposedChart data={fanData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
               <defs>
                 {[
-                  { id: 'p90Fill', color: '#22c55e' }, { id: 'p75Fill', color: '#6366f1' },
-                  { id: 'p25Fill', color: '#f97316' }, { id: 'p10Fill', color: '#ef4444' },
+                  { id: 'p90Fill', color: 'hsl(var(--v2-pos))' }, { id: 'p75Fill', color: 'hsl(var(--v2-chart-1))' },
+                  { id: 'p25Fill', color: 'hsl(var(--v2-chart-4))' }, { id: 'p10Fill', color: 'hsl(var(--v2-neg))' },
                 ].map(({ id, color }) => (
                   <linearGradient key={id} id={id} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={color} stopOpacity={0.12} />
@@ -719,11 +719,11 @@ export default function AIForecastEnginePage() {
               <XAxis dataKey="year" tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tickFormatter={v => fmtM(v)} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }} axisLine={false} tickLine={false} width={75} />
               <Tooltip content={<FanTooltip />} />
-              <Area type="monotone" dataKey="p90" fill="url(#p90Fill)" stroke="#22c55e" strokeWidth={1.5} strokeDasharray="5 3" dot={false} name="P90" />
-              <Area type="monotone" dataKey="p75" fill="url(#p75Fill)" stroke="#6366f1" strokeWidth={1} dot={false} name="P75" />
-              <Line type="monotone" dataKey="median" stroke="#eab308" strokeWidth={2.5} dot={false} name="Median" />
-              <Area type="monotone" dataKey="p25" fill="url(#p25Fill)" stroke="#f97316" strokeWidth={1} dot={false} name="P25" />
-              <Area type="monotone" dataKey="p10" fill="url(#p10Fill)" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="5 3" dot={false} name="P10" />
+              <Area type="monotone" dataKey="p90" fill="url(#p90Fill)" stroke="hsl(var(--v2-pos))" strokeWidth={1.5} strokeDasharray="5 3" dot={false} name="P90" />
+              <Area type="monotone" dataKey="p75" fill="url(#p75Fill)" stroke="hsl(var(--v2-chart-1))" strokeWidth={1} dot={false} name="P75" />
+              <Line type="monotone" dataKey="median" stroke="hsl(var(--v2-chart-3))" strokeWidth={2.5} dot={false} name="Median" />
+              <Area type="monotone" dataKey="p25" fill="url(#p25Fill)" stroke="hsl(var(--v2-chart-4))" strokeWidth={1} dot={false} name="P25" />
+              <Area type="monotone" dataKey="p10" fill="url(#p10Fill)" stroke="hsl(var(--v2-neg))" strokeWidth={1.5} strokeDasharray="5 3" dot={false} name="P10" />
             </ComposedChart>
           </ResponsiveContainer>
         </div>

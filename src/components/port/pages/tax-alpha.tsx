@@ -180,7 +180,7 @@ function SavingsChart({ strategies, mv }: { strategies: TaxAlphaStrategy[]; mv: 
           />
           <Bar dataKey="saving" radius={[4, 4, 0, 0]}>
             {data.map((_, i) => (
-              <Cell key={i} fill={['#34d399', '#a78bfa', '#38bdf8', '#fbbf24', '#f472b6', '#60a5fa', '#fb923c', '#f87171'][i % 8]} />
+              <Cell key={i} fill={['hsl(var(--v2-pos))', '#a78bfa', '#38bdf8', 'hsl(var(--v2-chart-3))', '#f472b6', '#60a5fa', 'hsl(var(--v2-chart-4))', 'hsl(var(--v2-neg))'][i % 8]} />
             ))}
           </Bar>
         </BarChart>

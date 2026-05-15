@@ -2590,8 +2590,8 @@ export default function DashboardPage() {
                       >
                         <defs>
                           <linearGradient id="wdcBalGradLine" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%"   stopColor="hsl(210,80%,62%)" stopOpacity={0.20} />
-                            <stop offset="100%" stopColor="hsl(210,80%,62%)" stopOpacity={0.01} />
+                            <stop offset="0%"   stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.20} />
+                            <stop offset="100%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.01} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(222,15%,17%)" vertical={false} />
@@ -2602,19 +2602,19 @@ export default function DashboardPage() {
                         {masterCFData.map((d: any) =>
                           d._milestones?.length > 0 ? (
                             <ReferenceLine key={d.label} yAxisId="bal" x={d.label}
-                              stroke="hsl(43,80%,50%)" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
+                              stroke="hsl(var(--v2-chart-3))" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
                           ) : null
                         )}
                         <Line yAxisId="bal" type="monotone" dataKey="balance" name="Cash Balance"
-                          stroke="hsl(210,80%,65%)" strokeWidth={2.5}
-                          dot={<MilestoneDot />} activeDot={{ r: 5, fill: "hsl(210,80%,65%)", strokeWidth: 0 }} />
+                          stroke="hsl(var(--v2-chart-1))" strokeWidth={2.5}
+                          dot={<MilestoneDot />} activeDot={{ r: 5, fill: "hsl(var(--v2-chart-1))", strokeWidth: 0 }} />
                         {cfViewMode !== "cash" && (
                           <Line yAxisId="bal" type="monotone" dataKey="usableEquity" name="Usable Equity"
-                            stroke="hsl(188,60%,52%)" strokeWidth={1.8} dot={false} strokeDasharray="5 3" />
+                            stroke="hsl(var(--v2-chart-1))" strokeWidth={1.8} dot={false} strokeDasharray="5 3" />
                         )}
                         {cfViewMode === "deposit" && (
                           <Line yAxisId="bal" type="monotone" dataKey="totalDepositPower" name="Deposit Power"
-                            stroke="hsl(43,90%,58%)" strokeWidth={2} dot={false} />
+                            stroke="hsl(var(--v2-chart-3))" strokeWidth={2} dot={false} />
                         )}
                       </LineChart>
                     ) : wdcChartType === "candlestick" ? (
@@ -2642,7 +2642,7 @@ export default function DashboardPage() {
                         {masterCFData.map((d: any) =>
                           d._milestones?.length > 0 ? (
                             <ReferenceLine key={d.label} yAxisId="bal" x={d.label}
-                              stroke="hsl(43,80%,50%)" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
+                              stroke="hsl(var(--v2-chart-3))" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
                           ) : null
                         )}
                         {/* Candlestick body bar */}
@@ -2650,12 +2650,12 @@ export default function DashboardPage() {
                           {masterCFData.map((d: any, i: number) => {
                             const prevBal = i === 0 ? d.balance : (masterCFData[i-1] as any).balance;
                             const isUp = d.balance >= prevBal;
-                            return <Cell key={i} fill={isUp ? "hsl(142,55%,40%)" : "hsl(0,65%,50%)"} fillOpacity={0.85} />;
+                            return <Cell key={i} fill={isUp ? "hsl(var(--v2-pos))" : "hsl(var(--v2-neg))"} fillOpacity={0.85} />;
                           })}
                         </Bar>
                         {/* Wick line rendered as an Area with near-zero width */}
                         <Line yAxisId="bal" type="monotone" dataKey="balance" name="Trend"
-                          stroke="hsl(210,80%,65%)" strokeWidth={1.5} dot={false} strokeDasharray="3 3" strokeOpacity={0.4} />
+                          stroke="hsl(var(--v2-chart-1))" strokeWidth={1.5} dot={false} strokeDasharray="3 3" strokeOpacity={0.4} />
                       </ComposedChart>
                     ) : (
                       // DEFAULT: Combo — Balance area + Net CF bars
@@ -2666,8 +2666,8 @@ export default function DashboardPage() {
                       >
                         <defs>
                           <linearGradient id="wdcBalGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%"   stopColor="hsl(210,80%,62%)" stopOpacity={0.20} />
-                            <stop offset="100%" stopColor="hsl(210,80%,62%)" stopOpacity={0.01} />
+                            <stop offset="0%"   stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.20} />
+                            <stop offset="100%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.01} />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(222,15%,17%)" vertical={false} />
@@ -2680,27 +2680,27 @@ export default function DashboardPage() {
                         {masterCFData.map((d: any) =>
                           d._milestones?.length > 0 ? (
                             <ReferenceLine key={d.label} yAxisId="bal" x={d.label}
-                              stroke="hsl(43,80%,50%)" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
+                              stroke="hsl(var(--v2-chart-3))" strokeDasharray="4 3" strokeOpacity={0.45} strokeWidth={1} />
                           ) : null
                         )}
                         <Bar yAxisId="cf" dataKey="netCF" name="Net Cashflow" radius={[3,3,0,0]} maxBarSize={32}>
                           {masterCFData.map((d: any, i: number) => (
-                            <Cell key={i} fill={(d.netCF??0)>=0 ? "hsl(142,55%,40%)" : "hsl(0,65%,50%)"} fillOpacity={0.7} />
+                            <Cell key={i} fill={(d.netCF??0)>=0 ? "hsl(var(--v2-pos))" : "hsl(var(--v2-neg))"} fillOpacity={0.7} />
                           ))}
                         </Bar>
                         <Area yAxisId="bal" type="monotone" dataKey="balance" name="Cash Balance"
-                          stroke="hsl(210,80%,65%)" strokeWidth={2.5} fill="url(#wdcBalGrad)"
-                          dot={<MilestoneDot />} activeDot={{ r: 5, fill: "hsl(210,80%,65%)", strokeWidth: 0 }} />
+                          stroke="hsl(var(--v2-chart-1))" strokeWidth={2.5} fill="url(#wdcBalGrad)"
+                          dot={<MilestoneDot />} activeDot={{ r: 5, fill: "hsl(var(--v2-chart-1))", strokeWidth: 0 }} />
                         {/* Equity overlay lines */}
                         {cfViewMode !== "cash" && (
                           <Line yAxisId="bal" type="monotone" dataKey="usableEquity" name="Usable Equity"
-                            stroke="hsl(188,60%,52%)" strokeWidth={1.8} dot={false} strokeDasharray="5 3"
-                            activeDot={{ r: 4, fill: "hsl(188,60%,52%)", strokeWidth: 0 }} />
+                            stroke="hsl(var(--v2-chart-1))" strokeWidth={1.8} dot={false} strokeDasharray="5 3"
+                            activeDot={{ r: 4, fill: "hsl(var(--v2-chart-1))", strokeWidth: 0 }} />
                         )}
                         {cfViewMode === "deposit" && (
                           <Line yAxisId="bal" type="monotone" dataKey="totalDepositPower" name="Deposit Power"
-                            stroke="hsl(43,90%,58%)" strokeWidth={2} dot={false}
-                            activeDot={{ r: 4, fill: "hsl(43,90%,58%)", strokeWidth: 0 }} />
+                            stroke="hsl(var(--v2-chart-3))" strokeWidth={2} dot={false}
+                            activeDot={{ r: 4, fill: "hsl(var(--v2-chart-3))", strokeWidth: 0 }} />
                         )}
                       </ComposedChart>
                     )}
@@ -2850,12 +2850,12 @@ export default function DashboardPage() {
                     <ComposedChart data={filteredNWData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                       <defs>
                         <linearGradient id="wdcNWGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%"   stopColor="hsl(210,75%,55%)" stopOpacity={0.25} />
-                          <stop offset="100%" stopColor="hsl(210,75%,55%)" stopOpacity={0.02} />
+                          <stop offset="0%"   stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.25} />
+                          <stop offset="100%" stopColor="hsl(var(--v2-chart-1))" stopOpacity={0.02} />
                         </linearGradient>
                         <linearGradient id="wdcAssetGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%"   stopColor="hsl(142,55%,42%)" stopOpacity={0.18} />
-                          <stop offset="100%" stopColor="hsl(142,55%,42%)" stopOpacity={0.01} />
+                          <stop offset="0%"   stopColor="hsl(var(--v2-pos))" stopOpacity={0.18} />
+                          <stop offset="100%" stopColor="hsl(var(--v2-pos))" stopOpacity={0.01} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(222,15%,17%)" vertical={false} />

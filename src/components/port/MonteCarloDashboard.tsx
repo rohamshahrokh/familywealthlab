@@ -883,14 +883,14 @@ export default function MonteCarloDashboard() {
                   <XAxis dataKey="year" tick={{ fontSize: 11, fill: '#64748b' }}/>
                   <YAxis tickFormatter={(v) => fmtK(v)} tick={{ fontSize: 11, fill: '#64748b' }} width={70}/>
                   <Tooltip content={<NWTooltip/>}/>
-                  <ReferenceLine x={targetYear} stroke="#f97316" strokeDasharray="4 2"
-                    label={{ value: `FIRE Target ${targetYear}`, position: 'top', fontSize: 10, fill: '#f97316' }}/>
+                  <ReferenceLine x={targetYear} stroke="hsl(var(--v2-chart-4))" strokeDasharray="4 2"
+                    label={{ value: `FIRE Target ${targetYear}`, position: 'top', fontSize: 10, fill: 'hsl(var(--v2-chart-4))' }}/>
                   {/* P10–P90 shaded band */}
-                  <Area type="monotone" dataKey="p90" name="P90" fill="#22c55e" fillOpacity={0.08} stroke="#22c55e" strokeWidth={1.5} dot={false}/>
+                  <Area type="monotone" dataKey="p90" name="P90" fill="hsl(var(--v2-pos))" fillOpacity={0.08} stroke="hsl(var(--v2-pos))" strokeWidth={1.5} dot={false}/>
                   <Area type="monotone" dataKey="p75" name="P75" fill="#60a5fa" fillOpacity={0.1}  stroke="#60a5fa" strokeWidth={1}   dot={false}/>
-                  <Area type="monotone" dataKey="median" name="P50 (Median)" fill="#f97316" fillOpacity={0.12} stroke="#f97316" strokeWidth={2.5} dot={false}/>
-                  <Area type="monotone" dataKey="p25" name="P25" fill="#f59e0b" fillOpacity={0.08} stroke="#f59e0b" strokeWidth={1}   dot={false}/>
-                  <Area type="monotone" dataKey="p10" name="P10" fill="#ef4444" fillOpacity={0.08} stroke="#ef4444" strokeWidth={1.5} dot={false}/>
+                  <Area type="monotone" dataKey="median" name="P50 (Median)" fill="hsl(var(--v2-chart-4))" fillOpacity={0.12} stroke="hsl(var(--v2-chart-4))" strokeWidth={2.5} dot={false}/>
+                  <Area type="monotone" dataKey="p25" name="P25" fill="hsl(var(--v2-chart-3))" fillOpacity={0.08} stroke="hsl(var(--v2-chart-3))" strokeWidth={1}   dot={false}/>
+                  <Area type="monotone" dataKey="p10" name="P10" fill="hsl(var(--v2-neg))" fillOpacity={0.08} stroke="hsl(var(--v2-neg))" strokeWidth={1.5} dot={false}/>
                   <ReferenceLine y={0} stroke="#475569" strokeDasharray="2 2"/>
                 </AreaChart>
               </ResponsiveContainer>
@@ -928,11 +928,11 @@ export default function MonteCarloDashboard() {
                   <XAxis dataKey="year" tick={{ fontSize: 10, fill: '#64748b' }}/>
                   <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 10, fill: '#64748b' }} width={45}/>
                   <Tooltip formatter={(v: any) => [`${v}%`, 'Pct of sims']} labelFormatter={l => `Year ${l}`}/>
-                  <ReferenceLine x={targetYear} stroke="#f97316" strokeDasharray="4 2"/>
+                  <ReferenceLine x={targetYear} stroke="hsl(var(--v2-chart-4))" strokeDasharray="4 2"/>
                   <Bar dataKey="pct" name="% of simulations" radius={[3,3,0,0]}>
                     {displayResult.fireYearHistogram.map((entry) => (
                       <Cell key={entry.year}
-                        fill={entry.year <= targetYear ? '#22c55e' : '#ef4444'}
+                        fill={entry.year <= targetYear ? 'hsl(var(--v2-pos))' : 'hsl(var(--v2-neg))'}
                         fillOpacity={0.8}
                       />
                     ))}
@@ -959,11 +959,11 @@ export default function MonteCarloDashboard() {
                   <XAxis dataKey="age" tick={{ fontSize: 11, fill: '#64748b' }} label={{ value: 'Age', position: 'insideBottom', offset: -2, fontSize: 11, fill: '#64748b' }}/>
                   <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} tick={{ fontSize: 11, fill: '#64748b' }} width={45}/>
                   <Tooltip formatter={(v: any) => [`${v}%`, 'Cumulative FIRE prob']}/>
-                  <ReferenceLine y={50}  stroke="#f97316" strokeDasharray="4 2" label={{ value: '50%', fontSize: 9, fill: '#f97316' }}/>
-                  <ReferenceLine x={localSettings.targetFireAge} stroke="#f97316" strokeDasharray="4 2"
-                    label={{ value: `Target ${localSettings.targetFireAge}`, fontSize: 9, fill: '#f97316', position: 'top' }}/>
+                  <ReferenceLine y={50}  stroke="hsl(var(--v2-chart-4))" strokeDasharray="4 2" label={{ value: '50%', fontSize: 9, fill: 'hsl(var(--v2-chart-4))' }}/>
+                  <ReferenceLine x={localSettings.targetFireAge} stroke="hsl(var(--v2-chart-4))" strokeDasharray="4 2"
+                    label={{ value: `Target ${localSettings.targetFireAge}`, fontSize: 9, fill: 'hsl(var(--v2-chart-4))', position: 'top' }}/>
                   <Line type="monotone" dataKey="probability" name="FIRE probability"
-                    stroke="#22c55e" strokeWidth={2.5} dot={false}/>
+                    stroke="hsl(var(--v2-pos))" strokeWidth={2.5} dot={false}/>
                 </LineChart>
               </ResponsiveContainer>
             )}

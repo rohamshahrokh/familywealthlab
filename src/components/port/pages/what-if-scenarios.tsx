@@ -890,10 +890,10 @@ function CashflowTab({ result, scenario }: { result: WiScenarioResult | null; sc
               <Bar dataKey="rentalIncome"     fill="hsl(var(--chart-3))"    name="Rental"       stackId="in"  />
               <Bar dataKey="taxRefund"        fill="hsl(var(--chart-4))"    name="Tax Refund"   stackId="in"  />
               <Bar dataKey="livingExpenses"   fill="hsl(var(--destructive))" name="Expenses"    stackId="out" />
-              <Bar dataKey="mortgageRepayments" fill="#f97316"              name="Mortgage"     stackId="out" />
+              <Bar dataKey="mortgageRepayments" fill="hsl(var(--v2-chart-4))"              name="Mortgage"     stackId="out" />
               <Bar dataKey="propertyDeposits" fill="#a855f7"                name="Deposits"     stackId="out" />
-              <Bar dataKey="stockDCA"         fill="#3b82f6"                name="Stock DCA"    stackId="out" />
-              <Bar dataKey="cryptoDCA"        fill="#f59e0b"                name="Crypto DCA"   stackId="out" />
+              <Bar dataKey="stockDCA"         fill="hsl(var(--v2-chart-1))"                name="Stock DCA"    stackId="out" />
+              <Bar dataKey="cryptoDCA"        fill="hsl(var(--v2-chart-3))"                name="Crypto DCA"   stackId="out" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
