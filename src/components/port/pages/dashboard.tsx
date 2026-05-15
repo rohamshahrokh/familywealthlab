@@ -125,7 +125,11 @@ import { Link, useLocation } from "wouter";
 import { useForecastStore } from "@/lib/finance-port/forecastStore";
 import { useForecastAssumptions } from "@/lib/finance-port/useForecastAssumptions";
 // Asset served from /public/assets/ — Next.js will resolve this at runtime.
-const familyImg = "/assets/family.jpeg";
+// APP_SHELL_UI_UX_FIX_PASS_01 — Issue 3: personal family photo removed from
+// the commercial dashboard. The /assets/family.jpeg file remains in public/
+// only because deleting it requires a separate housekeeping pass; it is no
+// longer referenced from the commercial UI.
+// const familyImg = "/assets/family.jpeg";
 
 // ─── Chart tooltips ───────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -1843,73 +1847,19 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background text-foreground pb-16">
 
-      {/* ══════════════════════════════════════════════════════════════════
-          ABOVE-FOLD KPI STRIP (mobile: order 1 — first thing on screen)
-          4 cards: Net Worth / Cash Today / Monthly Surplus / Deposit Power
-          + Forecast selector badge
-          ═════════════════════════════════════════════════════════════════ */}
-      <div className="px-4 pt-3 pb-2 db-section-hero-kpis">
-        <div className="grid grid-cols-2 gap-2 mb-2">
-          {/* Net Worth */}
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-3 py-2.5">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-amber-400/70 mb-0.5">Net Worth</div>
-            <div className="text-base font-extrabold tabular-nums text-amber-400 leading-tight">{maskValue(formatCurrency(netWorth, true), privacyMode)}</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">Total · Brisbane QLD</div>
-          </div>
-          {/* Cash Today */}
-          <div className="rounded-xl border border-border bg-card px-3 py-2.5">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Cash Today</div>
-            <div className="text-base font-extrabold tabular-nums leading-tight" style={{ color: "hsl(210,80%,65%)" }}>{maskValue(formatCurrency(totalLiquidCash, true), privacyMode)}</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">All liquid cash + offset</div>
-          </div>
-          {/* Monthly Surplus */}
-          <div className="rounded-xl border border-border bg-card px-3 py-2.5">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5">Monthly Surplus</div>
-            <div className="text-base font-extrabold tabular-nums leading-tight" style={{ color: surplus >= 0 ? "hsl(142,60%,52%)" : "hsl(0,72%,58%)" }}>{maskValue(formatCurrency(surplus, true), privacyMode)}</div>
-            <div className="text-[10px] text-muted-foreground mt-0.5">{maskValue(formatCurrency(surplus * 12, true), privacyMode)}/yr</div>
-          </div>
-          {/* Deposit Power */}
-          <div className="rounded-xl border px-3 py-2.5" style={{ borderColor: "hsl(43,90%,30%)", background: "hsl(43,90%,6%)" }}>
-            <div className="text-[10px] font-bold uppercase tracking-widest mb-0.5" style={{ color: "hsl(43,90%,50%)" }}>Deposit Power</div>
-            <div className="text-base font-extrabold tabular-nums leading-tight" style={{ color: "hsl(43,90%,62%)" }}>{maskValue(formatCurrency(dpTotal, true), privacyMode)}</div>
-            <div className="text-[10px] mt-0.5" style={{ color: "hsl(43,70%,45%)" }}>{Math.round(dpReadiness)}% IP ready</div>
-          </div>
-        </div>
-        {/* Forecast selector badge — always visible */}
-        <Link href="/ai-forecast-engine">
-          <span
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all hover:brightness-110 ${
-              forecastMode === "monte-carlo"
-                ? "bg-purple-500/10 border border-purple-500/30 text-purple-300"
-                : forecastMode === "year-by-year"
-                ? "bg-sky-500/10 border border-sky-500/30 text-sky-300"
-                : profile === "aggressive"
-                ? "bg-rose-500/10 border border-rose-500/30 text-rose-300"
-                : profile === "conservative"
-                ? "bg-amber-500/10 border border-amber-500/30 text-amber-300"
-                : "bg-blue-500/10 border border-blue-500/30 text-blue-300"
-            }`}
-            title="Tap to change forecast mode"
-          >
-            <Activity className="w-3 h-3" />
-            Forecast: {
-              forecastMode === "monte-carlo"
-                ? `Monte Carlo${monteCarloResult ? " (median)" : " (not run)"}`
-                : forecastMode === "year-by-year"
-                ? "Year-by-Year (custom)"
-                : profile === "aggressive"
-                ? "Aggressive"
-                : profile === "conservative"
-                ? "Conservative"
-                : "Base (Moderate)"
-            }
-            <ChevronRight className="w-3 h-3 opacity-70" />
-          </span>
-        </Link>
-      </div>
+      {/*
+        APP_SHELL_UI_UX_FIX_PASS_01 — Issue 1 & 4
+        The above-fold mobile KPI strip (Net Worth / Cash Today / Monthly
+        Surplus / Deposit Power) and its inline Forecast pill have been
+        removed. The KPI grid further down the page already covers the same
+        information, and the forecast pill below the welcome row is the
+        single source of truth for forecast-mode display (issue 4).
+        Journey timeline (WealthFlowBanner) is now the first thing on the
+        page, matching the original personal-app dashboard structure.
+      */}
 
       {/* ══════════════════════════════════════════════════════════════════
-          WEALTH FLOW BANNER
+          WEALTH FLOW BANNER — journey timeline (TODAY → PLAN → FUTURE → MOVE)
           ═════════════════════════════════════════════════════════════════ */}
       <div className="db-section-networth"><WealthFlowBanner /></div>
 
@@ -1919,17 +1869,37 @@ export default function DashboardPage() {
       <div className="px-4 pt-4 pb-4 db-section-networth">
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
 
-          {/* Left — Family welcome card */}
+          {/* Left — Family welcome card
+              APP_SHELL_UI_UX_FIX_PASS_01 — Issue 3: personal household photo
+              and "Fara & Roham" name removed for the commercial build.
+              Replaced with a neutral, abstract Family Wealth Lab demo mark
+              and "Demo Household" identity. Demo data functionality is
+              unchanged — only visible personal branding is sanitised. */}
           <div className="flex-1 rounded-2xl border border-border bg-card p-5 flex gap-4 items-center min-w-0">
-            {/* Family photo */}
-            <div className="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 border-amber-500/30">
-              <img src={familyImg} alt="Family" className="w-full h-full object-cover" />
+            {/* Abstract Family Wealth Lab demo mark (replaces personal photo) */}
+            <div
+              className="shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 border-amber-500/30 flex items-center justify-center bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent"
+              aria-label="Family Wealth Lab demo household"
+              role="img"
+            >
+              <svg viewBox="0 0 32 32" className="w-9 h-9" fill="none" aria-hidden>
+                {/* House outline */}
+                <path
+                  d="M5 14 L16 5 L27 14 L27 26 L5 26 Z"
+                  stroke="hsl(43,90%,58%)"
+                  strokeWidth="1.75"
+                  strokeLinejoin="round"
+                  fill="hsl(43,90%,58%,0.08)"
+                />
+                {/* Ember pulse */}
+                <circle cx="16" cy="18" r="2.25" fill="hsl(43,90%,58%)" />
+              </svg>
             </div>
             <div className="min-w-0">
               <div className="text-xs font-bold uppercase tracking-widest text-amber-400 mb-0.5">Welcome Back</div>
-              <div className="text-2xl font-extrabold tracking-tight text-foreground leading-tight">Fara &amp; Roham</div>
-              <div className="text-sm font-semibold text-muted-foreground mt-0.5">Family Net Worth Command Center</div>
-              <div className="text-xs text-muted-foreground/70 mt-0.5">Building Wealth for the Kids</div>
+              <div className="text-2xl font-extrabold tracking-tight text-foreground leading-tight">Demo Household</div>
+              <div className="text-sm font-semibold text-muted-foreground mt-0.5">Family Wealth Lab · Australian Family Demo</div>
+              <div className="text-xs text-muted-foreground/70 mt-0.5">Live preview · read-only sample data</div>
             </div>
           </div>
 
@@ -2392,8 +2362,15 @@ export default function DashboardPage() {
                     <span className="text-xs ml-auto" style={{ color: "hsl(215,12%,45%)" }}>Today's snapshot</span>
                   </div>
 
-                  {/* Waterfall formula card */}
-                  <div className="rounded-xl border border-border overflow-hidden mb-2" style={{ background: "hsl(220,18%,10%)" }}>
+                  {/* Waterfall formula card
+                      APP_SHELL_UI_UX_FIX_PASS_01 — Issue 5: the inline
+                      background was hard-coded to hsl(220,18%,10%) (dark
+                      navy) which bled through in light mode as a black
+                      block on a white page. Replaced with the theme's
+                      muted surface tokens — bg-muted/50 in light mode,
+                      bg-card in dark mode — so the panel inherits the
+                      active theme correctly. */}
+                  <div className="rounded-xl border border-border overflow-hidden mb-2 bg-muted/50 dark:bg-card">
                     {/* +  Cash + Offset */}
                     <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
                       <div className="flex items-center gap-2">

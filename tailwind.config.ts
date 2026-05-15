@@ -98,6 +98,28 @@ const config: Config = {
         negative: "#C0392B",
         warning: "#B7791F",
         info: "#34466A",
+
+        // APP_SHELL_UI_UX_FIX_PASS_01 — Issue 5 & 6
+        // Semantic tokens consumed by the migrated /app/* dashboard.
+        // Source variables live in src/app/globals.css under :root and .dark
+        // so the light/dark toggle in AppTopBar actually changes surfaces.
+        background:  "hsl(var(--background) / <alpha-value>)",
+        foreground:  "hsl(var(--foreground) / <alpha-value>)",
+        card: {
+          DEFAULT:    "hsl(var(--card) / <alpha-value>)",
+          foreground: "hsl(var(--card-foreground) / <alpha-value>)",
+        },
+        muted: {
+          DEFAULT:    "hsl(var(--muted) / <alpha-value>)",
+          foreground: "hsl(var(--muted-foreground) / <alpha-value>)",
+        },
+        primary: {
+          DEFAULT:    "hsl(var(--primary) / <alpha-value>)",
+          foreground: "hsl(var(--primary-foreground) / <alpha-value>)",
+        },
+        border:      "hsl(var(--border) / <alpha-value>)",
+        input:       "hsl(var(--input) / <alpha-value>)",
+        ring:        "hsl(var(--ring) / <alpha-value>)",
       },
       fontFamily: {
         sans: [

@@ -37,10 +37,18 @@ export function defaultPermissionsForRole(role: HouseholdRole): Permission[] {
 }
 export type ThemeMode = "dark" | "light";
 
-/** Apply the resolved theme class to <html>. Safe to call during SSR. */
+/** Apply the resolved theme class to <html>. Safe to call during SSR.
+ *
+ * APP_SHELL_UI_UX_FIX_PASS_01 — Issue 6
+ * Tailwind is configured with `darkMode: ["class"]`, which means it looks
+ * for the `.dark` class on the root element to activate `dark:` variants.
+ * We toggle both `.dark` (Tailwind) and `.light` (legacy custom CSS) and
+ * set `data-theme` so any css-vars-based stylesheet can also branch on it.
+ */
 export function applyTheme(mode: ThemeMode) {
   if (typeof document === "undefined") return;
   const html = document.documentElement;
+  html.classList.toggle("dark", mode === "dark");
   html.classList.toggle("light", mode === "light");
   html.dataset.theme = mode;
 }

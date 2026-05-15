@@ -21,12 +21,13 @@
 import { safeNum } from './mathUtils';
 import { PROFILE_DEFAULTS } from './forecastStore';
 import type { YearAssumptions } from './forecastStore';
+import { getSbUrl } from './sbEnv';
 
 // ─── Supabase config ──────────────────────────────────────────────────────────
 
-const SB_URL  = 'https://uoraduyyxhtzixcsaidg.supabase.co';
-const SB_KEY  = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SUPABASE_ANON_KEY)
-  ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c';
+// FWL_ENV_VAR_WIRING_PASS_01: env-sourced, no personal-project fallback.
+const SB_URL = getSbUrl();
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const OWNER   = 'shahrokh-family-main';
 const HDRS    = {
   apikey: SB_KEY,

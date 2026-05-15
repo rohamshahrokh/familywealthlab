@@ -1,32 +1,22 @@
-import { Nav } from "@/components/layout/Nav";
-import { Footer } from "@/components/layout/Footer";
-import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
-import { Hero } from "@/components/sections/Hero";
-import { StatsBand } from "@/components/sections/StatsBand";
-import { Chaos } from "@/components/sections/Chaos";
-import { CommandCenter } from "@/components/sections/CommandCenter";
-import { WhatIf } from "@/components/sections/WhatIf";
-import { AIInsights } from "@/components/sections/AIInsights";
-import { MobileExperience } from "@/components/sections/MobileExperience";
-import { Trust } from "@/components/sections/Trust";
-import { FinalCTA } from "@/components/sections/FinalCTA";
+import { redirect } from "next/navigation";
 
-export default function HomePage() {
-  return (
-    <SmoothScrollProvider>
-      <Nav />
-      <main className="relative">
-        <Hero />
-        <StatsBand />
-        <Chaos />
-        <CommandCenter />
-        <WhatIf />
-        <AIInsights />
-        <MobileExperience />
-        <Trust />
-        <FinalCTA />
-      </main>
-      <Footer />
-    </SmoothScrollProvider>
-  );
+export const dynamic = "force-dynamic";
+
+/**
+ * ROOT_UNIFICATION_PASS_01 — The root route used to render a separate
+ * marketing shell (Nav + Hero + StatsBand + Chaos + CommandCenter + WhatIf +
+ * AIInsights + MobileExperience + Trust + FinalCTA + Footer) under
+ * SmoothScrollProvider. That created a split between the marketing site at /
+ * and the commercial app shell at /app/*.
+ *
+ * Per the brief: "I want the root experience unified … same sidebar/topbar/
+ * theme system as /app/snapshot … no split between old marketing shell and
+ * new app shell … Remove old static mockup homepage architecture."
+ *
+ * The root now redirects into the canonical commercial app entry point.
+ * The app shell (AppSidebar + AppTopBar + theme + privacy) at /app/* is the
+ * single source of truth for the entire site.
+ */
+export default function RootPage() {
+  redirect("/app/snapshot");
 }

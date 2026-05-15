@@ -24,6 +24,7 @@ import { sbBills, sbBudgets, sbTelegramSettings, sbAlertLogs, sbFamilyMsgLog, sb
 import { sbFireSettings, sbFireScenarioConfig, sbFireYearAssumptions } from "./supabaseClient";
 import { sbTaxProfile } from "./supabaseClient";
 import { sbMCFireSettings, sbMCFireResults, sbMCFirePresets } from "./supabaseClient";
+import { getSbUrl } from "./sbEnv";
 import {
   getDemoDataset,
   DEMO_FIRE_SETTINGS, DEMO_APP_SETTINGS, DEMO_TAX_PROFILE,
@@ -697,8 +698,9 @@ async function handleLocalRequest(method: string, path: string, body?: unknown):
 
   // ─── Market News cache ──────────────────────────────────────────────────
   if (path === "/api/market-news-cache") {
-    const SB_URL  = "https://uoraduyyxhtzixcsaidg.supabase.co";
-    const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c";
+    // FWL_ENV_VAR_WIRING_PASS_01 + slash-safety: env-sourced via sbEnv.getSbUrl().
+    const SB_URL = getSbUrl();
+    const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
     const headers = { "apikey": SB_KEY, "Authorization": `Bearer ${SB_KEY}`, "Content-Type": "application/json", "Prefer": "return=representation" };
     if (m === "GET") {
       // Return the single cached row for the given cache_key (from URL ?cache_key=...)

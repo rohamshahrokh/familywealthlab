@@ -34,6 +34,7 @@
 
 import { safeNum } from './finance';
 import { computeDepositPower } from './depositPower';
+import { getSupabaseConfig, getSupabaseRestHeaders } from './sbEnv';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -150,18 +151,18 @@ const SUPER_CONCESSIONAL_CAP = 30_000;
 const PERSONAL_DEBT_RATE     = 0.17;
 
 // ─── Supabase fetch helper ────────────────────────────────────────────────────
+// FWL_ENV_VAR_WIRING_PASS_01: URL + key sourced from sbEnv (env vars) instead
+// of the personal-app project's hardcoded values. When env vars are missing
+// or stubbed, sb() returns [] so callers degrade gracefully to demo data.
 
-const SB_URL  = 'https://uoraduyyxhtzixcsaidg.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c';
-const SB_HDR  = {
-  apikey:         SB_ANON,
-  Authorization:  `Bearer ${SB_ANON}`,
-  'Content-Type': 'application/json',
-};
-const sb = (path: string) =>
-  fetch(`${SB_URL}/rest/v1/${path}`, { headers: SB_HDR })
-    .then(r => r.ok ? r.json() : [])
+const sb = (path: string): Promise<any[]> => {
+  const cfg = getSupabaseConfig();
+  const hdr = getSupabaseRestHeaders();
+  if (!cfg || !hdr) return Promise.resolve([]);
+  return fetch(`${cfg.url}/rest/v1/${path}`, { headers: hdr })
+    .then(r => (r.ok ? r.json() : []))
     .catch(() => []);
+};
 
 // ─── Income dedup ─────────────────────────────────────────────────────────────
 

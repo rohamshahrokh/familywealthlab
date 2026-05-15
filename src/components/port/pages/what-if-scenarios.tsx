@@ -65,12 +65,15 @@ import {
   type ActionPlan, type ScenarioComparisonRow, type AssumptionWarning,
 } from '@/lib/finance-port/whatIfEngine';
 import { PROFILE_DEFAULTS } from '@/lib/finance-port/forecastStore';
+import { getSbUrl } from '@/lib/finance-port/sbEnv';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SB_URL = 'https://uoraduyyxhtzixcsaidg.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c';
+// FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
+const SB_URL = getSbUrl();
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const SB_HDRS = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` };
+const HAS_SB = Boolean(SB_URL && SB_KEY);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -123,7 +126,9 @@ function hashInputs(
   return h.toString(16);
 }
 
+// FWL_ENV_VAR_WIRING_PASS_01: short-circuit when Supabase env is absent.
 async function fetchSnap(): Promise<any> {
+  if (!HAS_SB) return {};
   try {
     const r = await fetch(`${SB_URL}/rest/v1/sf_snapshot?limit=1`, { headers: SB_HDRS });
     if (!r.ok) return {};
@@ -133,6 +138,7 @@ async function fetchSnap(): Promise<any> {
 }
 
 async function fetchRealProperties(): Promise<any[]> {
+  if (!HAS_SB) return [];
   try {
     const r = await fetch(`${SB_URL}/rest/v1/sf_properties?order=id.asc`, { headers: SB_HDRS });
     if (!r.ok) return [];
@@ -655,7 +661,12 @@ function StocksTab({ scenarioId, onChanged }: { scenarioId: number; onChanged: (
   }
 
   async function remove(id: number) {
-    await fetch(`${SB_URL}/rest/v1/sf_scenario_stock_plans?id=eq.${id}`, { method: 'DELETE', headers: { ...SB_HDRS, 'Content-Type': 'application/json' } });
+    // FWL_ENV_VAR_WIRING_PASS_01: guarded.
+    if (HAS_SB) {
+      try {
+        await fetch(`${SB_URL}/rest/v1/sf_scenario_stock_plans?id=eq.${id}`, { method: 'DELETE', headers: { ...SB_HDRS, 'Content-Type': 'application/json' } });
+      } catch { /* ignore */ }
+    }
     setPlans(prev => prev.filter(p => p.id !== id));
     onChanged();
   }
@@ -767,7 +778,12 @@ function CryptoTab({ scenarioId, onChanged }: { scenarioId: number; onChanged: (
   }
 
   async function remove(id: number) {
-    await fetch(`${SB_URL}/rest/v1/sf_scenario_crypto_plans?id=eq.${id}`, { method: 'DELETE', headers: { ...SB_HDRS, 'Content-Type': 'application/json' } });
+    // FWL_ENV_VAR_WIRING_PASS_01: guarded.
+    if (HAS_SB) {
+      try {
+        await fetch(`${SB_URL}/rest/v1/sf_scenario_crypto_plans?id=eq.${id}`, { method: 'DELETE', headers: { ...SB_HDRS, 'Content-Type': 'application/json' } });
+      } catch { /* ignore */ }
+    }
     setPlans(prev => prev.filter(p => p.id !== id));
     onChanged();
   }

@@ -17,6 +17,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/finance-port/queryClient";
+import { getSbUrl } from "@/lib/finance-port/sbEnv";
 import { useAppStore } from "@/lib/finance-port/store";
 import { formatCurrency } from "@/lib/finance-port/finance";
 import { Input } from "@/components/ui/input";
@@ -63,14 +64,16 @@ import {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SUPABASE_URL  = "https://uoraduyyxhtzixcsaidg.supabase.co";
-const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c";
+// FWL_ENV_VAR_WIRING_PASS_01: env-sourced.
+const SUPABASE_URL  = getSbUrl();
+const SUPABASE_ANON = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
 const SB_HEADERS = {
   apikey: SUPABASE_ANON,
   Authorization: `Bearer ${SUPABASE_ANON}`,
   "Content-Type": "application/json",
   Prefer: "return=representation",
 };
+const HAS_SB = Boolean(SUPABASE_URL && SUPABASE_ANON);
 
 const CATEGORIES = ["Housing","Insurance","Utilities","Childcare","Subscriptions","Transport","Health","Finance","Other"];
 const FREQUENCIES = ["Weekly","Fortnightly","Monthly","Quarterly","Annual"];
@@ -244,65 +247,85 @@ function matchScore(
 }
 
 // ─── Supabase direct calls ────────────────────────────────────────────────────
+// FWL_ENV_VAR_WIRING_PASS_01: each helper short-circuits when Supabase config
+// is absent (stub env / missing env) and returns an empty / no-op result.
 
 async function sbGetOccurrences(billId?: number): Promise<BillOccurrence[]> {
-  const filter = billId ? `bill_id=eq.${billId}&` : "";
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/sf_bill_occurrences?${filter}order=due_date.desc&limit=200`,
-    { headers: SB_HEADERS }
-  );
-  if (!res.ok) return [];
-  return res.json();
+  if (!HAS_SB) return [];
+  try {
+    const filter = billId ? `bill_id=eq.${billId}&` : "";
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/sf_bill_occurrences?${filter}order=due_date.desc&limit=200`,
+      { headers: SB_HEADERS }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
 }
 
 async function sbUpsertOccurrence(data: Partial<BillOccurrence> & { bill_id: number; due_date: string }): Promise<BillOccurrence | null> {
-  const payload = { ...data, updated_at: new Date().toISOString() };
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/sf_bill_occurrences`, {
-    method: "POST",
-    headers: { ...SB_HEADERS, Prefer: "resolution=merge-duplicates,return=representation" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) return null;
-  const rows = await res.json();
-  return Array.isArray(rows) ? rows[0] : rows;
+  if (!HAS_SB) return null;
+  try {
+    const payload = { ...data, updated_at: new Date().toISOString() };
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/sf_bill_occurrences`, {
+      method: "POST",
+      headers: { ...SB_HEADERS, Prefer: "resolution=merge-duplicates,return=representation" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return Array.isArray(rows) ? rows[0] : rows;
+  } catch { return null; }
 }
 
 async function sbUpdateOccurrence(id: number, data: Partial<BillOccurrence>): Promise<void> {
-  await fetch(`${SUPABASE_URL}/rest/v1/sf_bill_occurrences?id=eq.${id}`, {
-    method: "PATCH",
-    headers: SB_HEADERS,
-    body: JSON.stringify({ ...data, updated_at: new Date().toISOString() }),
-  });
+  if (!HAS_SB) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/sf_bill_occurrences?id=eq.${id}`, {
+      method: "PATCH",
+      headers: SB_HEADERS,
+      body: JSON.stringify({ ...data, updated_at: new Date().toISOString() }),
+    });
+  } catch { /* ignore */ }
 }
 
 async function sbGetNotifLog(limit = 60): Promise<BillNotifLog[]> {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/sf_bill_notification_log?order=sent_at.desc&limit=${limit}`,
-    { headers: SB_HEADERS }
-  );
-  if (!res.ok) return [];
-  return res.json();
+  if (!HAS_SB) return [];
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/sf_bill_notification_log?order=sent_at.desc&limit=${limit}`,
+      { headers: SB_HEADERS }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
 }
 
 async function sbGetDailyDigestLog(limit = 14): Promise<{ id: number; digest_date: string; sent_at: string; status: string }[]> {
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/sf_daily_digest_log?order=digest_date.desc&limit=${limit}`,
-    { headers: SB_HEADERS }
-  );
-  if (!res.ok) return [];
-  return res.json();
+  if (!HAS_SB) return [];
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/sf_daily_digest_log?order=digest_date.desc&limit=${limit}`,
+      { headers: SB_HEADERS }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
 }
 
 /** Get expenses from last 30 days for matching */
 async function sbGetRecentExpenses(): Promise<any[]> {
-  const since = new Date(); since.setDate(since.getDate() - 30);
-  const sinceStr = since.toISOString().split("T")[0];
-  const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/sf_expenses?date=gte.${sinceStr}&order=date.desc&limit=200`,
-    { headers: SB_HEADERS }
-  );
-  if (!res.ok) return [];
-  return res.json();
+  if (!HAS_SB) return [];
+  try {
+    const since = new Date(); since.setDate(since.getDate() - 30);
+    const sinceStr = since.toISOString().split("T")[0];
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/sf_expenses?date=gte.${sinceStr}&order=date.desc&limit=200`,
+      { headers: SB_HEADERS }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch { return []; }
 }
 
 // ─── Default form ─────────────────────────────────────────────────────────────

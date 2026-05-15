@@ -13,6 +13,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { getSbUrl } from './sbEnv';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -163,8 +164,10 @@ export function generateYearlyFromProfile(profile: ForecastProfile): YearAssumpt
 
 // ─── Supabase helpers (direct fetch — no npm package) ─────────────────────────
 
-const SB_URL  = 'https://uoraduyyxhtzixcsaidg.supabase.co';
-const SB_KEY  = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_SUPABASE_ANON_KEY) ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcmFkdXl5eGh0eml4Y3NhaWRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjEwMTgsImV4cCI6MjA5MjY5NzAxOH0.qNrqDlG4j0lfGKDsmGyywP8DZeMurB02UWv4bdevW7c';
+// FWL_ENV_VAR_WIRING_PASS_01: env-sourced. The old VITE_ fallback for the
+// personal app's Vite build is gone — commercial is Next.js with NEXT_PUBLIC_*.
+const SB_URL = getSbUrl();
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const OWNER   = 'shahrokh-family-main';
 const HEADERS = {
   apikey: SB_KEY,
