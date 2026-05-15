@@ -58,7 +58,18 @@ export async function getEntitlements(
   }
 }
 
+// FWL_ENV_VAR_WIRING_PASS_01: tier names reconciled to canonical model
+// (free / starter / pro / family_office / founder). Accept legacy `"plus"`
+// rows from older subscriptions data by mapping them to `"starter"`.
 function normaliseTier(raw: unknown): SubscriptionTier {
-  if (raw === "founder" || raw === "plus" || raw === "pro") return raw;
+  if (
+    raw === "founder" ||
+    raw === "starter" ||
+    raw === "pro" ||
+    raw === "family_office"
+  ) {
+    return raw;
+  }
+  if (raw === "plus") return "starter";
   return "free";
 }

@@ -8,17 +8,28 @@
  * the default tier returned by `getEntitlements` (see `FOUNDER_MODE`).
  *
  * Commercial gating policy (future — wired but not enforced yet):
- *   • founder/admin/internal — Unlocks every feature. Default during build.
- *   • free  — Snapshot Command Centre, single household, basic input pages.
- *   • plus  — Adds Strategy modules, Baseline forecast, FIRE projection.
- *   • pro   — Adds Monte Carlo, Decision Engine, What-If, Compare, AI insights.
+ *   • founder        — Unlocks every feature. Default during build.
+ *   • free           — Snapshot Command Centre, single household, basic input pages.
+ *   • starter        — Adds Strategy modules, Baseline forecast, FIRE projection.
+ *   • pro            — Adds Monte Carlo, Decision Engine, What-If, Compare, AI insights.
+ *   • family_office  — Multi-household, advanced reports, white-glove tier.
+ *
+ * FWL_ENV_VAR_WIRING_PASS_01: canonical tier names reconciled with
+ * `src/lib/commercial/plans.ts` — the legacy `"plus"` enum value has been
+ * renamed to `"starter"`, and `"family_office"` has been added between
+ * `pro` and `founder`.
  *
  * Pages that surface a gated feature should call `canAccessFeature` —
  * because founder is at the top of TIER_RANK, founder mode bypasses every
  * gate. When commercial mode flips on, the same call enforces real tiers.
  */
 
-export type SubscriptionTier = "founder" | "free" | "plus" | "pro";
+export type SubscriptionTier =
+  | "founder"
+  | "free"
+  | "starter"
+  | "pro"
+  | "family_office";
 
 /**
  * Founder/internal mode toggle.
@@ -37,8 +48,9 @@ export const FOUNDER_MODE: boolean =
 
 export const TIER_RANK: Record<SubscriptionTier, number> = {
   free: 0,
-  plus: 1,
+  starter: 1,
   pro: 2,
+  family_office: 3,
   founder: 99, // Always above every commercial tier.
 };
 
@@ -91,14 +103,14 @@ export const FEATURE_MINIMUM_TIER: Record<FeatureKey, SubscriptionTier> = {
   "ledger.stocks": "free",
   "ledger.crypto": "free",
   "settings.assumptions": "free",
-  // Plus tier (future)
-  "strategy.plan": "plus",
-  "strategy.property": "plus",
-  "strategy.debt": "plus",
-  "strategy.tax": "plus",
-  "strategy.cgt": "plus",
-  "forecast.baseline": "plus",
-  "forecast.fire": "plus",
+  // Starter tier (future)
+  "strategy.plan": "starter",
+  "strategy.property": "starter",
+  "strategy.debt": "starter",
+  "strategy.tax": "starter",
+  "strategy.cgt": "starter",
+  "forecast.baseline": "starter",
+  "forecast.fire": "starter",
   // Pro tier (future)
   "forecast.monteCarlo": "pro",
   "decision.engine": "pro",
@@ -148,10 +160,11 @@ export function entitlementsFor(tier: SubscriptionTier): TierEntitlements {
 /** Pretty label for the tier (UI). */
 export function tierLabel(tier: SubscriptionTier): string {
   switch (tier) {
-    case "founder": return "Founder";
-    case "plus":    return "Plus";
-    case "pro":     return "Pro";
-    default:        return "Free";
+    case "founder":       return "Founder";
+    case "family_office": return "Family Office";
+    case "starter":       return "Starter";
+    case "pro":           return "Pro";
+    default:              return "Free";
   }
 }
 
